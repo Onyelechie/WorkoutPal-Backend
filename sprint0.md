@@ -5,7 +5,7 @@
 - [Backend GitHub Repository](https://github.com/Onyelechie/WorkoutPal-Backend)
 
 ## 2. Slides & Presentation
-- [Proposal Slides (PPTX)](./support_files/proposal_slides.pptx) 
+- [Proposal Slides (PDF)](./support_files/proposal_slides.pdf) 
 
 ## 3. Project Summary & Vision
 Our project is a **Gym Workout Tracking Application** designed to help users plan, log, and visualize their fitness progress in a simple and motivating way. The application allows users to create personal profiles, design customized workout routines, and track sessions with built-in timers for rest and recovery.  
