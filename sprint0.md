@@ -5,7 +5,7 @@
 - [Backend GitHub Repository](https://github.com/Onyelechie/WorkoutPal-Backend)
 
 ## 2. Slides & Presentation
-- [Proposal Slides (PDF)](./proposal_slides.pdf) 
+- [Proposal Slides (PPTX)](./support_files/proposal_slides.pptx) 
 
 ## 3. Project Summary & Vision
 Our project is a **Gym Workout Tracking Application** designed to help users plan, log, and visualize their fitness progress in a simple and motivating way. The application allows users to create personal profiles, design customized workout routines, and track sessions with built-in timers for rest and recovery.  
@@ -97,7 +97,7 @@ As someone who is goal oriented, I want to keep track of set goals for weight, b
 ---
 
 ## 5. Initial Architecture
-![Architecture Diagram](./architecture-diagram.png)
+![Architecture Diagram](./support_files/architecture-diagram.png)
 
 - **Frontend:** React.js  
   - Rich UI components, intuitive data control, large ecosystem.  
@@ -126,12 +126,12 @@ Coordination will be done through:
 ## ✅ Sprint 0 Checklist
 - [x] `sprint0.md` in repo root with working links  
 - [x] Repo URL included  
-- [ ] Proposal slides linked  
+- [x] Proposal slides linked  
 - [x] Project summary & vision  
 - [x] ≥4 core features + 1 non-functional feature  
 - [x] ≥2 additional features  
 - [x] User stories & acceptance criteria for core features  
-- [ ] Initial architecture diagram added  
+- [x] Initial architecture diagram added  
 - [x] Work division & coordination  
 
 ---
