@@ -121,6 +121,8 @@ Coordination will be done through:
 - **Pull request reviews** to ensure code quality.  
 - **Slack/Discord** for day-to-day communication.  
 
+For this sprint, we all contributed by having a discord call then an in class meeting to discuss what ideas to pursure and what technologies to use. Overall, for this sprint, everyone contributed equally to ideas. Ebere set up the github repositories and presentation while Taren made the high level architecture. 
+
 ---
 
 ## ✅ Sprint 0 Checklist
