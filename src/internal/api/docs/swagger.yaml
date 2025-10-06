@@ -1,0 +1,889 @@
+definitions:
+  model.BasicResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  model.Comment:
+    properties:
+      comment:
+        type: string
+      commentedBy:
+        type: string
+      date:
+        type: string
+    type: object
+  model.CommentOnPostRequest:
+    properties:
+      comment:
+        type: string
+      postId:
+        type: integer
+    type: object
+  model.CreateExerciseRequest:
+    properties:
+      demo:
+        type: string
+      expertise:
+        type: string
+      image:
+        type: string
+      intensity:
+        type: string
+      name:
+        type: string
+      recommendedCount:
+        type: integer
+      recommendedDuration:
+        type: integer
+      recommendedSets:
+        type: integer
+      targets:
+        items:
+          type: string
+        type: array
+    type: object
+  model.CreatePostRequest:
+    properties:
+      caption:
+        type: string
+      content:
+        type: string
+      title:
+        type: string
+    type: object
+  model.CreateUserRequest:
+    properties:
+      age:
+        type: integer
+      avatar:
+        type: string
+      email:
+        type: string
+      height:
+        type: number
+      heightMetric:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+      username:
+        type: string
+      weight:
+        type: number
+      weightMetric:
+        type: string
+    type: object
+  model.CreateWorkoutRequest:
+    properties:
+      exercises:
+        items:
+          $ref: '#/definitions/model.RegisteredExercise'
+        type: array
+      frequency:
+        type: string
+      name:
+        type: string
+      nextRound:
+        type: string
+    type: object
+  model.DeleteUserRequest:
+    properties:
+      id:
+        type: integer
+    type: object
+  model.Exercise:
+    properties:
+      custom:
+        type: boolean
+      demo:
+        type: string
+      expertise:
+        type: string
+      id:
+        type: integer
+      image:
+        type: string
+      intensity:
+        type: string
+      name:
+        type: string
+      recommendedCount:
+        type: integer
+      recommendedDuration:
+        type: integer
+      recommendedSets:
+        type: integer
+      targets:
+        items:
+          type: string
+        type: array
+    type: object
+  model.FollowRequest:
+    properties:
+      userID:
+        type: integer
+    type: object
+  model.LikePostRequest:
+    properties:
+      postID:
+        type: integer
+    type: object
+  model.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  model.Post:
+    properties:
+      caption:
+        type: string
+      comments:
+        items:
+          $ref: '#/definitions/model.Comment'
+        type: array
+      content:
+        type: string
+      date:
+        type: string
+      id:
+        type: integer
+      likes:
+        type: integer
+      postedBy:
+        type: string
+      title:
+        type: string
+    type: object
+  model.RegisteredExercise:
+    properties:
+      count:
+        type: integer
+      duration:
+        type: integer
+      endTime:
+        type: string
+      exercise:
+        $ref: '#/definitions/model.Exercise'
+      sets:
+        type: integer
+      startTime:
+        type: string
+    type: object
+  model.UpdateUserRequest:
+    properties:
+      age:
+        type: integer
+      avatar:
+        type: string
+      email:
+        type: string
+      height:
+        type: number
+      heightMetric:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      password:
+        type: string
+      username:
+        type: string
+      weight:
+        type: number
+      weightMetric:
+        type: string
+    type: object
+  model.UpdateWorkoutRequest:
+    properties:
+      exercises:
+        items:
+          $ref: '#/definitions/model.RegisteredExercise'
+        type: array
+      frequency:
+        type: string
+      name:
+        type: string
+      nextRound:
+        type: string
+    type: object
+  model.User:
+    properties:
+      age:
+        type: integer
+      avatar:
+        type: string
+      email:
+        type: string
+      height:
+        type: number
+      heightMetric:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      username:
+        type: string
+      weight:
+        type: number
+      weightMetric:
+        type: string
+    type: object
+  model.Workout:
+    properties:
+      exercises:
+        items:
+          $ref: '#/definitions/model.RegisteredExercise'
+        type: array
+      frequency:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      nextRound:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /exercises:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Primary target muscle
+        in: query
+        name: target
+        type: string
+      - description: Training intensity
+        in: query
+        name: intensity
+        type: string
+      - description: Recommended expertise level
+        in: query
+        name: expertise
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Exercises retrieved successfully
+          schema:
+            items:
+              $ref: '#/definitions/model.Exercise'
+            type: array
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+      security:
+      - BearerAuth: []
+      summary: List exercises
+      tags:
+      - Exercises
+    post:
+      consumes:
+      - application/json
+      description: Creates a custom exercise with metadata such as targets, intensity,
+        expertise, and media references.
+      parameters:
+      - description: New exercise payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreateExerciseRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Exercise created successfully
+          schema:
+            $ref: '#/definitions/model.Exercise'
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a new exercise
+      tags:
+      - Exercises
+  /login:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Login credentials including email and password
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful login
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+      summary: Authenticates a user and issues an access token
+      tags:
+      - Authentication
+  /logout:
+    post:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Logout successful
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+      summary: Logs out an authenticated user and invalidates their session
+      tags:
+      - Authentication
+  /posts:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: If true, only posts from followed users are returned
+        in: query
+        name: followings
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Posts retrieved successfully
+          schema:
+            items:
+              $ref: '#/definitions/model.Post'
+            type: array
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+      security:
+      - BearerAuth: []
+      summary: List posts
+      tags:
+      - Posts
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: New post payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreatePostRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Post created successfully
+          schema:
+            $ref: '#/definitions/model.Post'
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a new post
+      tags:
+      - Posts
+  /posts/comment:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Target post and comment text
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.CommentOnPostRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Comment added successfully
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+      security:
+      - BearerAuth: []
+      summary: Comment on a post
+      tags:
+      - Posts
+  /posts/like:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Target post to like
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.LikePostRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Post liked successfully
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+      security:
+      - BearerAuth: []
+      summary: Like a post
+      tags:
+      - Posts
+  /relationships/follow:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: User to follow (userID)
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.FollowRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Followed successfully
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+      security:
+      - BearerAuth: []
+      summary: Follow a user
+      tags:
+      - Relationships
+  /relationships/unfollow:
+    post:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Unfollowed successfully
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+      security:
+      - BearerAuth: []
+      summary: Unfollow a user
+      tags:
+      - Relationships
+  /users:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: DeleteUser request containing the user ID
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.DeleteUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User deleted successfully
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete a user
+      tags:
+      - Users
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Users retrieved successfully
+          schema:
+            items:
+              $ref: '#/definitions/model.User'
+            type: array
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+      security:
+      - BearerAuth: []
+      summary: List users
+      tags:
+      - Users
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: New user payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: User created successfully
+          schema:
+            $ref: '#/definitions/model.User'
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a new user
+      tags:
+      - Users
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Updated user payload (must include ID)
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User updated successfully
+          schema:
+            $ref: '#/definitions/model.User'
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+      security:
+      - BearerAuth: []
+      summary: Update an existing user
+      tags:
+      - Users
+  /users/{id}/followers:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Followers retrieved successfully
+          schema:
+            items:
+              $ref: '#/definitions/model.User'
+            type: array
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+      security:
+      - BearerAuth: []
+      summary: List a user's followers
+      tags:
+      - Relationships
+  /users/{id}/followings:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Followings retrieved successfully
+          schema:
+            items:
+              $ref: '#/definitions/model.User'
+            type: array
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+      security:
+      - BearerAuth: []
+      summary: List users that the target user is following
+      tags:
+      - Relationships
+  /workouts:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Workouts retrieved successfully
+          schema:
+            items:
+              $ref: '#/definitions/model.Workout'
+            type: array
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+      security:
+      - BearerAuth: []
+      summary: List workouts
+      tags:
+      - Workouts
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: New workout payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreateWorkoutRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Workout created successfully
+          schema:
+            $ref: '#/definitions/model.Workout'
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a new workout
+      tags:
+      - Workouts
+  /workouts/{id}:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Workout ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated workout payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdateWorkoutRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Workout updated successfully
+          schema:
+            $ref: '#/definitions/model.Workout'
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+      security:
+      - BearerAuth: []
+      summary: Update an existing workout
+      tags:
+      - Workouts
+swagger: "2.0"
