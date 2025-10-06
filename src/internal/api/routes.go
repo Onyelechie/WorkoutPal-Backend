@@ -3,6 +3,7 @@ package api
 import (
 	"net/http"
 	"workoutpal/src/internal/api/docs"
+	"workoutpal/src/internal/handler"
 	"workoutpal/src/mock_internal/mock_handler"
 
 	"github.com/go-chi/chi/v5"
@@ -19,9 +20,9 @@ func RegisterRoutes() http.Handler {
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 
-	// --- Init Mock Handlers ---
+	// --- Init Handlers ---
 	mockAuthHandler := mock_handler.NewMockAuthHandler()
-	mockUserHandler := mock_handler.NewMockUserHandler()
+	userHandler := handler.NewUserHandler()
 	mockRelationshipHandler := mock_handler.NewMockRelationshipHandler()
 	mockPostHandler := mock_handler.NewMockPostHandler()
 	mockExerciseHandler := mock_handler.NewMockExerciseHandler()
@@ -33,10 +34,21 @@ func RegisterRoutes() http.Handler {
 
 	// Users
 	r.Route("/users", func(r chi.Router) {
-		r.Get("/", mockUserHandler.ReadAllUsers)
-		r.Post("/", mockUserHandler.CreateNewUser)
-		r.Patch("/{id}", mockUserHandler.UpdateUser)
-		r.Delete("/{id}", mockUserHandler.DeleteUser)
+		r.Get("/", userHandler.ReadAllUsers)
+		r.Post("/", userHandler.CreateNewUser)
+		r.Get("/{id}", userHandler.GetUserByID)
+		r.Patch("/{id}", userHandler.UpdateUser)
+		r.Delete("/{id}", userHandler.DeleteUser)
+		// User Goals
+		r.Post("/{id}/goals", userHandler.CreateUserGoal)
+		r.Get("/{id}/goals", userHandler.GetUserGoals)
+		// User Followers
+		r.Post("/{id}/follow", userHandler.FollowUser)
+		r.Get("/{id}/followers", userHandler.GetUserFollowers)
+		r.Get("/{id}/following", userHandler.GetUserFollowing)
+		// User Routines
+		r.Post("/{id}/routines", userHandler.CreateUserRoutine)
+		r.Get("/{id}/routines", userHandler.GetUserRoutines)
 	})
 
 	// Relationships
