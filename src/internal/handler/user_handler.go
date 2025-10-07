@@ -3,12 +3,17 @@ package handler
 import (
 	"net/http"
 	"workoutpal/src/internal/domain/handler"
+	"workoutpal/src/internal/domain/service"
 )
 
-type userHandler struct{}
+type userHandler struct {
+	userService service.UserService
+}
 
-func NewUserHandler() handler.UserHandler {
-	return &userHandler{}
+func NewUserHandler(us service.UserService) handler.UserHandler {
+	return &userHandler{
+		userService: us,
+	}
 }
 
 // CreateNewUser godoc
