@@ -12,6 +12,9 @@ type User struct {
 	HeightMetric string            `json:"heightMetric"`
 	Weight       float64           `json:"weight"`
 	WeightMetric string            `json:"weightMetric"`
+	GoogleID     string            `json:"googleId,omitempty"`
+	Provider     string            `json:"provider,omitempty"`
+	IsVerified   bool              `json:"isVerified"`
 	Posts        []Post            `json:"posts,omitempty"`
 	Followers    []int64           `json:"followers,omitempty"`
 	Following    []int64           `json:"following,omitempty"`
@@ -21,14 +24,13 @@ type User struct {
 }
 
 type Goal struct {
-	ID          int64   `json:"id"`
-	UserID      int64   `json:"userId"`
-	Type        string  `json:"type"` // "weight", "body_fat", "lift"
-	TargetValue float64 `json:"targetValue"`
-	CurrentValue float64 `json:"currentValue"`
-	TargetDate  string  `json:"targetDate"`
-	CreatedAt   string  `json:"createdAt"`
-	Status      string  `json:"status"` // "active", "completed", "paused"
+	ID          int64  `json:"id"`
+	UserID      int64  `json:"userId"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Deadline    string `json:"deadline"`
+	CreatedAt   string `json:"createdAt"`
+	Status      string `json:"status"` // "active", "completed", "paused"
 }
 
 type UserAchievement struct {
@@ -82,19 +84,30 @@ type DeleteUserRequest struct {
 }
 
 type CreateGoalRequest struct {
-	Type        string  `json:"type"`
-	TargetValue float64 `json:"targetValue"`
-	TargetDate  string  `json:"targetDate"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Deadline    string `json:"deadline"`
 }
 
 type UpdateGoalRequest struct {
-	ID           int64   `json:"id"`
-	CurrentValue float64 `json:"currentValue"`
-	Status       string  `json:"status"`
+	ID          int64  `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Deadline    string `json:"deadline"`
+	Status      string `json:"status"`
 }
 
 type CreateRoutineRequest struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
 	ExerciseIDs []int64 `json:"exerciseIds"`
+}
+
+type GoogleAuthRequest struct {
+	IDToken string `json:"idToken"`
+}
+
+type AuthResponse struct {
+	Token string `json:"token"`
+	User  User   `json:"user"`
 }

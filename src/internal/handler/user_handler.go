@@ -7,6 +7,7 @@ import (
 	"workoutpal/src/internal/domain/handler"
 	"workoutpal/src/internal/domain/service"
 	"workoutpal/src/internal/model"
+	"workoutpal/src/internal/util"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
@@ -30,9 +31,25 @@ func (u *userHandler) CreateNewUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if req.Username == "" || req.Email == "" || req.Name == "" {
+	// Validate input
+	if err := util.ValidateUsername(req.Username); err != nil {
 		render.Status(r, http.StatusBadRequest)
-		render.JSON(w, r, model.BasicResponse{Message: "Username, email, and name are required"})
+		render.JSON(w, r, model.BasicResponse{Message: err.Error()})
+		return
+	}
+	if err := util.ValidateEmail(req.Email); err != nil {
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, model.BasicResponse{Message: err.Error()})
+		return
+	}
+	if err := util.ValidateName(req.Name); err != nil {
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, model.BasicResponse{Message: err.Error()})
+		return
+	}
+	if err := util.ValidatePassword(req.Password); err != nil {
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, model.BasicResponse{Message: err.Error()})
 		return
 	}
 

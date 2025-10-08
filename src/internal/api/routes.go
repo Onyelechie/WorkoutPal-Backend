@@ -51,9 +51,18 @@ func Routes(r chi.Router) http.Handler {
 
 	// --- Init Handlers ---
 	userHandler := handler.NewUserHandler(userService)
+	authHandler := handler.NewAuthHandler(userService)
 
 	// --- Init Middleware ---
 	var idMiddleware = middleware2.IdMiddleware()
+
+	// Health check
+	r.Get("/health", handler.HealthCheck)
+
+	// Auth routes
+	r.Route("/auth", func(r chi.Router) {
+		r.Post("/google", authHandler.GoogleAuth)
+	})
 
 	// --- Register Routes ---
 	r.Route("/users", func(r chi.Router) {

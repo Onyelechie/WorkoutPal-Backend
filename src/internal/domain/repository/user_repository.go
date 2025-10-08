@@ -11,6 +11,8 @@ type UserRepository interface {
 	// Goals
 	CreateGoal(userID int64, request model.CreateGoalRequest) (model.Goal, error)
 	GetUserGoals(userID int64) ([]model.Goal, error)
+	UpdateGoal(request model.UpdateGoalRequest) (model.Goal, error)
+	DeleteGoal(goalID int64) error
 	// Followers
 	FollowUser(followerID, followeeID int64) error
 	GetUserFollowers(userID int64) ([]int64, error)
@@ -18,4 +20,5 @@ type UserRepository interface {
 	// Routines
 	CreateRoutine(userID int64, request model.CreateRoutineRequest) (model.ExerciseRoutine, error)
 	GetUserRoutines(userID int64) ([]model.ExerciseRoutine, error)
+	DeleteRoutine(routineID int64) error
 }
