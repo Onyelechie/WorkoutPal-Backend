@@ -51,16 +51,36 @@ func Routes(r chi.Router) http.Handler {
 
 	// --- Init Handlers ---
 	userHandler := handler.NewUserHandler(userService)
+	authHandler := handler.NewAuthHandler(userService)
 
 	// --- Init Middleware ---
 	var idMiddleware = middleware2.IdMiddleware()
+
+	// Health check
+	r.Get("/health", handler.HealthCheck)
+
+	// Auth routes
+	r.Route("/auth", func(r chi.Router) {
+		r.Post("/google", authHandler.GoogleAuth)
+	})
 
 	// --- Register Routes ---
 	r.Route("/users", func(r chi.Router) {
 		r.Post("/", userHandler.CreateNewUser)
 		r.Get("/", userHandler.ReadAllUsers)
+		r.With(idMiddleware).Get("/{id}", userHandler.GetUserByID)
 		r.With(idMiddleware).Patch("/{id}", userHandler.UpdateUser)
 		r.With(idMiddleware).Delete("/{id}", userHandler.DeleteUser)
+		// User Goals
+		r.With(idMiddleware).Post("/{id}/goals", userHandler.CreateUserGoal)
+		r.With(idMiddleware).Get("/{id}/goals", userHandler.GetUserGoals)
+		// User Followers
+		r.With(idMiddleware).Post("/{id}/follow", userHandler.FollowUser)
+		r.With(idMiddleware).Get("/{id}/followers", userHandler.GetUserFollowers)
+		r.With(idMiddleware).Get("/{id}/following", userHandler.GetUserFollowing)
+		// User Routines
+		r.With(idMiddleware).Post("/{id}/routines", userHandler.CreateUserRoutine)
+		r.With(idMiddleware).Get("/{id}/routines", userHandler.GetUserRoutines)
 	})
 
 	return r

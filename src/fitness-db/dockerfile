@@ -1,0 +1,13 @@
+# Use official PostgreSQL image
+FROM postgres:16
+
+# Set up environment variables for default user, password, and database
+ENV POSTGRES_USER=user
+ENV POSTGRES_PASSWORD=password
+ENV POSTGRES_DB=workoutpal
+
+# Copy your schema file into the image
+COPY schema.sql /docker-entrypoint-initdb.d/
+
+# Expose PostgreSQL’s default port
+EXPOSE 5432
