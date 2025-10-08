@@ -19,6 +19,16 @@ func NewAuthHandler(us service.UserService) *authHandler {
 	}
 }
 
+// GoogleAuth godoc
+// @Summary Authenticate with Google OAuth
+// @Tags Authentication
+// @Accept json
+// @Produce json
+// @Param request body model.GoogleAuthRequest true "Google ID token"
+// @Success 200 {object} model.AuthResponse "Authentication successful"
+// @Failure 400 {object} model.BasicResponse "Invalid request or token"
+// @Failure 401 {object} model.BasicResponse "Authentication failed"
+// @Router /auth/google [post]
 func (a *authHandler) GoogleAuth(w http.ResponseWriter, r *http.Request) {
 	var req model.GoogleAuthRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {

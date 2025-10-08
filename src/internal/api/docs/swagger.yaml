@@ -1,4 +1,11 @@
 definitions:
+  model.AuthResponse:
+    properties:
+      token:
+        type: string
+      user:
+        $ref: '#/definitions/model.User'
+    type: object
   model.BasicResponse:
     properties:
       message:
@@ -43,6 +50,15 @@ definitions:
           type: string
         type: array
     type: object
+  model.CreateGoalRequest:
+    properties:
+      deadline:
+        type: string
+      description:
+        type: string
+      name:
+        type: string
+    type: object
   model.CreatePostRequest:
     properties:
       caption:
@@ -50,6 +66,17 @@ definitions:
       content:
         type: string
       title:
+        type: string
+    type: object
+  model.CreateRoutineRequest:
+    properties:
+      description:
+        type: string
+      exerciseIds:
+        items:
+          type: integer
+        type: array
+      name:
         type: string
     type: object
   model.CreateUserRequest:
@@ -88,11 +115,6 @@ definitions:
       nextRound:
         type: string
     type: object
-  model.DeleteUserRequest:
-    properties:
-      id:
-        type: integer
-    type: object
   model.Exercise:
     properties:
       custom:
@@ -120,22 +142,57 @@ definitions:
           type: string
         type: array
     type: object
+  model.ExerciseRoutine:
+    properties:
+      createdAt:
+        type: string
+      description:
+        type: string
+      exercises:
+        items:
+          $ref: '#/definitions/model.Exercise'
+        type: array
+      id:
+        type: integer
+      isActive:
+        type: boolean
+      name:
+        type: string
+      userId:
+        type: integer
+    type: object
   model.FollowRequest:
     properties:
       userID:
         type: integer
     type: object
+  model.Goal:
+    properties:
+      createdAt:
+        type: string
+      deadline:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      status:
+        description: '"active", "completed", "paused"'
+        type: string
+      userId:
+        type: integer
+    type: object
+  model.GoogleAuthRequest:
+    properties:
+      idToken:
+        type: string
+    type: object
   model.LikePostRequest:
     properties:
       postID:
         type: integer
-    type: object
-  model.LoginRequest:
-    properties:
-      email:
-        type: string
-      password:
-        type: string
     type: object
   model.Post:
     properties:
@@ -213,11 +270,29 @@ definitions:
     type: object
   model.User:
     properties:
+      achievements:
+        items:
+          $ref: '#/definitions/model.UserAchievement'
+        type: array
       age:
         type: integer
       avatar:
         type: string
       email:
+        type: string
+      followers:
+        items:
+          type: integer
+        type: array
+      following:
+        items:
+          type: integer
+        type: array
+      goals:
+        items:
+          $ref: '#/definitions/model.Goal'
+        type: array
+      googleId:
         type: string
       height:
         type: number
@@ -225,14 +300,41 @@ definitions:
         type: string
       id:
         type: integer
+      isVerified:
+        type: boolean
       name:
         type: string
+      posts:
+        items:
+          $ref: '#/definitions/model.Post'
+        type: array
+      provider:
+        type: string
+      routines:
+        items:
+          $ref: '#/definitions/model.ExerciseRoutine'
+        type: array
       username:
         type: string
       weight:
         type: number
       weightMetric:
         type: string
+    type: object
+  model.UserAchievement:
+    properties:
+      badgeIcon:
+        type: string
+      description:
+        type: string
+      earnedAt:
+        type: string
+      id:
+        type: integer
+      title:
+        type: string
+      userId:
+        type: integer
     type: object
   model.Workout:
     properties:
@@ -252,6 +354,35 @@ definitions:
 info:
   contact: {}
 paths:
+  /auth/google:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Google ID token
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.GoogleAuthRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Authentication successful
+          schema:
+            $ref: '#/definitions/model.AuthResponse'
+        "400":
+          description: Invalid request or token
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "401":
+          description: Authentication failed
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+      summary: Authenticate with Google OAuth
+      tags:
+      - Authentication
   /exercises:
     get:
       consumes:
@@ -331,63 +462,6 @@ paths:
       summary: Create a new exercise
       tags:
       - Exercises
-  /login:
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: Login credentials including email and password
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/model.LoginRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Successful login
-          schema:
-            $ref: '#/definitions/model.BasicResponse'
-        "400":
-          description: Validation error
-          schema:
-            $ref: '#/definitions/model.BasicResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/model.BasicResponse'
-        "500":
-          description: Internal server error
-          schema:
-            $ref: '#/definitions/model.BasicResponse'
-      summary: Authenticates a user and issues an access token
-      tags:
-      - Authentication
-  /logout:
-    post:
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Logout successful
-          schema:
-            $ref: '#/definitions/model.BasicResponse'
-        "400":
-          description: Validation error
-          schema:
-            $ref: '#/definitions/model.BasicResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/model.BasicResponse'
-        "500":
-          description: Internal server error
-          schema:
-            $ref: '#/definitions/model.BasicResponse'
-      summary: Logs out an authenticated user and invalidates their session
-      tags:
-      - Authentication
   /posts:
     get:
       consumes:
@@ -591,43 +665,7 @@ paths:
       tags:
       - Relationships
   /users:
-    delete:
-      consumes:
-      - application/json
-      parameters:
-      - description: DeleteUser request containing the user ID
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/model.DeleteUserRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: User deleted successfully
-          schema:
-            $ref: '#/definitions/model.BasicResponse'
-        "400":
-          description: Validation error
-          schema:
-            $ref: '#/definitions/model.BasicResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/model.BasicResponse'
-        "500":
-          description: Internal server error
-          schema:
-            $ref: '#/definitions/model.BasicResponse'
-      security:
-      - BearerAuth: []
-      summary: Delete a user
-      tags:
-      - Users
     get:
-      consumes:
-      - application/json
       produces:
       - application/json
       responses:
@@ -637,21 +675,11 @@ paths:
             items:
               $ref: '#/definitions/model.User'
             type: array
-        "400":
-          description: Validation error
-          schema:
-            $ref: '#/definitions/model.BasicResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/model.BasicResponse'
         "500":
           description: Internal server error
           schema:
             $ref: '#/definitions/model.BasicResponse'
-      security:
-      - BearerAuth: []
-      summary: List users
+      summary: Get all users
       tags:
       - Users
     post:
@@ -688,11 +716,67 @@ paths:
       summary: Create a new user
       tags:
       - Users
-    put:
+  /users/{id}:
+    delete:
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User deleted successfully
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "400":
+          description: Invalid user ID
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+      summary: Delete user by ID
+      tags:
+      - Users
+    get:
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User retrieved successfully
+          schema:
+            $ref: '#/definitions/model.User'
+        "400":
+          description: Invalid user ID
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+      summary: Get user by ID
+      tags:
+      - Users
+    patch:
       consumes:
       - application/json
       parameters:
-      - description: Updated user payload (must include ID)
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Update user payload
         in: body
         name: request
         required: true
@@ -709,49 +793,98 @@ paths:
           description: Validation error
           schema:
             $ref: '#/definitions/model.BasicResponse'
-        "401":
-          description: Unauthorized
+        "404":
+          description: User not found
           schema:
             $ref: '#/definitions/model.BasicResponse'
-        "500":
-          description: Internal server error
-          schema:
-            $ref: '#/definitions/model.BasicResponse'
-      security:
-      - BearerAuth: []
-      summary: Update an existing user
+      summary: Update user by ID
       tags:
       - Users
-  /users/{id}/followers:
-    get:
-      consumes:
-      - application/json
+  /users/{id}/follow:
+    post:
+      parameters:
+      - description: User ID to follow
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Follower user ID
+        in: query
+        name: follower_id
+        required: true
+        type: integer
       produces:
       - application/json
       responses:
         "200":
-          description: Followers retrieved successfully
+          description: Successfully followed user
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "400":
+          description: Invalid user ID
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+      summary: Follow a user
+      tags:
+      - Social
+  /users/{id}/followers:
+    get:
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Follower IDs retrieved successfully
           schema:
             items:
-              $ref: '#/definitions/model.User'
+              format: int64
+              type: integer
             type: array
         "400":
-          description: Validation error
+          description: Invalid user ID
           schema:
             $ref: '#/definitions/model.BasicResponse'
-        "401":
-          description: Unauthorized
+        "404":
+          description: User not found
           schema:
             $ref: '#/definitions/model.BasicResponse'
-        "500":
-          description: Internal server error
-          schema:
-            $ref: '#/definitions/model.BasicResponse'
-      security:
-      - BearerAuth: []
-      summary: List a user's followers
+      summary: Get user followers
       tags:
-      - Relationships
+      - Social
+  /users/{id}/following:
+    get:
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Following IDs retrieved successfully
+          schema:
+            items:
+              format: int64
+              type: integer
+            type: array
+        "400":
+          description: Invalid user ID
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+      summary: Get users being followed
+      tags:
+      - Social
   /users/{id}/followings:
     get:
       consumes:
@@ -782,6 +915,128 @@ paths:
       summary: List users that the target user is following
       tags:
       - Relationships
+  /users/{id}/goals:
+    get:
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Goals retrieved successfully
+          schema:
+            items:
+              $ref: '#/definitions/model.Goal'
+            type: array
+        "400":
+          description: Invalid user ID
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+      summary: Get all goals for a user
+      tags:
+      - Goals
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Goal payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreateGoalRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Goal created successfully
+          schema:
+            $ref: '#/definitions/model.Goal'
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+      summary: Create a goal for user
+      tags:
+      - Goals
+  /users/{id}/routines:
+    get:
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Routines retrieved successfully
+          schema:
+            items:
+              $ref: '#/definitions/model.ExerciseRoutine'
+            type: array
+        "400":
+          description: Invalid user ID
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+      summary: Get all routines for a user
+      tags:
+      - Routines
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Routine payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreateRoutineRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Routine created successfully
+          schema:
+            $ref: '#/definitions/model.ExerciseRoutine'
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+      summary: Create a workout routine for user
+      tags:
+      - Routines
   /workouts:
     get:
       consumes:
