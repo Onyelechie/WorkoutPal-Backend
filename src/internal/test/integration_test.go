@@ -114,8 +114,8 @@ func TestIntegration_FollowWorkflow(t *testing.T) {
 
 	// Create two users
 	users := []model.CreateUserRequest{
-		{Username: "user1", Email: "user1@example.com", Name: "User 1"},
-		{Username: "user2", Email: "user2@example.com", Name: "User 2"},
+		{Username: "user1", Email: "user1@example.com", Name: "User 1", Password: "password123"},
+		{Username: "user2", Email: "user2@example.com", Name: "User 2", Password: "password123"},
 	}
 
 	var createdUsers []model.User
@@ -171,6 +171,7 @@ func TestIntegration_RoutineWorkflow(t *testing.T) {
 		Username: "routineuser",
 		Email:    "routine@example.com",
 		Name:     "Routine User",
+		Password: "password123",
 	}
 
 	body, _ := json.Marshal(userReq)
