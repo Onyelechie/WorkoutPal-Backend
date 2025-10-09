@@ -11,6 +11,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/rs/cors"
 	httpSwagger "github.com/swaggo/http-swagger"
 )
 
@@ -39,7 +40,19 @@ func RegisterRoutes() http.Handler {
 		httpSwagger.InstanceName(docs.SwaggerInfo.InstanceName()),
 	))
 
-	return r
+	// CORS middleware
+	corsHandler := cors.New(cors.Options{
+		AllowedOrigins: []string{
+			// TODO read this from config
+			"http://localhost:4200",
+			"'http://localhost:5173",
+		},
+		AllowCredentials: true,
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Content-Type", "Authorization"},
+	}).Handler(r)
+
+	return corsHandler
 }
 
 func Routes(r chi.Router) http.Handler {
