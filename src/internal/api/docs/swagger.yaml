@@ -596,6 +596,113 @@ paths:
       summary: Like a post
       tags:
       - Posts
+  /routines/{id}:
+    delete:
+      parameters:
+      - description: Routine ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Routine deleted successfully
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "400":
+          description: Invalid routine ID
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "404":
+          description: Routine not found
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+      summary: Delete a routine
+      tags:
+      - Routines
+    get:
+      parameters:
+      - description: Routine ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Routine with exercises retrieved successfully
+          schema:
+            $ref: '#/definitions/model.ExerciseRoutine'
+        "400":
+          description: Invalid routine ID
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "404":
+          description: Routine not found
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+      summary: Get routine with exercises
+      tags:
+      - Routines
+  /routines/{id}/exercises:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Routine ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Exercise ID
+        in: query
+        name: exercise_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Exercise added to routine successfully
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "400":
+          description: Invalid ID
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+      summary: Add exercise to routine
+      tags:
+      - Routines
+  /routines/{id}/exercises/{exercise_id}:
+    delete:
+      parameters:
+      - description: Routine ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Exercise ID
+        in: path
+        name: exercise_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Exercise removed from routine successfully
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "400":
+          description: Invalid ID
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+      summary: Remove exercise from routine
+      tags:
+      - Routines
   /users:
     get:
       produces:
@@ -939,6 +1046,64 @@ paths:
       summary: Create a workout routine for user
       tags:
       - Routines
+  /users/{id}/routines/{routine_id}:
+    delete:
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Routine ID
+        in: path
+        name: routine_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Routine deleted successfully
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "400":
+          description: Invalid ID
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "404":
+          description: Routine not found
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+      summary: Delete user's routine
+      tags:
+      - Routines
+  /users/{id}/unfollow:
+    post:
+      parameters:
+      - description: User ID to unfollow
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Follower user ID
+        in: query
+        name: follower_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully unfollowed user
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "400":
+          description: Invalid user ID
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+      summary: Unfollow a user
+      tags:
+      - Relationships
   /workouts:
     get:
       consumes:

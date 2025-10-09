@@ -317,3 +317,47 @@ func (u *inMemoryUserRepository) DeleteRoutine(routineID int64) error {
 	delete(u.routines, routineID)
 	return nil
 }
+
+func (u *inMemoryUserRepository) GetRoutineWithExercises(routineID int64) (model.ExerciseRoutine, error) {
+	u.mutex.RLock()
+	defer u.mutex.RUnlock()
+
+	routine, exists := u.routines[routineID]
+	if !exists {
+		return model.ExerciseRoutine{}, errors.New("routine not found")
+	}
+	return *routine, nil
+}
+
+func (u *inMemoryUserRepository) AddExerciseToRoutine(routineID, exerciseID int64) error {
+	u.mutex.Lock()
+	defer u.mutex.Unlock()
+
+	routine, exists := u.routines[routineID]
+	if !exists {
+		return errors.New("routine not found")
+	}
+
+	// Mock exercise data
+	exercise := model.Exercise{ID: exerciseID, Name: "Exercise"}
+	routine.Exercises = append(routine.Exercises, exercise)
+	return nil
+}
+
+func (u *inMemoryUserRepository) RemoveExerciseFromRoutine(routineID, exerciseID int64) error {
+	u.mutex.Lock()
+	defer u.mutex.Unlock()
+
+	routine, exists := u.routines[routineID]
+	if !exists {
+		return errors.New("routine not found")
+	}
+
+	for i, exercise := range routine.Exercises {
+		if exercise.ID == exerciseID {
+			routine.Exercises = append(routine.Exercises[:i], routine.Exercises[i+1:]...)
+			break
+		}
+	}
+	return nil
+}

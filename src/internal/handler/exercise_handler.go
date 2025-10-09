@@ -3,12 +3,20 @@ package handler
 import (
 	"net/http"
 	"workoutpal/src/internal/domain/handler"
+	"workoutpal/src/internal/domain/service"
+	"workoutpal/src/internal/model"
+
+	"github.com/go-chi/render"
 )
 
-type exerciseHandler struct{}
+type exerciseHandler struct {
+	exerciseService service.ExerciseService
+}
 
-func NewExerciseHandler() handler.ExerciseHandler {
-	return &exerciseHandler{}
+func NewExerciseHandler(es service.ExerciseService) handler.ExerciseHandler {
+	return &exerciseHandler{
+		exerciseService: es,
+	}
 }
 
 // ReadExercises godoc
@@ -26,8 +34,13 @@ func NewExerciseHandler() handler.ExerciseHandler {
 // @Security BearerAuth
 // @Router /exercises [get]
 func (h *exerciseHandler) ReadExercises(w http.ResponseWriter, r *http.Request) {
-	//TODO implement me
-	panic("implement me")
+	exercises, err := h.exerciseService.GetAllExercises()
+	if err != nil {
+		render.Status(r, http.StatusInternalServerError)
+		render.JSON(w, r, model.BasicResponse{Message: err.Error()})
+		return
+	}
+	render.JSON(w, r, exercises)
 }
 
 // CreateExercise godoc

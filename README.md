@@ -102,14 +102,28 @@ go test ./src/internal/test/repository_test.go -v
 - `POST /users/{id}/goals` - Create user goal
 - `GET /users/{id}/goals` - Get user goals
 
-### Social
+### Social/Relationships
 - `POST /users/{id}/follow` - Follow user
+- `POST /users/{id}/unfollow` - Unfollow user
 - `GET /users/{id}/followers` - Get user followers
 - `GET /users/{id}/following` - Get users being followed
 
-### Routines
+### User Routines
 - `POST /users/{id}/routines` - Create workout routine
 - `GET /users/{id}/routines` - Get user routines
+- `DELETE /users/{id}/routines/{routine_id}` - Delete user's routine
+
+### Exercises
+- `GET /exercises` - Get all exercises
+
+### Routines (Direct Access)
+- `GET /routines/{id}` - Get routine with exercises
+- `DELETE /routines/{id}` - Delete routine
+- `POST /routines/{id}/exercises?exercise_id={exercise_id}` - Add exercise to routine
+- `DELETE /routines/{id}/exercises/{exercise_id}` - Remove exercise from routine
+
+### Authentication
+- `POST /auth/google` - Google OAuth authentication
 
 ## Database Schema
 
@@ -164,6 +178,83 @@ swag init -g src/cmd/api/main.go -o src/internal/api/docs
 ```
 
 3. Restart the server to see updated documentation
+
+## Manual Testing
+
+### Start the Server
+```bash
+go run src/cmd/api/main.go
+```
+
+### Test Scripts
+Create and run these curl commands to test the API:
+
+#### Create a User
+```bash
+curl -X POST http://localhost:8080/users \
+  -H "Content-Type: application/json" \
+  -d '{"username":"testuser","email":"test@example.com","name":"Test User","password":"password123"}'
+```
+
+#### Get All Users
+```bash
+curl http://localhost:8080/users
+```
+
+#### Get All Exercises
+```bash
+curl http://localhost:8080/exercises
+```
+
+#### Create a Goal
+```bash
+curl -X POST http://localhost:8080/users/1/goals \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Weight Loss","description":"Lose 10kg","deadline":"2024-12-31"}'
+```
+
+#### Create a Routine
+```bash
+curl -X POST http://localhost:8080/users/1/routines \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Morning Workout","description":"Daily routine"}'
+```
+
+#### Add Exercise to Routine
+```bash
+curl -X POST "http://localhost:8080/routines/1/exercises?exercise_id=1"
+```
+
+#### Follow a User
+```bash
+curl -X POST "http://localhost:8080/users/2/follow?follower_id=1"
+```
+
+#### Get User's Routines
+```bash
+curl http://localhost:8080/users/1/routines
+```
+
+#### Delete User's Routine
+```bash
+curl -X DELETE http://localhost:8080/users/1/routines/1
+```
+
+### Automated Testing Script
+Run the complete API test suite:
+```bash
+./test-api.sh
+```
+
+### Testing with Verbose Output
+Add `-v` flag to any curl command to see detailed request/response:
+```bash
+curl -v http://localhost:8080/users
+```
+
+### Prerequisites for Testing
+- `jq` for JSON formatting: `brew install jq` (macOS) or `apt install jq` (Linux)
+- Server running on port 8080
 
 ## Related Repositories
 

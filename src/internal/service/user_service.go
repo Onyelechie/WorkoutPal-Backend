@@ -67,3 +67,19 @@ func (u *userService) CreateRoutine(userID int64, request model.CreateRoutineReq
 func (u *userService) GetUserRoutines(userID int64) ([]model.ExerciseRoutine, error) {
 	return u.userRepository.GetUserRoutines(userID)
 }
+
+func (u *userService) DeleteRoutine(routineID int64) error {
+	return u.userRepository.DeleteRoutine(routineID)
+}
+
+func (u *userService) GetRoutineWithExercises(routineID int64) (model.ExerciseRoutine, error) {
+	return u.userRepository.GetRoutineWithExercises(routineID)
+}
+
+func (u *userService) AddExerciseToRoutine(routineID, exerciseID int64) error {
+	return u.userRepository.AddExerciseToRoutine(routineID, exerciseID)
+}
+
+func (u *userService) RemoveExerciseFromRoutine(routineID, exerciseID int64) error {
+	return u.userRepository.RemoveExerciseFromRoutine(routineID, exerciseID)
+}
