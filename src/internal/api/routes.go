@@ -45,7 +45,7 @@ func RegisterRoutes() http.Handler {
 		AllowedOrigins: []string{
 			// TODO read this from config
 			"http://localhost:4200",
-			"'http://localhost:5173",
+			"http://localhost:5173",
 		},
 		AllowCredentials: true,
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
