@@ -70,3 +70,6 @@ coverage.html
 # Air live reload
 .air.toml
 tmp/
+
+# Go binary files
+src/main
