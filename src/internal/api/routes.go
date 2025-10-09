@@ -58,12 +58,18 @@ func RegisterRoutes() http.Handler {
 func Routes(r chi.Router) http.Handler {
 	// --- Init Repositories ---
 	userRepository := repository.NewUserRepository()
+	exerciseRepository := repository.NewExerciseRepository()
 
 	// --- Init Services ---
 	userService := service.NewUserService(userRepository)
+	exerciseService := service.NewExerciseService(exerciseRepository)
 
 	// --- Init Handlers ---
 	userHandler := handler.NewUserHandler(userService)
+	goalHandler := handler.NewGoalHandler(userService)
+	relationshipHandler := handler.NewRelationshipHandler(userService)
+	workoutHandler := handler.NewWorkoutHandler(userService)
+	exerciseHandler := handler.NewExerciseHandler(exerciseService)
 	authHandler := handler.NewAuthHandler(userService)
 
 	// --- Init Middleware ---
@@ -85,15 +91,30 @@ func Routes(r chi.Router) http.Handler {
 		r.With(idMiddleware).Patch("/{id}", userHandler.UpdateUser)
 		r.With(idMiddleware).Delete("/{id}", userHandler.DeleteUser)
 		// User Goals
-		r.With(idMiddleware).Post("/{id}/goals", userHandler.CreateUserGoal)
-		r.With(idMiddleware).Get("/{id}/goals", userHandler.GetUserGoals)
+		r.With(idMiddleware).Post("/{id}/goals", goalHandler.CreateUserGoal)
+		r.With(idMiddleware).Get("/{id}/goals", goalHandler.GetUserGoals)
 		// User Followers
-		r.With(idMiddleware).Post("/{id}/follow", userHandler.FollowUser)
-		r.With(idMiddleware).Get("/{id}/followers", userHandler.GetUserFollowers)
-		r.With(idMiddleware).Get("/{id}/following", userHandler.GetUserFollowing)
+		r.With(idMiddleware).Post("/{id}/follow", relationshipHandler.FollowUser)
+		r.With(idMiddleware).Post("/{id}/unfollow", relationshipHandler.UnfollowUser)
+		r.With(idMiddleware).Get("/{id}/followers", relationshipHandler.ReadFollowers)
+		r.With(idMiddleware).Get("/{id}/following", relationshipHandler.ReadFollowings)
 		// User Routines
-		r.With(idMiddleware).Post("/{id}/routines", userHandler.CreateUserRoutine)
-		r.With(idMiddleware).Get("/{id}/routines", userHandler.GetUserRoutines)
+		r.With(idMiddleware).Post("/{id}/routines", workoutHandler.CreateUserRoutine)
+		r.With(idMiddleware).Get("/{id}/routines", workoutHandler.GetUserRoutines)
+		r.With(idMiddleware).Delete("/{id}/routines/{routine_id}", workoutHandler.DeleteUserRoutine)
+	})
+
+	// Exercises
+	r.Route("/exercises", func(r chi.Router) {
+		r.Get("/", exerciseHandler.ReadExercises)
+	})
+
+	// Routines
+	r.Route("/routines", func(r chi.Router) {
+		r.With(idMiddleware).Get("/{id}", workoutHandler.GetRoutineWithExercises)
+		r.With(idMiddleware).Delete("/{id}", workoutHandler.DeleteRoutine)
+		r.With(idMiddleware).Post("/{id}/exercises", workoutHandler.AddExerciseToRoutine)
+		r.With(idMiddleware).Delete("/{id}/exercises/{exercise_id}", workoutHandler.RemoveExerciseFromRoutine)
 	})
 
 	return r

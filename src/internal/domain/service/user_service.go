@@ -13,9 +13,14 @@ type UserService interface {
 	GetUserGoals(userID int64) ([]model.Goal, error)
 	// Followers
 	FollowUser(followerID, followeeID int64) error
+	UnfollowUser(followerID, followeeID int64) error
 	GetUserFollowers(userID int64) ([]int64, error)
 	GetUserFollowing(userID int64) ([]int64, error)
 	// Routines
 	CreateRoutine(userID int64, request model.CreateRoutineRequest) (model.ExerciseRoutine, error)
 	GetUserRoutines(userID int64) ([]model.ExerciseRoutine, error)
+	GetRoutineWithExercises(routineID int64) (model.ExerciseRoutine, error)
+	AddExerciseToRoutine(routineID, exerciseID int64) error
+	RemoveExerciseFromRoutine(routineID, exerciseID int64) error
+	DeleteRoutine(routineID int64) error
 }

@@ -204,6 +204,21 @@ func (u *userRepository) FollowUser(followerID, followeeID int64) error {
 	return err
 }
 
+func (u *userRepository) UnfollowUser(followerID, followeeID int64) error {
+	result, err := u.db.Exec("DELETE FROM follows WHERE following_user_id = $1 AND followed_user_id = $2", followerID, followeeID)
+	if err != nil {
+		return err
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rowsAffected == 0 {
+		return errors.New("follow relationship not found")
+	}
+	return nil
+}
+
 func (u *userRepository) GetUserFollowers(userID int64) ([]int64, error) {
 	rows, err := u.db.Query("SELECT following_user_id FROM follows WHERE followed_user_id = $1", userID)
 	if err != nil {
@@ -290,6 +305,40 @@ func (u *userRepository) DeleteRoutine(routineID int64) error {
 	}
 	if rowsAffected == 0 {
 		return errors.New("routine not found")
+	}
+	return nil
+}
+
+func (u *userRepository) GetRoutineWithExercises(routineID int64) (model.ExerciseRoutine, error) {
+	var routine model.ExerciseRoutine
+	err := u.db.QueryRow("SELECT id, name, user_id, frequency FROM workout_routine WHERE id = $1", routineID).Scan(
+		&routine.ID, &routine.Name, &routine.UserID, &routine.Description)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return model.ExerciseRoutine{}, errors.New("routine not found")
+		}
+		return model.ExerciseRoutine{}, err
+	}
+	routine.IsActive = true
+	return routine, nil
+}
+
+func (u *userRepository) AddExerciseToRoutine(routineID, exerciseID int64) error {
+	_, err := u.db.Exec("INSERT INTO routine_exercises (routine_id, exercise_id) VALUES ($1, $2)", routineID, exerciseID)
+	return err
+}
+
+func (u *userRepository) RemoveExerciseFromRoutine(routineID, exerciseID int64) error {
+	result, err := u.db.Exec("DELETE FROM routine_exercises WHERE routine_id = $1 AND exercise_id = $2", routineID, exerciseID)
+	if err != nil {
+		return err
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rowsAffected == 0 {
+		return errors.New("exercise not found in routine")
 	}
 	return nil
 }

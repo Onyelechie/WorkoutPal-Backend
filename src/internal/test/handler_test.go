@@ -7,18 +7,66 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
-	"workoutpal/src/internal/handler"
+	"workoutpal/src/internal/domain/handler"
+	"workoutpal/src/internal/domain/service"
+	handler_impl "workoutpal/src/internal/handler"
 	"workoutpal/src/internal/model"
 	"workoutpal/src/internal/repository"
-	"workoutpal/src/internal/service"
+	service_impl "workoutpal/src/internal/service"
 
 	"github.com/go-chi/chi/v5"
 )
 
-func TestUserHandler_CreateNewUser(t *testing.T) {
+// Test helpers
+func setupUserHandler() (handler.UserHandler, service.UserService) {
 	repo := repository.NewInMemoryUserRepository()
-	userService := service.NewUserService(repo)
-	userHandler := handler.NewUserHandler(userService)
+	userService := service_impl.NewUserService(repo)
+	userHandler := handler_impl.NewUserHandler(userService)
+	return userHandler, userService
+}
+
+func createTestUser(userService service.UserService) model.User {
+	userReq := model.CreateUserRequest{
+		Username: "testuser",
+		Email:    "test@example.com",
+		Name:     "Test User",
+		Password: "password123",
+	}
+	user, _ := userService.CreateUser(userReq)
+	return user
+}
+
+func createRequestWithContext(method, url, id string, body []byte) *http.Request {
+	var req *http.Request
+	if body != nil {
+		req = httptest.NewRequest(method, url, bytes.NewBuffer(body))
+		req.Header.Set("Content-Type", "application/json")
+	} else {
+		req = httptest.NewRequest(method, url, nil)
+	}
+
+	if id != "" {
+		rctx := chi.NewRouteContext()
+		rctx.URLParams.Add("id", id)
+		req = req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, rctx))
+	}
+	return req
+}
+
+func assertStatusCode(t *testing.T, expected, actual int) {
+	if actual != expected {
+		t.Errorf("Expected status %d, got %d", expected, actual)
+	}
+}
+
+func assertResponseField(t *testing.T, expected, actual, fieldName string) {
+	if actual != expected {
+		t.Errorf("Expected %s %s, got %s", fieldName, expected, actual)
+	}
+}
+
+func TestUserHandler_CreateNewUser(t *testing.T) {
+	userHandler, _ := setupUserHandler()
 
 	user := model.CreateUserRequest{
 		Username: "testuser",
@@ -28,27 +76,20 @@ func TestUserHandler_CreateNewUser(t *testing.T) {
 	}
 
 	body, _ := json.Marshal(user)
-	req := httptest.NewRequest("POST", "/users", bytes.NewBuffer(body))
-	req.Header.Set("Content-Type", "application/json")
+	req := createRequestWithContext("POST", "/users", "", body)
 	w := httptest.NewRecorder()
 
 	userHandler.CreateNewUser(w, req)
 
-	if w.Code != http.StatusCreated {
-		t.Errorf("Expected status %d, got %d", http.StatusCreated, w.Code)
-	}
+	assertStatusCode(t, http.StatusCreated, w.Code)
 
 	var response model.User
 	json.Unmarshal(w.Body.Bytes(), &response)
-	if response.Username != user.Username {
-		t.Errorf("Expected username %s, got %s", user.Username, response.Username)
-	}
+	assertResponseField(t, user.Username, response.Username, "username")
 }
 
 func TestUserHandler_ReadAllUsers(t *testing.T) {
-	repo := repository.NewInMemoryUserRepository()
-	userService := service.NewUserService(repo)
-	userHandler := handler.NewUserHandler(userService)
+	userHandler, userService := setupUserHandler()
 
 	// Create test users
 	users := []model.CreateUserRequest{
@@ -60,14 +101,12 @@ func TestUserHandler_ReadAllUsers(t *testing.T) {
 		userService.CreateUser(user)
 	}
 
-	req := httptest.NewRequest("GET", "/users", nil)
+	req := createRequestWithContext("GET", "/users", "", nil)
 	w := httptest.NewRecorder()
 
 	userHandler.ReadAllUsers(w, req)
 
-	if w.Code != http.StatusOK {
-		t.Errorf("Expected status %d, got %d", http.StatusOK, w.Code)
-	}
+	assertStatusCode(t, http.StatusOK, w.Code)
 
 	var response []model.User
 	json.Unmarshal(w.Body.Bytes(), &response)
@@ -77,53 +116,25 @@ func TestUserHandler_ReadAllUsers(t *testing.T) {
 }
 
 func TestUserHandler_GetUserByID(t *testing.T) {
-	repo := repository.NewInMemoryUserRepository()
-	userService := service.NewUserService(repo)
-	userHandler := handler.NewUserHandler(userService)
+	userHandler, userService := setupUserHandler()
+	user := createTestUser(userService)
 
-	// Create user
-	userReq := model.CreateUserRequest{
-		Username: "testuser",
-		Email:    "test@example.com",
-		Name:     "Test User",
-	}
-	userService.CreateUser(userReq)
-
-	req := httptest.NewRequest("GET", "/users/1", nil)
+	req := createRequestWithContext("GET", "/users/1", "1", nil)
 	w := httptest.NewRecorder()
-
-	// Add chi context for URL parameters
-	rctx := chi.NewRouteContext()
-	rctx.URLParams.Add("id", "1")
-	req = req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, rctx))
 
 	userHandler.GetUserByID(w, req)
 
-	if w.Code != http.StatusOK {
-		t.Errorf("Expected status %d, got %d", http.StatusOK, w.Code)
-	}
+	assertStatusCode(t, http.StatusOK, w.Code)
 
 	var response model.User
 	json.Unmarshal(w.Body.Bytes(), &response)
-	if response.Username != userReq.Username {
-		t.Errorf("Expected username %s, got %s", userReq.Username, response.Username)
-	}
+	assertResponseField(t, user.Username, response.Username, "username")
 }
 
 func TestUserHandler_UpdateUser(t *testing.T) {
-	repo := repository.NewInMemoryUserRepository()
-	userService := service.NewUserService(repo)
-	userHandler := handler.NewUserHandler(userService)
+	userHandler, userService := setupUserHandler()
+	createTestUser(userService)
 
-	// Create user
-	createReq := model.CreateUserRequest{
-		Username: "testuser",
-		Email:    "test@example.com",
-		Name:     "Test User",
-	}
-	userService.CreateUser(createReq)
-
-	// Update request
 	updateReq := model.UpdateUserRequest{
 		Username: "updateduser",
 		Email:    "updated@example.com",
@@ -131,101 +142,31 @@ func TestUserHandler_UpdateUser(t *testing.T) {
 	}
 
 	body, _ := json.Marshal(updateReq)
-	req := httptest.NewRequest("PATCH", "/users/1", bytes.NewBuffer(body))
-	req.Header.Set("Content-Type", "application/json")
+	req := createRequestWithContext("PATCH", "/users/1", "1", body)
 	w := httptest.NewRecorder()
-
-	// Add chi context for URL parameters
-	rctx := chi.NewRouteContext()
-	rctx.URLParams.Add("id", "1")
-	req = req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, rctx))
 
 	userHandler.UpdateUser(w, req)
 
-	if w.Code != http.StatusOK {
-		t.Errorf("Expected status %d, got %d", http.StatusOK, w.Code)
-	}
+	assertStatusCode(t, http.StatusOK, w.Code)
 
 	var response model.User
 	json.Unmarshal(w.Body.Bytes(), &response)
-	if response.Username != updateReq.Username {
-		t.Errorf("Expected username %s, got %s", updateReq.Username, response.Username)
-	}
+	assertResponseField(t, updateReq.Username, response.Username, "username")
 }
 
 func TestUserHandler_DeleteUser(t *testing.T) {
-	repo := repository.NewInMemoryUserRepository()
-	userService := service.NewUserService(repo)
-	userHandler := handler.NewUserHandler(userService)
+	userHandler, userService := setupUserHandler()
+	createTestUser(userService)
 
-	// Create user
-	userReq := model.CreateUserRequest{
-		Username: "testuser",
-		Email:    "test@example.com",
-		Name:     "Test User",
-	}
-	userService.CreateUser(userReq)
-
-	req := httptest.NewRequest("DELETE", "/users/1", nil)
+	req := createRequestWithContext("DELETE", "/users/1", "1", nil)
 	w := httptest.NewRecorder()
-
-	// Add chi context for URL parameters
-	rctx := chi.NewRouteContext()
-	rctx.URLParams.Add("id", "1")
-	req = req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, rctx))
 
 	userHandler.DeleteUser(w, req)
 
-	if w.Code != http.StatusOK {
-		t.Errorf("Expected status %d, got %d", http.StatusOK, w.Code)
-	}
+	assertStatusCode(t, http.StatusOK, w.Code)
 
 	var response model.BasicResponse
 	json.Unmarshal(w.Body.Bytes(), &response)
-	if response.Message != "User deleted successfully" {
-		t.Errorf("Expected success message, got %s", response.Message)
-	}
+	assertResponseField(t, "User deleted successfully", response.Message, "message")
 }
 
-func TestUserHandler_CreateUserGoal(t *testing.T) {
-	repo := repository.NewInMemoryUserRepository()
-	userService := service.NewUserService(repo)
-	userHandler := handler.NewUserHandler(userService)
-
-	// Create user
-	userReq := model.CreateUserRequest{
-		Username: "testuser",
-		Email:    "test@example.com",
-		Name:     "Test User",
-	}
-	userService.CreateUser(userReq)
-
-	// Create goal
-	goalReq := model.CreateGoalRequest{
-		Name:        "Weight Loss Goal",
-		Description: "Lose weight to 65kg",
-		Deadline:    "2024-12-31",
-	}
-
-	body, _ := json.Marshal(goalReq)
-	req := httptest.NewRequest("POST", "/users/1/goals", bytes.NewBuffer(body))
-	req.Header.Set("Content-Type", "application/json")
-	w := httptest.NewRecorder()
-
-	// Add chi context for URL parameters
-	rctx := chi.NewRouteContext()
-	rctx.URLParams.Add("id", "1")
-	req = req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, rctx))
-
-	userHandler.CreateUserGoal(w, req)
-
-	if w.Code != http.StatusCreated {
-		t.Errorf("Expected status %d, got %d", http.StatusCreated, w.Code)
-	}
-
-	var response model.Goal
-	json.Unmarshal(w.Body.Bytes(), &response)
-	if response.Name != goalReq.Name {
-		t.Errorf("Expected goal name %s, got %s", goalReq.Name, response.Name)
-	}
-}

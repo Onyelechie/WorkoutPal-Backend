@@ -405,55 +405,77 @@ const docTemplate = `{
                 }
             }
         },
-        "/relationships/follow": {
-            "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
+        "/routines/{id}": {
+            "get": {
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "Relationships"
+                    "Routines"
                 ],
-                "summary": "Follow a user",
+                "summary": "Get routine with exercises",
                 "parameters": [
                     {
-                        "description": "User to follow (userID)",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/model.FollowRequest"
-                        }
+                        "type": "integer",
+                        "description": "Routine ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Followed successfully",
+                        "description": "Routine with exercises retrieved successfully",
+                        "schema": {
+                            "$ref": "#/definitions/model.ExerciseRoutine"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid routine ID",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Routine not found",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Routines"
+                ],
+                "summary": "Delete a routine",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Routine ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Routine deleted successfully",
                         "schema": {
                             "$ref": "#/definitions/model.BasicResponse"
                         }
                     },
                     "400": {
-                        "description": "Validation error",
+                        "description": "Invalid routine ID",
                         "schema": {
                             "$ref": "#/definitions/model.BasicResponse"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/model.BasicResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
+                    "404": {
+                        "description": "Routine not found",
                         "schema": {
                             "$ref": "#/definitions/model.BasicResponse"
                         }
@@ -461,13 +483,8 @@ const docTemplate = `{
                 }
             }
         },
-        "/relationships/unfollow": {
+        "/routines/{id}/exercises": {
             "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -475,30 +492,75 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Relationships"
+                    "Routines"
                 ],
-                "summary": "Unfollow a user",
+                "summary": "Add exercise to routine",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Routine ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Exercise ID",
+                        "name": "exercise_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "Unfollowed successfully",
+                        "description": "Exercise added to routine successfully",
                         "schema": {
                             "$ref": "#/definitions/model.BasicResponse"
                         }
                     },
                     "400": {
-                        "description": "Validation error",
+                        "description": "Invalid ID",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/routines/{id}/exercises/{exercise_id}": {
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Routines"
+                ],
+                "summary": "Remove exercise from routine",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Routine ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Exercise ID",
+                        "name": "exercise_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Exercise removed from routine successfully",
                         "schema": {
                             "$ref": "#/definitions/model.BasicResponse"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/model.BasicResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
+                    "400": {
+                        "description": "Invalid ID",
                         "schema": {
                             "$ref": "#/definitions/model.BasicResponse"
                         }
@@ -722,7 +784,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Social"
+                    "Relationships"
                 ],
                 "summary": "Follow a user",
                 "parameters": [
@@ -763,9 +825,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Social"
+                    "Relationships"
                 ],
-                "summary": "Get user followers",
+                "summary": "List a user's followers",
                 "parameters": [
                     {
                         "type": "integer",
@@ -807,9 +869,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Social"
+                    "Relationships"
                 ],
-                "summary": "Get users being followed",
+                "summary": "List users that the target user is following",
                 "parameters": [
                     {
                         "type": "integer",
@@ -838,54 +900,6 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "User not found",
-                        "schema": {
-                            "$ref": "#/definitions/model.BasicResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/users/{id}/followings": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Relationships"
-                ],
-                "summary": "List users that the target user is following",
-                "responses": {
-                    "200": {
-                        "description": "Followings retrieved successfully",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/model.User"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Validation error",
-                        "schema": {
-                            "$ref": "#/definitions/model.BasicResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/model.BasicResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
                         "schema": {
                             "$ref": "#/definitions/model.BasicResponse"
                         }
@@ -1072,6 +1086,94 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "User not found",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{id}/routines/{routine_id}": {
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Routines"
+                ],
+                "summary": "Delete user's routine",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Routine ID",
+                        "name": "routine_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Routine deleted successfully",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid ID",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Routine not found",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{id}/unfollow": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Relationships"
+                ],
+                "summary": "Unfollow a user",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID to unfollow",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Follower user ID",
+                        "name": "follower_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully unfollowed user",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid user ID",
                         "schema": {
                             "$ref": "#/definitions/model.BasicResponse"
                         }
@@ -1491,14 +1593,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "userId": {
-                    "type": "integer"
-                }
-            }
-        },
-        "model.FollowRequest": {
-            "type": "object",
-            "properties": {
-                "userID": {
                     "type": "integer"
                 }
             }

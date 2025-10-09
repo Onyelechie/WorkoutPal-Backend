@@ -161,11 +161,6 @@ definitions:
       userId:
         type: integer
     type: object
-  model.FollowRequest:
-    properties:
-      userID:
-        type: integer
-    type: object
   model.Goal:
     properties:
       createdAt:
@@ -601,69 +596,113 @@ paths:
       summary: Like a post
       tags:
       - Posts
-  /relationships/follow:
+  /routines/{id}:
+    delete:
+      parameters:
+      - description: Routine ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Routine deleted successfully
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "400":
+          description: Invalid routine ID
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "404":
+          description: Routine not found
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+      summary: Delete a routine
+      tags:
+      - Routines
+    get:
+      parameters:
+      - description: Routine ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Routine with exercises retrieved successfully
+          schema:
+            $ref: '#/definitions/model.ExerciseRoutine'
+        "400":
+          description: Invalid routine ID
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "404":
+          description: Routine not found
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+      summary: Get routine with exercises
+      tags:
+      - Routines
+  /routines/{id}/exercises:
     post:
       consumes:
       - application/json
       parameters:
-      - description: User to follow (userID)
-        in: body
-        name: request
+      - description: Routine ID
+        in: path
+        name: id
         required: true
-        schema:
-          $ref: '#/definitions/model.FollowRequest'
+        type: integer
+      - description: Exercise ID
+        in: query
+        name: exercise_id
+        required: true
+        type: integer
       produces:
       - application/json
       responses:
         "200":
-          description: Followed successfully
+          description: Exercise added to routine successfully
           schema:
             $ref: '#/definitions/model.BasicResponse'
         "400":
-          description: Validation error
+          description: Invalid ID
           schema:
             $ref: '#/definitions/model.BasicResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/model.BasicResponse'
-        "500":
-          description: Internal server error
-          schema:
-            $ref: '#/definitions/model.BasicResponse'
-      security:
-      - BearerAuth: []
-      summary: Follow a user
+      summary: Add exercise to routine
       tags:
-      - Relationships
-  /relationships/unfollow:
-    post:
-      consumes:
-      - application/json
+      - Routines
+  /routines/{id}/exercises/{exercise_id}:
+    delete:
+      parameters:
+      - description: Routine ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Exercise ID
+        in: path
+        name: exercise_id
+        required: true
+        type: integer
       produces:
       - application/json
       responses:
         "200":
-          description: Unfollowed successfully
+          description: Exercise removed from routine successfully
           schema:
             $ref: '#/definitions/model.BasicResponse'
         "400":
-          description: Validation error
+          description: Invalid ID
           schema:
             $ref: '#/definitions/model.BasicResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/model.BasicResponse'
-        "500":
-          description: Internal server error
-          schema:
-            $ref: '#/definitions/model.BasicResponse'
-      security:
-      - BearerAuth: []
-      summary: Unfollow a user
+      summary: Remove exercise from routine
       tags:
-      - Relationships
+      - Routines
   /users:
     get:
       produces:
@@ -826,7 +865,7 @@ paths:
             $ref: '#/definitions/model.BasicResponse'
       summary: Follow a user
       tags:
-      - Social
+      - Relationships
   /users/{id}/followers:
     get:
       parameters:
@@ -853,9 +892,9 @@ paths:
           description: User not found
           schema:
             $ref: '#/definitions/model.BasicResponse'
-      summary: Get user followers
+      summary: List a user's followers
       tags:
-      - Social
+      - Relationships
   /users/{id}/following:
     get:
       parameters:
@@ -882,36 +921,6 @@ paths:
           description: User not found
           schema:
             $ref: '#/definitions/model.BasicResponse'
-      summary: Get users being followed
-      tags:
-      - Social
-  /users/{id}/followings:
-    get:
-      consumes:
-      - application/json
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Followings retrieved successfully
-          schema:
-            items:
-              $ref: '#/definitions/model.User'
-            type: array
-        "400":
-          description: Validation error
-          schema:
-            $ref: '#/definitions/model.BasicResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/model.BasicResponse'
-        "500":
-          description: Internal server error
-          schema:
-            $ref: '#/definitions/model.BasicResponse'
-      security:
-      - BearerAuth: []
       summary: List users that the target user is following
       tags:
       - Relationships
@@ -1037,6 +1046,64 @@ paths:
       summary: Create a workout routine for user
       tags:
       - Routines
+  /users/{id}/routines/{routine_id}:
+    delete:
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Routine ID
+        in: path
+        name: routine_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Routine deleted successfully
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "400":
+          description: Invalid ID
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "404":
+          description: Routine not found
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+      summary: Delete user's routine
+      tags:
+      - Routines
+  /users/{id}/unfollow:
+    post:
+      parameters:
+      - description: User ID to unfollow
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Follower user ID
+        in: query
+        name: follower_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully unfollowed user
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "400":
+          description: Invalid user ID
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+      summary: Unfollow a user
+      tags:
+      - Relationships
   /workouts:
     get:
       consumes:

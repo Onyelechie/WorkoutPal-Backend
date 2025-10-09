@@ -212,6 +212,38 @@ func (u *inMemoryUserRepository) FollowUser(followerID, followeeID int64) error 
 	return nil
 }
 
+func (u *inMemoryUserRepository) UnfollowUser(followerID, followeeID int64) error {
+	u.mutex.Lock()
+	defer u.mutex.Unlock()
+
+	follower, exists := u.users[followerID]
+	if !exists {
+		return errors.New("follower not found")
+	}
+	followee, exists := u.users[followeeID]
+	if !exists {
+		return errors.New("user not found")
+	}
+
+	// Remove from follower's following list
+	for i, id := range follower.Following {
+		if id == followeeID {
+			follower.Following = append(follower.Following[:i], follower.Following[i+1:]...)
+			break
+		}
+	}
+
+	// Remove from followee's followers list
+	for i, id := range followee.Followers {
+		if id == followerID {
+			followee.Followers = append(followee.Followers[:i], followee.Followers[i+1:]...)
+			break
+		}
+	}
+
+	return nil
+}
+
 func (u *inMemoryUserRepository) GetUserFollowers(userID int64) ([]int64, error) {
 	u.mutex.RLock()
 	defer u.mutex.RUnlock()
@@ -283,5 +315,49 @@ func (u *inMemoryUserRepository) DeleteRoutine(routineID int64) error {
 	}
 
 	delete(u.routines, routineID)
+	return nil
+}
+
+func (u *inMemoryUserRepository) GetRoutineWithExercises(routineID int64) (model.ExerciseRoutine, error) {
+	u.mutex.RLock()
+	defer u.mutex.RUnlock()
+
+	routine, exists := u.routines[routineID]
+	if !exists {
+		return model.ExerciseRoutine{}, errors.New("routine not found")
+	}
+	return *routine, nil
+}
+
+func (u *inMemoryUserRepository) AddExerciseToRoutine(routineID, exerciseID int64) error {
+	u.mutex.Lock()
+	defer u.mutex.Unlock()
+
+	routine, exists := u.routines[routineID]
+	if !exists {
+		return errors.New("routine not found")
+	}
+
+	// Mock exercise data
+	exercise := model.Exercise{ID: exerciseID, Name: "Exercise"}
+	routine.Exercises = append(routine.Exercises, exercise)
+	return nil
+}
+
+func (u *inMemoryUserRepository) RemoveExerciseFromRoutine(routineID, exerciseID int64) error {
+	u.mutex.Lock()
+	defer u.mutex.Unlock()
+
+	routine, exists := u.routines[routineID]
+	if !exists {
+		return errors.New("routine not found")
+	}
+
+	for i, exercise := range routine.Exercises {
+		if exercise.ID == exerciseID {
+			routine.Exercises = append(routine.Exercises[:i], routine.Exercises[i+1:]...)
+			break
+		}
+	}
 	return nil
 }
