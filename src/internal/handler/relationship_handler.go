@@ -2,76 +2,149 @@ package handler
 
 import (
 	"net/http"
+	"strconv"
 	"workoutpal/src/internal/domain/handler"
+	"workoutpal/src/internal/domain/service"
+	"workoutpal/src/internal/model"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/render"
 )
 
-type relationshipHandler struct{}
+type relationshipHandler struct {
+	userService service.UserService
+}
 
-func NewRelationshipHandler() handler.RelationshipHandler {
-	return &relationshipHandler{}
+func NewRelationshipHandler(us service.UserService) handler.RelationshipHandler {
+	return &relationshipHandler{
+		userService: us,
+	}
 }
 
 // ReadFollowers godoc
 // @Summary List a user's followers
 // @Tags Relationships
-// @Accept json
 // @Produce json
-// @Success 200 {array} model.User "Followers retrieved successfully"
-// @Failure 400 {object} model.BasicResponse "Validation error"
-// @Failure 401 {object} model.BasicResponse "Unauthorized"
-// @Failure 500 {object} model.BasicResponse "Internal server error"
-// @Security BearerAuth
+// @Param id path int true "User ID"
+// @Success 200 {array} int64 "Follower IDs retrieved successfully"
+// @Failure 400 {object} model.BasicResponse "Invalid user ID"
+// @Failure 404 {object} model.BasicResponse "User not found"
 // @Router /users/{id}/followers [get]
 func (h *relationshipHandler) ReadFollowers(w http.ResponseWriter, r *http.Request) {
-	//TODO implement me
-	panic("implement me")
+	idStr := chi.URLParam(r, "id")
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil {
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, model.BasicResponse{Message: "Invalid user ID"})
+		return
+	}
+
+	followers, err := h.userService.GetUserFollowers(id)
+	if err != nil {
+		render.Status(r, http.StatusNotFound)
+		render.JSON(w, r, model.BasicResponse{Message: err.Error()})
+		return
+	}
+
+	render.JSON(w, r, followers)
 }
 
 // ReadFollowings godoc
 // @Summary List users that the target user is following
 // @Tags Relationships
-// @Accept json
 // @Produce json
-// @Success 200 {array} model.User "Followings retrieved successfully"
-// @Failure 400 {object} model.BasicResponse "Validation error"
-// @Failure 401 {object} model.BasicResponse "Unauthorized"
-// @Failure 500 {object} model.BasicResponse "Internal server error"
-// @Security BearerAuth
-// @Router /users/{id}/followings [get]
+// @Param id path int true "User ID"
+// @Success 200 {array} int64 "Following IDs retrieved successfully"
+// @Failure 400 {object} model.BasicResponse "Invalid user ID"
+// @Failure 404 {object} model.BasicResponse "User not found"
+// @Router /users/{id}/following [get]
 func (h *relationshipHandler) ReadFollowings(w http.ResponseWriter, r *http.Request) {
-	//TODO implement me
-	panic("implement me")
+	idStr := chi.URLParam(r, "id")
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil {
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, model.BasicResponse{Message: "Invalid user ID"})
+		return
+	}
+
+	following, err := h.userService.GetUserFollowing(id)
+	if err != nil {
+		render.Status(r, http.StatusNotFound)
+		render.JSON(w, r, model.BasicResponse{Message: err.Error()})
+		return
+	}
+
+	render.JSON(w, r, following)
 }
 
 // FollowUser godoc
 // @Summary Follow a user
 // @Tags Relationships
-// @Accept json
 // @Produce json
-// @Param request body model.FollowRequest true "User to follow (userID)"
-// @Success 200 {object} model.BasicResponse "Followed successfully"
-// @Failure 400 {object} model.BasicResponse "Validation error"
-// @Failure 401 {object} model.BasicResponse "Unauthorized"
-// @Failure 500 {object} model.BasicResponse "Internal server error"
-// @Security BearerAuth
-// @Router /relationships/follow [post]
+// @Param id path int true "User ID to follow"
+// @Param follower_id query int true "Follower user ID"
+// @Success 200 {object} model.BasicResponse "Successfully followed user"
+// @Failure 400 {object} model.BasicResponse "Invalid user ID"
+// @Router /users/{id}/follow [post]
 func (h *relationshipHandler) FollowUser(w http.ResponseWriter, r *http.Request) {
-	//TODO implement me
-	panic("implement me")
+	followeeIDStr := chi.URLParam(r, "id")
+	followeeID, err := strconv.ParseInt(followeeIDStr, 10, 64)
+	if err != nil {
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, model.BasicResponse{Message: "Invalid user ID"})
+		return
+	}
+
+	followerIDStr := r.URL.Query().Get("follower_id")
+	followerID, err := strconv.ParseInt(followerIDStr, 10, 64)
+	if err != nil {
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, model.BasicResponse{Message: "Invalid follower ID"})
+		return
+	}
+
+	err = h.userService.FollowUser(followerID, followeeID)
+	if err != nil {
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, model.BasicResponse{Message: err.Error()})
+		return
+	}
+
+	render.JSON(w, r, model.BasicResponse{Message: "Successfully followed user"})
 }
 
 // UnfollowUser godoc
 // @Summary Unfollow a user
 // @Tags Relationships
-// @Accept json
 // @Produce json
-// @Success 200 {object} model.BasicResponse "Unfollowed successfully"
-// @Failure 400 {object} model.BasicResponse "Validation error"
-// @Failure 401 {object} model.BasicResponse "Unauthorized"
-// @Failure 500 {object} model.BasicResponse "Internal server error"
-// @Security BearerAuth
-// @Router /relationships/unfollow [post]
+// @Param id path int true "User ID to unfollow"
+// @Param follower_id query int true "Follower user ID"
+// @Success 200 {object} model.BasicResponse "Successfully unfollowed user"
+// @Failure 400 {object} model.BasicResponse "Invalid user ID"
+// @Router /users/{id}/unfollow [post]
 func (h *relationshipHandler) UnfollowUser(w http.ResponseWriter, r *http.Request) {
-	//TODO implement me
-	panic("implement me")
+	followeeIDStr := chi.URLParam(r, "id")
+	followeeID, err := strconv.ParseInt(followeeIDStr, 10, 64)
+	if err != nil {
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, model.BasicResponse{Message: "Invalid user ID"})
+		return
+	}
+
+	followerIDStr := r.URL.Query().Get("follower_id")
+	followerID, err := strconv.ParseInt(followerIDStr, 10, 64)
+	if err != nil {
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, model.BasicResponse{Message: "Invalid follower ID"})
+		return
+	}
+
+	err = h.userService.UnfollowUser(followerID, followeeID)
+	if err != nil {
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, model.BasicResponse{Message: err.Error()})
+		return
+	}
+
+	render.JSON(w, r, model.BasicResponse{Message: "Successfully unfollowed user"})
 }

@@ -405,107 +405,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/relationships/follow": {
-            "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Relationships"
-                ],
-                "summary": "Follow a user",
-                "parameters": [
-                    {
-                        "description": "User to follow (userID)",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/model.FollowRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Followed successfully",
-                        "schema": {
-                            "$ref": "#/definitions/model.BasicResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Validation error",
-                        "schema": {
-                            "$ref": "#/definitions/model.BasicResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/model.BasicResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "$ref": "#/definitions/model.BasicResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/relationships/unfollow": {
-            "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Relationships"
-                ],
-                "summary": "Unfollow a user",
-                "responses": {
-                    "200": {
-                        "description": "Unfollowed successfully",
-                        "schema": {
-                            "$ref": "#/definitions/model.BasicResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Validation error",
-                        "schema": {
-                            "$ref": "#/definitions/model.BasicResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/model.BasicResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "$ref": "#/definitions/model.BasicResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/users": {
             "get": {
                 "produces": [
@@ -722,7 +621,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Social"
+                    "Relationships"
                 ],
                 "summary": "Follow a user",
                 "parameters": [
@@ -763,9 +662,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Social"
+                    "Relationships"
                 ],
-                "summary": "Get user followers",
+                "summary": "List a user's followers",
                 "parameters": [
                     {
                         "type": "integer",
@@ -807,9 +706,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Social"
+                    "Relationships"
                 ],
-                "summary": "Get users being followed",
+                "summary": "List users that the target user is following",
                 "parameters": [
                     {
                         "type": "integer",
@@ -838,54 +737,6 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "User not found",
-                        "schema": {
-                            "$ref": "#/definitions/model.BasicResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/users/{id}/followings": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Relationships"
-                ],
-                "summary": "List users that the target user is following",
-                "responses": {
-                    "200": {
-                        "description": "Followings retrieved successfully",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/model.User"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Validation error",
-                        "schema": {
-                            "$ref": "#/definitions/model.BasicResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/model.BasicResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
                         "schema": {
                             "$ref": "#/definitions/model.BasicResponse"
                         }
@@ -1491,14 +1342,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "userId": {
-                    "type": "integer"
-                }
-            }
-        },
-        "model.FollowRequest": {
-            "type": "object",
-            "properties": {
-                "userID": {
                     "type": "integer"
                 }
             }

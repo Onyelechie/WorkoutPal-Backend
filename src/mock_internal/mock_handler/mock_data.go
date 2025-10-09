@@ -71,3 +71,10 @@ var workout = model.Workout{
 		},
 	},
 }
+
+var routine = model.ExerciseRoutine{
+	ID:          1,
+	UserID:      1,
+	Name:        "Morning Routine",
+	Description: "Daily morning workout",
+}

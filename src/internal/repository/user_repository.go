@@ -204,6 +204,21 @@ func (u *userRepository) FollowUser(followerID, followeeID int64) error {
 	return err
 }
 
+func (u *userRepository) UnfollowUser(followerID, followeeID int64) error {
+	result, err := u.db.Exec("DELETE FROM follows WHERE following_user_id = $1 AND followed_user_id = $2", followerID, followeeID)
+	if err != nil {
+		return err
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rowsAffected == 0 {
+		return errors.New("follow relationship not found")
+	}
+	return nil
+}
+
 func (u *userRepository) GetUserFollowers(userID int64) ([]int64, error) {
 	rows, err := u.db.Query("SELECT following_user_id FROM follows WHERE followed_user_id = $1", userID)
 	if err != nil {

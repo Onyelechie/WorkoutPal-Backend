@@ -138,6 +138,20 @@ Database connection: `host=localhost port=5432 user=user password=password dbnam
 
 ## Swagger Documentation
 
+### Viewing API Documentation
+
+1. Start the server:
+```bash
+go run src/cmd/api/main.go
+```
+
+2. Open your browser and navigate to:
+```
+http://localhost:8080/swagger/index.html
+```
+
+### Regenerating Documentation
+
 1. Install swag CLI:
 ```bash
 go install github.com/swaggo/swag/cmd/swag@latest
@@ -145,8 +159,11 @@ go install github.com/swaggo/swag/cmd/swag@latest
 
 2. Generate swagger files:
 ```bash
+export PATH=$PATH:$(go env GOPATH)/bin
 swag init -g src/cmd/api/main.go -o src/internal/api/docs
 ```
+
+3. Restart the server to see updated documentation
 
 ## Related Repositories
 

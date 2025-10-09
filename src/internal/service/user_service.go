@@ -48,6 +48,10 @@ func (u *userService) FollowUser(followerID, followeeID int64) error {
 	return u.userRepository.FollowUser(followerID, followeeID)
 }
 
+func (u *userService) UnfollowUser(followerID, followeeID int64) error {
+	return u.userRepository.UnfollowUser(followerID, followeeID)
+}
+
 func (u *userService) GetUserFollowers(userID int64) ([]int64, error) {
 	return u.userRepository.GetUserFollowers(userID)
 }

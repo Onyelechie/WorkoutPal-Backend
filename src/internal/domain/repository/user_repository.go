@@ -15,6 +15,7 @@ type UserRepository interface {
 	DeleteGoal(goalID int64) error
 	// Followers
 	FollowUser(followerID, followeeID int64) error
+	UnfollowUser(followerID, followeeID int64) error
 	GetUserFollowers(userID int64) ([]int64, error)
 	GetUserFollowing(userID int64) ([]int64, error)
 	// Routines

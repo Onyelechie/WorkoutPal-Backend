@@ -25,3 +25,11 @@ func (h *workoutHandler) CreateWorkout(w http.ResponseWriter, r *http.Request) {
 func (h *workoutHandler) UpdateWorkout(w http.ResponseWriter, r *http.Request) {
 	render.JSON(w, r, workout)
 }
+
+func (h *workoutHandler) CreateUserRoutine(w http.ResponseWriter, r *http.Request) {
+	render.JSON(w, r, routine)
+}
+
+func (h *workoutHandler) GetUserRoutines(w http.ResponseWriter, r *http.Request) {
+	render.JSON(w, r, []model.ExerciseRoutine{routine})
+}

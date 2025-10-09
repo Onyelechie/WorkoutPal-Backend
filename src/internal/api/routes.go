@@ -51,6 +51,9 @@ func Routes(r chi.Router) http.Handler {
 
 	// --- Init Handlers ---
 	userHandler := handler.NewUserHandler(userService)
+	goalHandler := handler.NewGoalHandler(userService)
+	relationshipHandler := handler.NewRelationshipHandler(userService)
+	workoutHandler := handler.NewWorkoutHandler(userService)
 	authHandler := handler.NewAuthHandler(userService)
 
 	// --- Init Middleware ---
@@ -72,15 +75,16 @@ func Routes(r chi.Router) http.Handler {
 		r.With(idMiddleware).Patch("/{id}", userHandler.UpdateUser)
 		r.With(idMiddleware).Delete("/{id}", userHandler.DeleteUser)
 		// User Goals
-		r.With(idMiddleware).Post("/{id}/goals", userHandler.CreateUserGoal)
-		r.With(idMiddleware).Get("/{id}/goals", userHandler.GetUserGoals)
+		r.With(idMiddleware).Post("/{id}/goals", goalHandler.CreateUserGoal)
+		r.With(idMiddleware).Get("/{id}/goals", goalHandler.GetUserGoals)
 		// User Followers
-		r.With(idMiddleware).Post("/{id}/follow", userHandler.FollowUser)
-		r.With(idMiddleware).Get("/{id}/followers", userHandler.GetUserFollowers)
-		r.With(idMiddleware).Get("/{id}/following", userHandler.GetUserFollowing)
+		r.With(idMiddleware).Post("/{id}/follow", relationshipHandler.FollowUser)
+		r.With(idMiddleware).Post("/{id}/unfollow", relationshipHandler.UnfollowUser)
+		r.With(idMiddleware).Get("/{id}/followers", relationshipHandler.ReadFollowers)
+		r.With(idMiddleware).Get("/{id}/following", relationshipHandler.ReadFollowings)
 		// User Routines
-		r.With(idMiddleware).Post("/{id}/routines", userHandler.CreateUserRoutine)
-		r.With(idMiddleware).Get("/{id}/routines", userHandler.GetUserRoutines)
+		r.With(idMiddleware).Post("/{id}/routines", workoutHandler.CreateUserRoutine)
+		r.With(idMiddleware).Get("/{id}/routines", workoutHandler.GetUserRoutines)
 	})
 
 	return r

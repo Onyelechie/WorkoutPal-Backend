@@ -212,6 +212,38 @@ func (u *inMemoryUserRepository) FollowUser(followerID, followeeID int64) error 
 	return nil
 }
 
+func (u *inMemoryUserRepository) UnfollowUser(followerID, followeeID int64) error {
+	u.mutex.Lock()
+	defer u.mutex.Unlock()
+
+	follower, exists := u.users[followerID]
+	if !exists {
+		return errors.New("follower not found")
+	}
+	followee, exists := u.users[followeeID]
+	if !exists {
+		return errors.New("user not found")
+	}
+
+	// Remove from follower's following list
+	for i, id := range follower.Following {
+		if id == followeeID {
+			follower.Following = append(follower.Following[:i], follower.Following[i+1:]...)
+			break
+		}
+	}
+
+	// Remove from followee's followers list
+	for i, id := range followee.Followers {
+		if id == followerID {
+			followee.Followers = append(followee.Followers[:i], followee.Followers[i+1:]...)
+			break
+		}
+	}
+
+	return nil
+}
+
 func (u *inMemoryUserRepository) GetUserFollowers(userID int64) ([]int64, error) {
 	u.mutex.RLock()
 	defer u.mutex.RUnlock()
