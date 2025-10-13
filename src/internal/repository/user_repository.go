@@ -41,23 +41,6 @@ func NewPostgresUserRepository() repository.UserRepository {
 	return &userRepository{db: db}
 }
 
-func (u *userRepository) ReadUserByEmail(email string) (model.User, error) {
-	var user model.User
-	var avatarURL sql.NullString
-	err := u.db.QueryRow("SELECT id, username, email, password, name, height, height_metric, weight, weight_metric, avatar_url FROM users WHERE email = $1", email).Scan(
-		&user.ID, &user.Username, &user.Email, &user.Password, &user.Name, &user.Height, &user.HeightMetric, &user.Weight, &user.WeightMetric, &avatarURL)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return model.User{}, errors.New("user not found")
-		}
-		return model.User{}, err
-	}
-	if avatarURL.Valid {
-		user.Avatar = avatarURL.String
-	}
-	return user, nil
-}
-
 func (u *userRepository) ReadUsers() ([]model.User, error) {
 	rows, err := u.db.Query("SELECT id, username, email, name, height, height_metric, weight, weight_metric, avatar_url FROM users")
 	if err != nil {
@@ -287,6 +270,15 @@ func (u *userRepository) CreateRoutine(userID int64, request model.CreateRoutine
 	if err != nil {
 		return model.ExerciseRoutine{}, err
 	}
+
+	// Insert exercises into exercises_in_routine table
+	for _, exerciseID := range request.ExerciseIDs {
+		_, err := u.db.Exec("INSERT INTO exercises_in_routine (workout_routine_id, exercise_id) VALUES ($1, $2)", routine.ID, exerciseID)
+		if err != nil {
+			return model.ExerciseRoutine{}, err
+		}
+	}
+
 	routine.Description = request.Description
 	routine.IsActive = true
 	return routine, nil
@@ -306,6 +298,24 @@ func (u *userRepository) GetUserRoutines(userID int64) ([]model.ExerciseRoutine,
 		if err != nil {
 			return nil, err
 		}
+
+		// Fetch exercises for the routine
+		exerciseRows, err := u.db.Query("SELECT exercise_id FROM exercises_in_routine WHERE workout_routine_id = $1", routine.ID)
+		if err != nil {
+			return nil, err
+		}
+		defer exerciseRows.Close()
+
+		var exerciseIDs []int64
+		for exerciseRows.Next() {
+			var exerciseID int64
+			if err := exerciseRows.Scan(&exerciseID); err != nil {
+				return nil, err
+			}
+			exerciseIDs = append(exerciseIDs, exerciseID)
+		}
+		routine.ExerciseIDs = exerciseIDs
+
 		routine.IsActive = true
 		routines = append(routines, routine)
 	}

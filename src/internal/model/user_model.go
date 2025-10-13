@@ -48,6 +48,7 @@ type ExerciseRoutine struct {
 	Name        string     `json:"name"`
 	Description string     `json:"description"`
 	Exercises   []Exercise `json:"exercises"`
+	ExerciseIDs []int64    `json:"exerciseIds"`
 	CreatedAt   string     `json:"createdAt"`
 	IsActive    bool       `json:"isActive"`
 }
@@ -98,8 +99,8 @@ type UpdateGoalRequest struct {
 }
 
 type CreateRoutineRequest struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
+	Name        string  `json:"name"`
+	Description string  `json:"description"`
 	ExerciseIDs []int64 `json:"exerciseIds"`
 }
 
