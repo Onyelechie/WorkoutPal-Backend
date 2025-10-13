@@ -38,12 +38,12 @@ func (e *exerciseRepository) GetAllExercises() ([]model.Exercise, error) {
 		var exercise model.Exercise
 		var targetsStr string
 		var image, demo sql.NullString
-		
+
 		err := rows.Scan(&exercise.ID, &exercise.Name, &exercise.Description, &targetsStr, &image)
 		if err != nil {
 			return nil, err
 		}
-		
+
 		if targetsStr != "" {
 			exercise.Targets = strings.Split(targetsStr, ",")
 		}
@@ -53,7 +53,7 @@ func (e *exerciseRepository) GetAllExercises() ([]model.Exercise, error) {
 		if demo.Valid {
 			exercise.Demo = demo.String
 		}
-		
+
 		exercises = append(exercises, exercise)
 	}
 	return exercises, nil

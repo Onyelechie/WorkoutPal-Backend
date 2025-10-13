@@ -63,6 +63,7 @@ func Routes(r chi.Router) http.Handler {
 	// --- Init Services ---
 	userService := service.NewUserService(userRepository)
 	exerciseService := service.NewExerciseService(exerciseRepository)
+	authService := service.NewAuthService(userRepository)
 
 	// --- Init Handlers ---
 	userHandler := handler.NewUserHandler(userService)
@@ -70,7 +71,7 @@ func Routes(r chi.Router) http.Handler {
 	relationshipHandler := handler.NewRelationshipHandler(userService)
 	workoutHandler := handler.NewWorkoutHandler(userService)
 	exerciseHandler := handler.NewExerciseHandler(exerciseService)
-	authHandler := handler.NewAuthHandler(userService)
+	authHandler := handler.NewAuthHandler(userService, authService)
 
 	// --- Init Middleware ---
 	var idMiddleware = middleware2.IdMiddleware()
@@ -79,12 +80,14 @@ func Routes(r chi.Router) http.Handler {
 	r.Get("/health", handler.HealthCheck)
 
 	// Auth routes
+	r.Post("/login", authHandler.Login)
+	r.Post("/logout", authHandler.Logout)
 	r.Route("/auth", func(r chi.Router) {
 		r.Post("/google", authHandler.GoogleAuth)
 	})
 
 	// --- Register Routes ---
-	r.Route("/users", func(r chi.Router) {
+	r.With(middleware2.AuthMiddleware([]byte("secret"))).Route("/users", func(r chi.Router) {
 		r.Post("/", userHandler.CreateNewUser)
 		r.Get("/", userHandler.ReadAllUsers)
 		r.With(idMiddleware).Get("/{id}", userHandler.GetUserByID)
