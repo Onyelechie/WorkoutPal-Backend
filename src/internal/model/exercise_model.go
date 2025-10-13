@@ -3,6 +3,7 @@ package model
 type Exercise struct {
 	ID                  int64    `json:"id"`
 	Name                string   `json:"name"`
+	Description         string   `json:"description"`
 	Targets             []string `json:"targets"`
 	Intensity           string   `json:"intensity"`
 	Expertise           string   `json:"expertise"`
@@ -22,6 +23,7 @@ type ReadExerciseRequest struct {
 
 type CreateExerciseRequest struct {
 	Name                string   `json:"name"`
+	Description         string   `json:"description"`
 	Targets             []string `json:"targets"`
 	Intensity           string   `json:"intensity"`
 	Expertise           string   `json:"expertise"`
