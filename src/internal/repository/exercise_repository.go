@@ -27,7 +27,7 @@ func NewExerciseRepository() repository.ExerciseRepository {
 }
 
 func (e *exerciseRepository) GetAllExercises() ([]model.Exercise, error) {
-	rows, err := e.db.Query("SELECT id, name, targets, intensity, expertise, image, demo, recommended_count, recommended_sets, recommended_duration, custom FROM exercises")
+	rows, err := e.db.Query("SELECT id, name, description, targets, image FROM exercises")
 	if err != nil {
 		return nil, err
 	}
@@ -39,8 +39,7 @@ func (e *exerciseRepository) GetAllExercises() ([]model.Exercise, error) {
 		var targetsStr string
 		var image, demo sql.NullString
 		
-		err := rows.Scan(&exercise.ID, &exercise.Name, &targetsStr, &exercise.Intensity, &exercise.Expertise, 
-			&image, &demo, &exercise.RecommendedCount, &exercise.RecommendedSets, &exercise.RecommendedDuration, &exercise.Custom)
+		err := rows.Scan(&exercise.ID, &exercise.Name, &exercise.Description, &targetsStr, &image)
 		if err != nil {
 			return nil, err
 		}

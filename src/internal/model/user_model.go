@@ -48,6 +48,7 @@ type ExerciseRoutine struct {
 	Name        string     `json:"name"`
 	Description string     `json:"description"`
 	Exercises   []Exercise `json:"exercises"`
+	ExerciseIDs []int64    `json:"exerciseIds"`
 	CreatedAt   string     `json:"createdAt"`
 	IsActive    bool       `json:"isActive"`
 }

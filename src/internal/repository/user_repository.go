@@ -265,10 +265,18 @@ func (u *userRepository) CreateRoutine(userID int64, request model.CreateRoutine
 		RETURNING id, name, user_id, frequency`,
 		request.Name, userID).Scan(
 		&routine.ID, &routine.Name, &routine.UserID, &routine.Description)
-	
 	if err != nil {
 		return model.ExerciseRoutine{}, err
 	}
+
+	// Insert exercises into exercises_in_routine table
+	for _, exerciseID := range request.ExerciseIDs {
+		_, err := u.db.Exec("INSERT INTO exercises_in_routine (workout_routine_id, exercise_id) VALUES ($1, $2)", routine.ID, exerciseID)
+		if err != nil {
+			return model.ExerciseRoutine{}, err
+		}
+	}
+
 	routine.Description = request.Description
 	routine.IsActive = true
 	return routine, nil
@@ -288,6 +296,24 @@ func (u *userRepository) GetUserRoutines(userID int64) ([]model.ExerciseRoutine,
 		if err != nil {
 			return nil, err
 		}
+
+		// Fetch exercises for the routine
+		exerciseRows, err := u.db.Query("SELECT exercise_id FROM exercises_in_routine WHERE workout_routine_id = $1", routine.ID)
+		if err != nil {
+			return nil, err
+		}
+		defer exerciseRows.Close()
+
+		var exerciseIDs []int64
+		for exerciseRows.Next() {
+			var exerciseID int64
+			if err := exerciseRows.Scan(&exerciseID); err != nil {
+				return nil, err
+			}
+			exerciseIDs = append(exerciseIDs, exerciseID)
+		}
+		routine.ExerciseIDs = exerciseIDs
+
 		routine.IsActive = true
 		routines = append(routines, routine)
 	}
