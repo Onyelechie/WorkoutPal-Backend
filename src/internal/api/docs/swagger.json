@@ -172,6 +172,51 @@
                 }
             }
         },
+        "/exercises/:id": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Exercises"
+                ],
+                "summary": "Returns the exercise with the corresponding ID",
+                "responses": {
+                    "200": {
+                        "description": "Exercises retrieved successfully",
+                        "schema": {
+                            "$ref": "#/definitions/model.Exercise"
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/login": {
             "post": {
                 "description": "Authenticates a user and sets access_token as cookie",
@@ -1439,6 +1484,9 @@
                 "demo": {
                     "type": "string"
                 },
+                "description": {
+                    "type": "string"
+                },
                 "expertise": {
                     "type": "string"
                 },
@@ -1577,6 +1625,9 @@
                 "demo": {
                     "type": "string"
                 },
+                "description": {
+                    "type": "string"
+                },
                 "expertise": {
                     "type": "string"
                 },
@@ -1617,6 +1668,12 @@
                 },
                 "description": {
                     "type": "string"
+                },
+                "exerciseIds": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
                 },
                 "exercises": {
                     "type": "array",

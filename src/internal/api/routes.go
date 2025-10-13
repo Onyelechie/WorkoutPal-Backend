@@ -110,6 +110,7 @@ func Routes(r chi.Router) http.Handler {
 	// Exercises
 	r.Route("/exercises", func(r chi.Router) {
 		r.Get("/", exerciseHandler.ReadExercises)
+		r.With(idMiddleware).Get("/{id}", exerciseHandler.ReadExerciseByID)
 	})
 
 	// Routines
