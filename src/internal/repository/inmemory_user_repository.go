@@ -8,13 +8,13 @@ import (
 )
 
 type inMemoryUserRepository struct {
-	users       map[int64]*model.User
-	goals       map[int64]*model.Goal
-	routines    map[int64]*model.ExerciseRoutine
-	nextID      int64
-	nextGoalID  int64
+	users         map[int64]*model.User
+	goals         map[int64]*model.Goal
+	routines      map[int64]*model.ExerciseRoutine
+	nextID        int64
+	nextGoalID    int64
 	nextRoutineID int64
-	mutex       sync.RWMutex
+	mutex         sync.RWMutex
 }
 
 func NewInMemoryUserRepository() repository.UserRepository {
@@ -26,6 +26,11 @@ func NewInMemoryUserRepository() repository.UserRepository {
 		nextGoalID:    1,
 		nextRoutineID: 1,
 	}
+}
+
+func (u *inMemoryUserRepository) ReadUserByEmail(email string) (model.User, error) {
+	//TODO implement me
+	panic("implement me")
 }
 
 func (u *inMemoryUserRepository) ReadUsers() ([]model.User, error) {

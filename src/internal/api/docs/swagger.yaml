@@ -189,6 +189,13 @@ definitions:
       postID:
         type: integer
     type: object
+  model.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
   model.Post:
     properties:
       caption:
@@ -457,6 +464,40 @@ paths:
       summary: Create a new exercise
       tags:
       - Exercises
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticates a user and sets access_token as cookie
+      parameters:
+      - description: comment
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.User'
+      summary: Logs in a user
+      tags:
+      - global
+      - auth
+  /logout:
+    post:
+      responses:
+        "200":
+          description: Logged out
+          schema:
+            type: string
+      summary: Logs out user by clearing access_token
+      tags:
+      - global
+      - auth
   /posts:
     get:
       consumes:

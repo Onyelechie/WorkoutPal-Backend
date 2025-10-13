@@ -3,20 +3,95 @@ package handler
 import (
 	"encoding/json"
 	"net/http"
+	"strings"
+	"time"
 	"workoutpal/src/internal/domain/service"
 	"workoutpal/src/internal/model"
 
 	"github.com/go-chi/render"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 type authHandler struct {
 	userService service.UserService
+	authService service.AuthService
 }
 
-func NewAuthHandler(us service.UserService) *authHandler {
+func NewAuthHandler(us service.UserService, as service.AuthService) *authHandler {
 	return &authHandler{
 		userService: us,
+		authService: as,
 	}
+}
+
+// Login godoc
+// @Summary Logs in a user
+// @Description Authenticates a user and sets access_token as cookie
+// @Tags global, auth
+// @Accept json
+// @Produce json
+// @Param request body model.LoginRequest true "comment"
+// @Success 200 {object} model.User
+// @Router /login [post]
+func (h *authHandler) Login(w http.ResponseWriter, r *http.Request) {
+	var req model.LoginRequest
+	if err := render.DecodeJSON(r.Body, &req); err != nil {
+		http.Error(w, "invalid input", http.StatusBadRequest)
+		return
+	}
+
+	req.Email = strings.ToLower(req.Email)
+
+	user, err := h.authService.Authenticate(r.Context(), req)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusUnauthorized)
+		return
+	}
+
+	claims := jwt.MapClaims{
+		"sub":   user.ID,
+		"email": user.Email,
+		"exp":   time.Now().Add(time.Hour).Unix(),
+		"iat":   time.Now().Unix(),
+	}
+	tokenWithClaims := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	token, err := tokenWithClaims.SignedString([]byte("secret")) // TODO read this from environment variables
+	if err != nil {
+		http.Error(w, "failed to create token", http.StatusInternalServerError)
+		return
+	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "access_token",
+		Value:    token,
+		Path:     "/",
+		HttpOnly: true,
+		Secure:   false,
+		SameSite: http.SameSiteNoneMode,
+		MaxAge:   int(time.Hour.Seconds()),
+	})
+
+	render.JSON(w, r, user)
+}
+
+// Logout godoc
+// @Summary Logs out user by clearing access_token
+// @Tags global, auth
+// @Success 200 {string} string "Logged out"
+// @Router /logout [post]
+func (h *authHandler) Logout(w http.ResponseWriter, r *http.Request) {
+	http.SetCookie(w, &http.Cookie{
+		Name:     "access_token",
+		Value:    "",
+		Path:     "/",
+		HttpOnly: true,
+		Secure:   true,
+		SameSite: http.SameSiteNoneMode,
+		MaxAge:   -1,
+	})
+	w.WriteHeader(http.StatusOK)
+	render.JSON(w, r, map[string]string{"message": "logout success"})
 }
 
 // GoogleAuth godoc
@@ -48,10 +123,10 @@ func (a *authHandler) GoogleAuth(w http.ResponseWriter, r *http.Request) {
 	response := model.AuthResponse{
 		Token: "jwt-token-placeholder",
 		User: model.User{
-			ID:       1,
-			Email:    "user@example.com",
-			Name:     "Google User",
-			Provider: "google",
+			ID:         1,
+			Email:      "user@example.com",
+			Name:       "Google User",
+			Provider:   "google",
 			IsVerified: true,
 		},
 	}
