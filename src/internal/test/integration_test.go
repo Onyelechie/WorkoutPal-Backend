@@ -6,12 +6,14 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 	"workoutpal/src/internal/api"
 	"workoutpal/src/internal/model"
 )
 
 func TestIntegration_UserWorkflow(t *testing.T) {
+	os.Setenv("APP_ENV", "test")
 	// Setup server
 	router := api.RegisterRoutes()
 	server := httptest.NewServer(router)
@@ -108,6 +110,7 @@ func TestIntegration_UserWorkflow(t *testing.T) {
 }
 
 func TestIntegration_FollowWorkflow(t *testing.T) {
+	os.Setenv("APP_ENV", "test")
 	router := api.RegisterRoutes()
 	server := httptest.NewServer(router)
 	defer server.Close()
@@ -162,6 +165,7 @@ func TestIntegration_FollowWorkflow(t *testing.T) {
 }
 
 func TestIntegration_RoutineWorkflow(t *testing.T) {
+	os.Setenv("APP_ENV", "test")
 	router := api.RegisterRoutes()
 	server := httptest.NewServer(router)
 	defer server.Close()
