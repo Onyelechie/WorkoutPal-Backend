@@ -41,6 +41,23 @@ func NewPostgresUserRepository() repository.UserRepository {
 	return &userRepository{db: db}
 }
 
+func (u *userRepository) ReadUserByEmail(email string) (model.User, error) {
+	var user model.User
+	var avatarURL sql.NullString
+	err := u.db.QueryRow("SELECT id, username, email, password, name, height, height_metric, weight, weight_metric, avatar_url FROM users WHERE email = $1", email).Scan(
+		&user.ID, &user.Username, &user.Email, &user.Password, &user.Name, &user.Height, &user.HeightMetric, &user.Weight, &user.WeightMetric, &avatarURL)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return model.User{}, errors.New("user not found")
+		}
+		return model.User{}, err
+	}
+	if avatarURL.Valid {
+		user.Avatar = avatarURL.String
+	}
+	return user, nil
+}
+
 func (u *userRepository) ReadUsers() ([]model.User, error) {
 	rows, err := u.db.Query("SELECT id, username, email, name, height, height_metric, weight, weight_metric, avatar_url FROM users")
 	if err != nil {
