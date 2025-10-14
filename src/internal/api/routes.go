@@ -83,28 +83,31 @@ func Routes(r chi.Router) http.Handler {
 	r.Post("/login", authHandler.Login)
 	r.Post("/logout", authHandler.Logout)
 	r.Route("/auth", func(r chi.Router) {
-		r.Post("/google", authHandler.GoogleAuth)
+		//r.Post("/google", authHandler.GoogleAuth)
 	})
 
 	// --- Register Routes ---
-	r.With(middleware2.AuthMiddleware([]byte("secret"))).Route("/users", func(r chi.Router) {
+	r.Route("/users", func(r chi.Router) {
 		r.Post("/", userHandler.CreateNewUser)
-		r.Get("/", userHandler.ReadAllUsers)
-		r.With(idMiddleware).Get("/{id}", userHandler.GetUserByID)
-		r.With(idMiddleware).Patch("/{id}", userHandler.UpdateUser)
-		r.With(idMiddleware).Delete("/{id}", userHandler.DeleteUser)
-		// User Goals
-		r.With(idMiddleware).Post("/{id}/goals", goalHandler.CreateUserGoal)
-		r.With(idMiddleware).Get("/{id}/goals", goalHandler.GetUserGoals)
-		// User Followers
-		r.With(idMiddleware).Post("/{id}/follow", relationshipHandler.FollowUser)
-		r.With(idMiddleware).Post("/{id}/unfollow", relationshipHandler.UnfollowUser)
-		r.With(idMiddleware).Get("/{id}/followers", relationshipHandler.ReadFollowers)
-		r.With(idMiddleware).Get("/{id}/following", relationshipHandler.ReadFollowings)
-		// User Routines
-		r.With(idMiddleware).Post("/{id}/routines", workoutHandler.CreateUserRoutine)
-		r.With(idMiddleware).Get("/{id}/routines", workoutHandler.GetUserRoutines)
-		r.With(idMiddleware).Delete("/{id}/routines/{routine_id}", workoutHandler.DeleteUserRoutine)
+
+		r.With(middleware2.AuthMiddleware([]byte("secret"))).Group(func(r chi.Router) {
+			r.Get("/", userHandler.ReadAllUsers)
+			r.With(idMiddleware).Get("/{id}", userHandler.GetUserByID)
+			r.With(idMiddleware).Patch("/{id}", userHandler.UpdateUser)
+			r.With(idMiddleware).Delete("/{id}", userHandler.DeleteUser)
+			// User Goals
+			r.With(idMiddleware).Post("/{id}/goals", goalHandler.CreateUserGoal)
+			r.With(idMiddleware).Get("/{id}/goals", goalHandler.GetUserGoals)
+			// User Followers
+			r.With(idMiddleware).Post("/{id}/follow", relationshipHandler.FollowUser)
+			r.With(idMiddleware).Post("/{id}/unfollow", relationshipHandler.UnfollowUser)
+			r.With(idMiddleware).Get("/{id}/followers", relationshipHandler.ReadFollowers)
+			r.With(idMiddleware).Get("/{id}/following", relationshipHandler.ReadFollowings)
+			// User Routines
+			r.With(idMiddleware).Post("/{id}/routines", workoutHandler.CreateUserRoutine)
+			r.With(idMiddleware).Get("/{id}/routines", workoutHandler.GetUserRoutines)
+			r.With(idMiddleware).Delete("/{id}/routines/{routine_id}", workoutHandler.DeleteUserRoutine)
+		})
 	})
 
 	// Exercises
