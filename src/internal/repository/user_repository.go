@@ -7,6 +7,7 @@ import (
 	"workoutpal/src/internal/domain/repository"
 	"workoutpal/src/internal/model"
 
+	"github.com/lib/pq"
 	_ "github.com/lib/pq"
 )
 
@@ -110,6 +111,12 @@ func (u *userRepository) CreateUser(request model.CreateUserRequest) (model.User
 		&user.Height, &user.HeightMetric, &user.Weight, &user.WeightMetric, &user.Avatar)
 
 	if err != nil {
+		var pqErr *pq.Error
+		if errors.As(err, &pqErr) {
+			if pqErr.Code == "23505" {
+				return model.User{}, errors.New("user already exists")
+			}
+		}
 		return model.User{}, err
 	}
 	return user, nil
