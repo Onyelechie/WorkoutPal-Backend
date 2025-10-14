@@ -16,6 +16,10 @@ func NewUserService(ur repository.UserRepository) service.UserService {
 	}
 }
 
+func (u *userService) ReadUserByEmail(email string) (model.User, error) {
+	return u.userRepository.ReadUserByEmail(email)
+}
+
 func (u *userService) ReadUsers() ([]model.User, error) {
 	return u.userRepository.ReadUsers()
 }

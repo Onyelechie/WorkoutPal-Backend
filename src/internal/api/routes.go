@@ -82,6 +82,7 @@ func Routes(r chi.Router) http.Handler {
 	// Auth routes
 	r.Post("/login", authHandler.Login)
 	r.Post("/logout", authHandler.Logout)
+	r.With(middleware2.AuthMiddleware([]byte("secret"))).Get("/me", authHandler.Me)
 	r.Route("/auth", func(r chi.Router) {
 		//r.Post("/google", authHandler.GoogleAuth)
 	})

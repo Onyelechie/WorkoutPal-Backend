@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 	"workoutpal/src/internal/domain/service"
+	"workoutpal/src/internal/middleware"
 	"workoutpal/src/internal/model"
 
 	"github.com/go-chi/render"
@@ -71,6 +72,34 @@ func (h *authHandler) Login(w http.ResponseWriter, r *http.Request) {
 		SameSite: http.SameSiteDefaultMode,
 		MaxAge:   int(time.Hour.Seconds()),
 	})
+
+	render.JSON(w, r, user)
+}
+
+// Me godoc
+// @Summary Get current authenticated user
+// @Tags global, auth
+// @Produce json
+// @Success 200 {object} model.User
+// @Router /me [get]
+func (h *authHandler) Me(w http.ResponseWriter, r *http.Request) {
+	claims, ok := middleware.ClaimsFromContext(r.Context())
+	if !ok {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	userEmail, ok := claims["email"].(string)
+	if !ok {
+		http.Error(w, "invalid token data", http.StatusUnauthorized)
+		return
+	}
+
+	user, err := h.userService.ReadUserByEmail(userEmail)
+	if err != nil {
+		http.Error(w, "user not found", http.StatusNotFound)
+		return
+	}
 
 	render.JSON(w, r, user)
 }
