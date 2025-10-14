@@ -183,6 +183,51 @@ const docTemplate = `{
                 }
             }
         },
+        "/exercises/:id": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Exercises"
+                ],
+                "summary": "Returns the exercise with the corresponding ID",
+                "responses": {
+                    "200": {
+                        "description": "Exercises retrieved successfully",
+                        "schema": {
+                            "$ref": "#/definitions/model.Exercise"
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/login": {
             "post": {
                 "description": "Authenticates a user and sets access_token as cookie",
@@ -1450,6 +1495,9 @@ const docTemplate = `{
                 "demo": {
                     "type": "string"
                 },
+                "description": {
+                    "type": "string"
+                },
                 "expertise": {
                     "type": "string"
                 },
@@ -1588,6 +1636,9 @@ const docTemplate = `{
                 "demo": {
                     "type": "string"
                 },
+                "description": {
+                    "type": "string"
+                },
                 "expertise": {
                     "type": "string"
                 },
@@ -1628,6 +1679,12 @@ const docTemplate = `{
                 },
                 "description": {
                     "type": "string"
+                },
+                "exerciseIds": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
                 },
                 "exercises": {
                     "type": "array",

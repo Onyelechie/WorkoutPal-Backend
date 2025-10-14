@@ -21,3 +21,7 @@ func (h *exerciseHandler) ReadExercises(w http.ResponseWriter, r *http.Request) 
 func (h *exerciseHandler) CreateExercise(w http.ResponseWriter, r *http.Request) {
 	render.JSON(w, r, exercise)
 }
+
+func (h *exerciseHandler) ReadExerciseByID(w http.ResponseWriter, r *http.Request) {
+	render.JSON(w, r, exercise)
+}

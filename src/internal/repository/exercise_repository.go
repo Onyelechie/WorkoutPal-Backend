@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"errors"
 	"strings"
 	"workoutpal/src/internal/config"
 	"workoutpal/src/internal/domain/repository"
@@ -24,6 +25,34 @@ func NewExerciseRepository() repository.ExerciseRepository {
 		return NewInMemoryExerciseRepository()
 	}
 	return &exerciseRepository{db: db}
+}
+
+func (e *exerciseRepository) ReadExerciseByID(id int64) (*model.Exercise, error) {
+	var exercise model.Exercise
+	var targetsStr string
+	var image, demo sql.NullString
+
+	err := e.db.QueryRow("SELECT id, name, description, targets, image FROM exercises WHERE id = $1", id).Scan(
+		&exercise.ID, &exercise.Name, &exercise.Description, &targetsStr, &image)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, errors.New("user not found")
+		}
+		return nil, err
+	}
+
+	if targetsStr != "" {
+		exercise.Targets = strings.Split(targetsStr, ",")
+	}
+	if image.Valid {
+		exercise.Image = image.String
+	}
+	if demo.Valid {
+		exercise.Demo = demo.String
+	}
+
+	return &exercise, nil
 }
 
 func (e *exerciseRepository) GetAllExercises() ([]model.Exercise, error) {
@@ -61,6 +90,11 @@ func (e *exerciseRepository) GetAllExercises() ([]model.Exercise, error) {
 
 // In-memory fallback
 type inMemoryExerciseRepository struct{}
+
+func (e *inMemoryExerciseRepository) ReadExerciseByID(id int64) (*model.Exercise, error) {
+	//TODO implement me
+	panic("implement me")
+}
 
 func NewInMemoryExerciseRepository() repository.ExerciseRepository {
 	return &inMemoryExerciseRepository{}
