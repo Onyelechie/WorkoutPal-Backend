@@ -29,11 +29,11 @@ func (r *routineRepository) CreateRoutine(userID int64, request model.CreateRout
 	// Keep this minimal & consistent with model fields we know exist.
 	// We’ll store frequency implicitly (if you add it to your model later, extend RETURNING).
 	err = tx.QueryRow(`
-		INSERT INTO workout_routine (name, user_id, description)
-		VALUES ($1, $2, $3)
-		RETURNING id, name, user_id, description`,
-		request.Name, userID, request.Description,
-	).Scan(&routine.ID, &routine.Name, &routine.UserID, &routine.Description)
+		INSERT INTO workout_routine (name, user_id)
+		VALUES ($1, $2)
+		RETURNING id, name, user_id`,
+		request.Name, userID,
+	).Scan(&routine.ID, &routine.Name, &routine.UserID)
 	if err != nil {
 		return nil, err
 	}
@@ -58,7 +58,7 @@ func (r *routineRepository) CreateRoutine(userID int64, request model.CreateRout
 
 func (r *routineRepository) ReadUserRoutines(userID int64) ([]*model.ExerciseRoutine, error) {
 	rows, err := r.db.Query(
-		"SELECT id, name, user_id, description FROM workout_routine WHERE user_id = $1",
+		"SELECT id, name, user_id FROM workout_routine WHERE user_id = $1",
 		userID,
 	)
 	if err != nil {
@@ -69,7 +69,7 @@ func (r *routineRepository) ReadUserRoutines(userID int64) ([]*model.ExerciseRou
 	var routines []*model.ExerciseRoutine
 	for rows.Next() {
 		var routine model.ExerciseRoutine
-		if err := rows.Scan(&routine.ID, &routine.Name, &routine.UserID, &routine.Description); err != nil {
+		if err := rows.Scan(&routine.ID, &routine.Name, &routine.UserID); err != nil {
 			return nil, err
 		}
 
@@ -124,9 +124,9 @@ func (r *routineRepository) DeleteRoutine(routineID int64) error {
 func (r *routineRepository) ReadRoutineWithExercises(routineID int64) (*model.ExerciseRoutine, error) {
 	var routine model.ExerciseRoutine
 	err := r.db.QueryRow(
-		"SELECT id, name, user_id, description FROM workout_routine WHERE id = $1",
+		"SELECT id, name, user_id FROM workout_routine WHERE id = $1",
 		routineID,
-	).Scan(&routine.ID, &routine.Name, &routine.UserID, &routine.Description)
+	).Scan(&routine.ID, &routine.Name, &routine.UserID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, errors.New("routine not found")
