@@ -73,6 +73,17 @@ docker-compose up -d
 ```bash
 go run src/cmd/api/main.go
 ```
+**OR Alternatively:**
+```bash
+# If using Windows Command Prompt
+run_go.bat 
+
+# If Windows Powershell
+.\run_go.bat 
+
+# If Linux, WSL, MacOS terminal
+./run_go.sh 
+```
 
 The API will be available at `http://localhost:8080`
 
