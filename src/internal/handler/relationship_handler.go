@@ -12,12 +12,12 @@ import (
 )
 
 type relationshipHandler struct {
-	userService service.UserService
+	relationshipService service.RelationshipService
 }
 
-func NewRelationshipHandler(us service.UserService) handler.RelationshipHandler {
+func NewRelationshipHandler(rs service.RelationshipService) handler.RelationshipHandler {
 	return &relationshipHandler{
-		userService: us,
+		relationshipService: rs,
 	}
 }
 
@@ -39,7 +39,7 @@ func (h *relationshipHandler) ReadFollowers(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	followers, err := h.userService.GetUserFollowers(id)
+	followers, err := h.relationshipService.ReadUserFollowers(id)
 	if err != nil {
 		render.Status(r, http.StatusNotFound)
 		render.JSON(w, r, model.BasicResponse{Message: err.Error()})
@@ -67,7 +67,7 @@ func (h *relationshipHandler) ReadFollowings(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	following, err := h.userService.GetUserFollowing(id)
+	following, err := h.relationshipService.ReadUserFollowing(id)
 	if err != nil {
 		render.Status(r, http.StatusNotFound)
 		render.JSON(w, r, model.BasicResponse{Message: err.Error()})
@@ -103,7 +103,7 @@ func (h *relationshipHandler) FollowUser(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	err = h.userService.FollowUser(followerID, followeeID)
+	err = h.relationshipService.FollowUser(followerID, followeeID)
 	if err != nil {
 		render.Status(r, http.StatusBadRequest)
 		render.JSON(w, r, model.BasicResponse{Message: err.Error()})
@@ -139,7 +139,7 @@ func (h *relationshipHandler) UnfollowUser(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	err = h.userService.UnfollowUser(followerID, followeeID)
+	err = h.relationshipService.UnfollowUser(followerID, followeeID)
 	if err != nil {
 		render.Status(r, http.StatusBadRequest)
 		render.JSON(w, r, model.BasicResponse{Message: err.Error()})

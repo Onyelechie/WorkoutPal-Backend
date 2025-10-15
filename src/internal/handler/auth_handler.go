@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strings"
 	"time"
+	"workoutpal/src/internal/domain/handler"
 	"workoutpal/src/internal/domain/service"
 	"workoutpal/src/internal/middleware"
 	"workoutpal/src/internal/model"
@@ -18,7 +19,7 @@ type authHandler struct {
 	authService service.AuthService
 }
 
-func NewAuthHandler(us service.UserService, as service.AuthService) *authHandler {
+func NewAuthHandler(us service.UserService, as service.AuthService) handler.AuthHandler {
 	return &authHandler{
 		userService: us,
 		authService: as,
@@ -28,7 +29,7 @@ func NewAuthHandler(us service.UserService, as service.AuthService) *authHandler
 // Login godoc
 // @Summary Logs in a user
 // @Description Authenticates a user and sets access_token as cookie
-// @Tags global, auth
+// @Tags auth
 // @Accept json
 // @Produce json
 // @Param request body model.LoginRequest true "comment"
@@ -78,7 +79,7 @@ func (h *authHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 // Me godoc
 // @Summary Get current authenticated user
-// @Tags global, auth
+// @Tags auth
 // @Produce json
 // @Success 200 {object} model.User
 // @Router /me [get]
@@ -106,8 +107,8 @@ func (h *authHandler) Me(w http.ResponseWriter, r *http.Request) {
 
 // Logout godoc
 // @Summary Logs out user by clearing access_token
-// @Tags global, auth
-// @Success 200 {string} string "Logged out"
+// @Tags auth
+// @Success 200 {object} model.BasicResponse "successful logout"
 // @Router /logout [post]
 func (h *authHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, &http.Cookie{
@@ -120,7 +121,7 @@ func (h *authHandler) Logout(w http.ResponseWriter, r *http.Request) {
 		MaxAge:   -1,
 	})
 	w.WriteHeader(http.StatusOK)
-	render.JSON(w, r, map[string]string{"message": "logout success"})
+	render.JSON(w, r, model.BasicResponse{Message: "success"})
 }
 
 // GoogleAuth godoc

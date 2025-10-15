@@ -63,7 +63,7 @@ func TestUserService_GetUserByID(t *testing.T) {
 	}
 	createdUser, _ := userService.CreateUser(req)
 
-	user, err := userService.GetUserByID(createdUser.ID)
+	user, err := userService.ReadUserByID(createdUser.ID)
 	if err != nil {
 		t.Fatalf("Expected no error, got %v", err)
 	}
@@ -116,13 +116,13 @@ func TestUserService_DeleteUser(t *testing.T) {
 	createdUser, _ := userService.CreateUser(req)
 
 	// Delete user
-	err := userService.DeleteUser(model.DeleteUserRequest{ID: createdUser.ID})
+	err := userService.DeleteUser(*model.DeleteUserRequest{ID: createdUser.ID})
 	if err != nil {
 		t.Fatalf("Expected no error, got %v", err)
 	}
 
 	// Verify user is deleted
-	_, err = userService.GetUserByID(createdUser.ID)
+	_, err = userService.ReadUserByID(createdUser.ID)
 	if err == nil {
 		t.Error("Expected error when getting deleted user")
 	}
@@ -162,10 +162,10 @@ func TestUserService_FollowUser(t *testing.T) {
 	userService := service.NewUserService(repo)
 
 	// Create two users
-	user1, _ := userService.CreateUser(model.CreateUserRequest{
+	user1, _ := userService.CreateUser(*model.CreateUserRequest{
 		Username: "user1", Email: "user1@example.com", Name: "User 1",
 	})
-	user2, _ := userService.CreateUser(model.CreateUserRequest{
+	user2, _ := userService.CreateUser(*model.CreateUserRequest{
 		Username: "user2", Email: "user2@example.com", Name: "User 2",
 	})
 
@@ -176,7 +176,7 @@ func TestUserService_FollowUser(t *testing.T) {
 	}
 
 	// Verify following relationship
-	followers, err := userService.GetUserFollowers(user2.ID)
+	followers, err := userService.ReadUserFollowers(user2.ID)
 	if err != nil {
 		t.Fatalf("Expected no error, got %v", err)
 	}

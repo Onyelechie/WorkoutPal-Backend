@@ -50,13 +50,15 @@ func MockRoutes(r chi.Router) {
 	// Exercises
 	r.Route("/exercises", func(r chi.Router) {
 		r.Get("/", mockExerciseHandler.ReadExercises)
-		r.Post("/", mockExerciseHandler.CreateExercise)
+		r.Get("/{id}", mockExerciseHandler.ReadExerciseByID)
 	})
 
-	// Workouts
-	r.Route("/workouts", func(r chi.Router) {
-		r.Get("/", mockWorkoutHandler.ReadWorkouts)
-		r.Post("/", mockWorkoutHandler.CreateWorkout)
-		r.Patch("/{id}", mockWorkoutHandler.UpdateWorkout)
+	// Routines
+	r.Route("/routines", func(r chi.Router) {
+		r.Get("/{id}", mockWorkoutHandler.ReadRoutineWithExercises)
+		r.Delete("/{id}", mockWorkoutHandler.DeleteRoutine)
+		r.Post("/{id}/exercises", mockWorkoutHandler.AddExerciseToRoutine)
+		r.Delete("/{id}/exercises/{exercise_id}", mockWorkoutHandler.RemoveExerciseFromRoutine)
 	})
+
 }

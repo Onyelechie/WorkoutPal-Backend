@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"errors"
 	"strings"
-	"workoutpal/src/internal/config"
 	"workoutpal/src/internal/domain/repository"
 	"workoutpal/src/internal/model"
 
@@ -15,15 +14,7 @@ type exerciseRepository struct {
 	db *sql.DB
 }
 
-func NewExerciseRepository() repository.ExerciseRepository {
-	cfg := config.Load()
-	db, err := sql.Open("postgres", cfg.DatabaseURL)
-	if err != nil {
-		return NewInMemoryExerciseRepository()
-	}
-	if err = db.Ping(); err != nil {
-		return NewInMemoryExerciseRepository()
-	}
+func NewExerciseRepository(db *sql.DB) repository.ExerciseRepository {
 	return &exerciseRepository{db: db}
 }
 
@@ -55,14 +46,14 @@ func (e *exerciseRepository) ReadExerciseByID(id int64) (*model.Exercise, error)
 	return &exercise, nil
 }
 
-func (e *exerciseRepository) GetAllExercises() ([]model.Exercise, error) {
+func (e *exerciseRepository) ReadAllExercises() ([]*model.Exercise, error) {
 	rows, err := e.db.Query("SELECT id, name, description, targets, image FROM exercises")
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var exercises []model.Exercise
+	var exercises []*model.Exercise
 	for rows.Next() {
 		var exercise model.Exercise
 		var targetsStr string
@@ -83,7 +74,7 @@ func (e *exerciseRepository) GetAllExercises() ([]model.Exercise, error) {
 			exercise.Demo = demo.String
 		}
 
-		exercises = append(exercises, exercise)
+		exercises = append(exercises, &exercise)
 	}
 	return exercises, nil
 }
@@ -100,8 +91,8 @@ func NewInMemoryExerciseRepository() repository.ExerciseRepository {
 	return &inMemoryExerciseRepository{}
 }
 
-func (e *inMemoryExerciseRepository) GetAllExercises() ([]model.Exercise, error) {
-	return []model.Exercise{
+func (e *inMemoryExerciseRepository) ReadAllExercises() ([]*model.Exercise, error) {
+	return []*model.Exercise{
 		{ID: 1, Name: "Push-ups", Targets: []string{"chest", "shoulders", "triceps"}, Intensity: "medium", Expertise: "beginner"},
 		{ID: 2, Name: "Pull-ups", Targets: []string{"back", "biceps"}, Intensity: "high", Expertise: "intermediate"},
 		{ID: 3, Name: "Squats", Targets: []string{"legs", "glutes"}, Intensity: "medium", Expertise: "beginner"},

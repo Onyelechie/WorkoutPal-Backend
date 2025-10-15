@@ -48,7 +48,7 @@ func TestUserRepository_GetUserByID(t *testing.T) {
 	createdUser, _ := repo.CreateUser(req)
 
 	// Get user by ID
-	user, err := repo.GetUserByID(createdUser.ID)
+	user, err := repo.ReadUserByID(createdUser.ID)
 	if err != nil {
 		t.Fatalf("Expected no error, got %v", err)
 	}
@@ -122,13 +122,13 @@ func TestUserRepository_DeleteUser(t *testing.T) {
 	createdUser, _ := repo.CreateUser(req)
 
 	// Delete user
-	err := repo.DeleteUser(model.DeleteUserRequest{ID: createdUser.ID})
+	err := repo.DeleteUser(*model.DeleteUserRequest{ID: createdUser.ID})
 	if err != nil {
 		t.Fatalf("Expected no error, got %v", err)
 	}
 
 	// Verify user is deleted
-	_, err = repo.GetUserByID(createdUser.ID)
+	_, err = repo.ReadUserByID(createdUser.ID)
 	if err == nil {
 		t.Error("Expected error when getting deleted user")
 	}
@@ -169,7 +169,7 @@ func TestUserRepository_UpdateGoal(t *testing.T) {
 	repo := repository.NewInMemoryUserRepository()
 
 	// Create user and goal first
-	user, _ := repo.CreateUser(model.CreateUserRequest{
+	user, _ := repo.CreateUser(*model.CreateUserRequest{
 		Username: "testuser", Email: "test@example.com", Name: "Test User",
 	})
 	goal, _ := repo.CreateGoal(user.ID, model.CreateGoalRequest{
@@ -178,7 +178,7 @@ func TestUserRepository_UpdateGoal(t *testing.T) {
 
 	// Update goal
 	updateReq := model.UpdateGoalRequest{
-		ID: goal.ID, Name: "Updated Goal", Description: "Updated description", 
+		ID: goal.ID, Name: "Updated Goal", Description: "Updated description",
 		Deadline: "2025-01-31", Status: "completed",
 	}
 
@@ -196,7 +196,7 @@ func TestUserRepository_DeleteGoal(t *testing.T) {
 	repo := repository.NewInMemoryUserRepository()
 
 	// Create user and goal first
-	user, _ := repo.CreateUser(model.CreateUserRequest{
+	user, _ := repo.CreateUser(*model.CreateUserRequest{
 		Username: "testuser", Email: "test@example.com", Name: "Test User",
 	})
 	goal, _ := repo.CreateGoal(user.ID, model.CreateGoalRequest{
@@ -220,7 +220,7 @@ func TestUserRepository_DeleteRoutine(t *testing.T) {
 	repo := repository.NewInMemoryUserRepository()
 
 	// Create user and routine first
-	user, _ := repo.CreateUser(model.CreateUserRequest{
+	user, _ := repo.CreateUser(*model.CreateUserRequest{
 		Username: "testuser", Email: "test@example.com", Name: "Test User",
 	})
 	routine, _ := repo.CreateRoutine(user.ID, model.CreateRoutineRequest{
@@ -244,10 +244,10 @@ func TestUserRepository_FollowUser(t *testing.T) {
 	repo := repository.NewInMemoryUserRepository()
 
 	// Create two users
-	user1, _ := repo.CreateUser(model.CreateUserRequest{
+	user1, _ := repo.CreateUser(*model.CreateUserRequest{
 		Username: "user1", Email: "user1@example.com", Name: "User 1",
 	})
-	user2, _ := repo.CreateUser(model.CreateUserRequest{
+	user2, _ := repo.CreateUser(*model.CreateUserRequest{
 		Username: "user2", Email: "user2@example.com", Name: "User 2",
 	})
 

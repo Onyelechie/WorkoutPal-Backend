@@ -31,5 +31,5 @@ func (a *authService) Authenticate(ctx context.Context, request model.LoginReque
 		return nil, errors.New("invalid password")
 	}
 
-	return &user, nil
+	return user, nil
 }

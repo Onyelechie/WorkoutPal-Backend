@@ -7,70 +7,20 @@ import (
 	"workoutpal/src/internal/domain/handler"
 	"workoutpal/src/internal/domain/service"
 	"workoutpal/src/internal/model"
+	"workoutpal/src/util/constants"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
 )
 
 type workoutHandler struct {
-	userService service.UserService
+	routineService service.RoutineService
 }
 
-func NewWorkoutHandler(us service.UserService) handler.WorkoutHandler {
+func NewRoutineHandler(rs service.RoutineService) handler.RoutineHandler {
 	return &workoutHandler{
-		userService: us,
+		routineService: rs,
 	}
-}
-
-// ReadWorkouts godoc
-// @Summary List workouts
-// @Tags Workouts
-// @Accept json
-// @Produce json
-// @Success 200 {array} model.Workout "Workouts retrieved successfully"
-// @Failure 400 {object} model.BasicResponse "Validation error"
-// @Failure 401 {object} model.BasicResponse "Unauthorized"
-// @Failure 500 {object} model.BasicResponse "Internal server error"
-// @Security BearerAuth
-// @Router /workouts [get]
-func (h *workoutHandler) ReadWorkouts(w http.ResponseWriter, r *http.Request) {
-	//TODO implement me
-	panic("implement me")
-}
-
-// CreateWorkout godoc
-// @Summary Create a new workout
-// @Tags Workouts
-// @Accept json
-// @Produce json
-// @Param request body model.CreateWorkoutRequest true "New workout payload"
-// @Success 201 {object} model.Workout "Workout created successfully"
-// @Failure 400 {object} model.BasicResponse "Validation error"
-// @Failure 401 {object} model.BasicResponse "Unauthorized"
-// @Failure 500 {object} model.BasicResponse "Internal server error"
-// @Security BearerAuth
-// @Router /workouts [post]
-func (h *workoutHandler) CreateWorkout(w http.ResponseWriter, r *http.Request) {
-	//TODO implement me
-	panic("implement me")
-}
-
-// UpdateWorkout godoc
-// @Summary Update an existing workout
-// @Tags Workouts
-// @Accept json
-// @Produce json
-// @Param id path int true "Workout ID"
-// @Param request body model.UpdateWorkoutRequest true "Updated workout payload"
-// @Success 200 {object} model.Workout "Workout updated successfully"
-// @Failure 400 {object} model.BasicResponse "Validation error"
-// @Failure 401 {object} model.BasicResponse "Unauthorized"
-// @Failure 500 {object} model.BasicResponse "Internal server error"
-// @Security BearerAuth
-// @Router /workouts/{id} [put]
-func (h *workoutHandler) UpdateWorkout(w http.ResponseWriter, r *http.Request) {
-	//TODO implement me
-	panic("implement me")
 }
 
 // CreateUserRoutine godoc
@@ -85,13 +35,7 @@ func (h *workoutHandler) UpdateWorkout(w http.ResponseWriter, r *http.Request) {
 // @Failure 404 {object} model.BasicResponse "User not found"
 // @Router /users/{id}/routines [post]
 func (h *workoutHandler) CreateUserRoutine(w http.ResponseWriter, r *http.Request) {
-	idStr := chi.URLParam(r, "id")
-	id, err := strconv.ParseInt(idStr, 10, 64)
-	if err != nil {
-		render.Status(r, http.StatusBadRequest)
-		render.JSON(w, r, model.BasicResponse{Message: "Invalid user ID"})
-		return
-	}
+	id := r.Context().Value(constants.ID_KEY).(int64)
 
 	var req model.CreateRoutineRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -100,7 +44,7 @@ func (h *workoutHandler) CreateUserRoutine(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	routine, err := h.userService.CreateRoutine(id, req)
+	routine, err := h.routineService.CreateRoutine(id, req)
 	if err != nil {
 		render.Status(r, http.StatusBadRequest)
 		render.JSON(w, r, model.BasicResponse{Message: err.Error()})
@@ -111,7 +55,7 @@ func (h *workoutHandler) CreateUserRoutine(w http.ResponseWriter, r *http.Reques
 	render.JSON(w, r, routine)
 }
 
-// GetUserRoutines godoc
+// ReadUserRoutines godoc
 // @Summary Get all routines for a user
 // @Tags Routines
 // @Produce json
@@ -120,16 +64,10 @@ func (h *workoutHandler) CreateUserRoutine(w http.ResponseWriter, r *http.Reques
 // @Failure 400 {object} model.BasicResponse "Invalid user ID"
 // @Failure 404 {object} model.BasicResponse "User not found"
 // @Router /users/{id}/routines [get]
-func (h *workoutHandler) GetUserRoutines(w http.ResponseWriter, r *http.Request) {
-	idStr := chi.URLParam(r, "id")
-	id, err := strconv.ParseInt(idStr, 10, 64)
-	if err != nil {
-		render.Status(r, http.StatusBadRequest)
-		render.JSON(w, r, model.BasicResponse{Message: "Invalid user ID"})
-		return
-	}
+func (h *workoutHandler) ReadUserRoutines(w http.ResponseWriter, r *http.Request) {
+	id := r.Context().Value(constants.ID_KEY).(int64)
 
-	routines, err := h.userService.GetUserRoutines(id)
+	routines, err := h.routineService.ReadUserRoutines(id)
 	if err != nil {
 		render.Status(r, http.StatusNotFound)
 		render.JSON(w, r, model.BasicResponse{Message: err.Error()})
@@ -149,15 +87,9 @@ func (h *workoutHandler) GetUserRoutines(w http.ResponseWriter, r *http.Request)
 // @Failure 404 {object} model.BasicResponse "Routine not found"
 // @Router /routines/{id} [delete]
 func (h *workoutHandler) DeleteRoutine(w http.ResponseWriter, r *http.Request) {
-	idStr := chi.URLParam(r, "id")
-	id, err := strconv.ParseInt(idStr, 10, 64)
-	if err != nil {
-		render.Status(r, http.StatusBadRequest)
-		render.JSON(w, r, model.BasicResponse{Message: "Invalid routine ID"})
-		return
-	}
+	id := r.Context().Value(constants.ID_KEY).(int64)
 
-	err = h.userService.DeleteRoutine(id)
+	err := h.routineService.DeleteRoutine(id)
 	if err != nil {
 		render.Status(r, http.StatusNotFound)
 		render.JSON(w, r, model.BasicResponse{Message: err.Error()})
@@ -167,7 +99,7 @@ func (h *workoutHandler) DeleteRoutine(w http.ResponseWriter, r *http.Request) {
 	render.JSON(w, r, model.BasicResponse{Message: "Routine deleted successfully"})
 }
 
-// GetRoutineWithExercises godoc
+// ReadRoutineWithExercises godoc
 // @Summary Get routine with exercises
 // @Tags Routines
 // @Produce json
@@ -176,16 +108,10 @@ func (h *workoutHandler) DeleteRoutine(w http.ResponseWriter, r *http.Request) {
 // @Failure 400 {object} model.BasicResponse "Invalid routine ID"
 // @Failure 404 {object} model.BasicResponse "Routine not found"
 // @Router /routines/{id} [get]
-func (h *workoutHandler) GetRoutineWithExercises(w http.ResponseWriter, r *http.Request) {
-	idStr := chi.URLParam(r, "id")
-	id, err := strconv.ParseInt(idStr, 10, 64)
-	if err != nil {
-		render.Status(r, http.StatusBadRequest)
-		render.JSON(w, r, model.BasicResponse{Message: "Invalid routine ID"})
-		return
-	}
+func (h *workoutHandler) ReadRoutineWithExercises(w http.ResponseWriter, r *http.Request) {
+	id := r.Context().Value(constants.ID_KEY).(int64)
 
-	routine, err := h.userService.GetRoutineWithExercises(id)
+	routine, err := h.routineService.ReadRoutineWithExercises(id)
 	if err != nil {
 		render.Status(r, http.StatusNotFound)
 		render.JSON(w, r, model.BasicResponse{Message: err.Error()})
@@ -206,13 +132,7 @@ func (h *workoutHandler) GetRoutineWithExercises(w http.ResponseWriter, r *http.
 // @Failure 400 {object} model.BasicResponse "Invalid ID"
 // @Router /routines/{id}/exercises [post]
 func (h *workoutHandler) AddExerciseToRoutine(w http.ResponseWriter, r *http.Request) {
-	routineIDStr := chi.URLParam(r, "id")
-	routineID, err := strconv.ParseInt(routineIDStr, 10, 64)
-	if err != nil {
-		render.Status(r, http.StatusBadRequest)
-		render.JSON(w, r, model.BasicResponse{Message: "Invalid routine ID"})
-		return
-	}
+	id := r.Context().Value(constants.ID_KEY).(int64)
 
 	exerciseIDStr := r.URL.Query().Get("exercise_id")
 	exerciseID, err := strconv.ParseInt(exerciseIDStr, 10, 64)
@@ -222,7 +142,7 @@ func (h *workoutHandler) AddExerciseToRoutine(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	err = h.userService.AddExerciseToRoutine(routineID, exerciseID)
+	err = h.routineService.AddExerciseToRoutine(id, exerciseID)
 	if err != nil {
 		render.Status(r, http.StatusBadRequest)
 		render.JSON(w, r, model.BasicResponse{Message: err.Error()})
@@ -242,13 +162,7 @@ func (h *workoutHandler) AddExerciseToRoutine(w http.ResponseWriter, r *http.Req
 // @Failure 400 {object} model.BasicResponse "Invalid ID"
 // @Router /routines/{id}/exercises/{exercise_id} [delete]
 func (h *workoutHandler) RemoveExerciseFromRoutine(w http.ResponseWriter, r *http.Request) {
-	routineIDStr := chi.URLParam(r, "id")
-	routineID, err := strconv.ParseInt(routineIDStr, 10, 64)
-	if err != nil {
-		render.Status(r, http.StatusBadRequest)
-		render.JSON(w, r, model.BasicResponse{Message: "Invalid routine ID"})
-		return
-	}
+	id := r.Context().Value(constants.ID_KEY).(int64)
 
 	exerciseIDStr := chi.URLParam(r, "exercise_id")
 	exerciseID, err := strconv.ParseInt(exerciseIDStr, 10, 64)
@@ -258,7 +172,7 @@ func (h *workoutHandler) RemoveExerciseFromRoutine(w http.ResponseWriter, r *htt
 		return
 	}
 
-	err = h.userService.RemoveExerciseFromRoutine(routineID, exerciseID)
+	err = h.routineService.RemoveExerciseFromRoutine(id, exerciseID)
 	if err != nil {
 		render.Status(r, http.StatusNotFound)
 		render.JSON(w, r, model.BasicResponse{Message: err.Error()})
@@ -279,15 +193,9 @@ func (h *workoutHandler) RemoveExerciseFromRoutine(w http.ResponseWriter, r *htt
 // @Failure 404 {object} model.BasicResponse "Routine not found"
 // @Router /users/{id}/routines/{routine_id} [delete]
 func (h *workoutHandler) DeleteUserRoutine(w http.ResponseWriter, r *http.Request) {
-	routineIDStr := chi.URLParam(r, "routine_id")
-	routineID, err := strconv.ParseInt(routineIDStr, 10, 64)
-	if err != nil {
-		render.Status(r, http.StatusBadRequest)
-		render.JSON(w, r, model.BasicResponse{Message: "Invalid routine ID"})
-		return
-	}
+	id := r.Context().Value(constants.ID_KEY).(int64)
 
-	err = h.userService.DeleteRoutine(routineID)
+	err := h.routineService.DeleteRoutine(id)
 	if err != nil {
 		render.Status(r, http.StatusNotFound)
 		render.JSON(w, r, model.BasicResponse{Message: err.Error()})

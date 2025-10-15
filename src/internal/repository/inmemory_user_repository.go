@@ -28,43 +28,43 @@ func NewInMemoryUserRepository() repository.UserRepository {
 	}
 }
 
-func (u *inMemoryUserRepository) ReadUserByEmail(email string) (model.User, error) {
+func (u *inMemoryUserRepository) ReadUserByEmail(email string) (*model.User, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (u *inMemoryUserRepository) ReadUsers() ([]model.User, error) {
+func (u *inMemoryUserRepository) ReadUsers() ([]*model.User, error) {
 	u.mutex.RLock()
 	defer u.mutex.RUnlock()
 
-	users := make([]model.User, 0, len(u.users))
+	users := make([]*model.User, 0, len(u.users))
 	for _, user := range u.users {
-		users = append(users, *user)
+		users = append(users, user)
 	}
 	return users, nil
 }
 
-func (u *inMemoryUserRepository) GetUserByID(id int64) (model.User, error) {
+func (u *inMemoryUserRepository) ReadUserByID(id int64) (*model.User, error) {
 	u.mutex.RLock()
 	defer u.mutex.RUnlock()
 
 	user, exists := u.users[id]
 	if !exists {
-		return model.User{}, errors.New("user not found")
+		return nil, errors.New("user not found")
 	}
-	return *user, nil
+	return user, nil
 }
 
-func (u *inMemoryUserRepository) CreateUser(request model.CreateUserRequest) (model.User, error) {
+func (u *inMemoryUserRepository) CreateUser(request model.CreateUserRequest) (*model.User, error) {
 	u.mutex.Lock()
 	defer u.mutex.Unlock()
 
 	for _, user := range u.users {
 		if user.Username == request.Username {
-			return model.User{}, errors.New("username already exists")
+			return nil, errors.New("username already exists")
 		}
 		if user.Email == request.Email {
-			return model.User{}, errors.New("email already exists")
+			return nil, errors.New("email already exists")
 		}
 	}
 
@@ -85,16 +85,16 @@ func (u *inMemoryUserRepository) CreateUser(request model.CreateUserRequest) (mo
 	u.users[u.nextID] = user
 	u.nextID++
 
-	return *user, nil
+	return user, nil
 }
 
-func (u *inMemoryUserRepository) UpdateUser(request model.UpdateUserRequest) (model.User, error) {
+func (u *inMemoryUserRepository) UpdateUser(request model.UpdateUserRequest) (*model.User, error) {
 	u.mutex.Lock()
 	defer u.mutex.Unlock()
 
 	user, exists := u.users[request.ID]
 	if !exists {
-		return model.User{}, errors.New("user not found")
+		return nil, errors.New("user not found")
 	}
 
 	user.Username = request.Username
@@ -110,7 +110,7 @@ func (u *inMemoryUserRepository) UpdateUser(request model.UpdateUserRequest) (mo
 	user.Weight = request.Weight
 	user.WeightMetric = request.WeightMetric
 
-	return *user, nil
+	return user, nil
 }
 
 func (u *inMemoryUserRepository) DeleteUser(request model.DeleteUserRequest) error {
@@ -125,12 +125,12 @@ func (u *inMemoryUserRepository) DeleteUser(request model.DeleteUserRequest) err
 	return nil
 }
 
-func (u *inMemoryUserRepository) CreateGoal(userID int64, request model.CreateGoalRequest) (model.Goal, error) {
+func (u *inMemoryUserRepository) CreateGoal(userID int64, request model.CreateGoalRequest) (*model.Goal, error) {
 	u.mutex.Lock()
 	defer u.mutex.Unlock()
 
 	if _, exists := u.users[userID]; !exists {
-		return model.Goal{}, errors.New("user not found")
+		return nil, errors.New("user not found")
 	}
 
 	goal := &model.Goal{
@@ -145,10 +145,10 @@ func (u *inMemoryUserRepository) CreateGoal(userID int64, request model.CreateGo
 
 	u.goals[u.nextGoalID] = goal
 	u.nextGoalID++
-	return *goal, nil
+	return goal, nil
 }
 
-func (u *inMemoryUserRepository) GetUserGoals(userID int64) ([]model.Goal, error) {
+func (u *inMemoryUserRepository) ReadUserGoals(userID int64) ([]*model.Goal, error) {
 	u.mutex.RLock()
 	defer u.mutex.RUnlock()
 
@@ -156,22 +156,22 @@ func (u *inMemoryUserRepository) GetUserGoals(userID int64) ([]model.Goal, error
 		return nil, errors.New("user not found")
 	}
 
-	var goals []model.Goal
+	var goals []*model.Goal
 	for _, goal := range u.goals {
 		if goal.UserID == userID {
-			goals = append(goals, *goal)
+			goals = append(goals, goal)
 		}
 	}
 	return goals, nil
 }
 
-func (u *inMemoryUserRepository) UpdateGoal(request model.UpdateGoalRequest) (model.Goal, error) {
+func (u *inMemoryUserRepository) UpdateGoal(request model.UpdateGoalRequest) (*model.Goal, error) {
 	u.mutex.Lock()
 	defer u.mutex.Unlock()
 
 	goal, exists := u.goals[request.ID]
 	if !exists {
-		return model.Goal{}, errors.New("goal not found")
+		return nil, errors.New("goal not found")
 	}
 
 	goal.Name = request.Name
@@ -179,7 +179,7 @@ func (u *inMemoryUserRepository) UpdateGoal(request model.UpdateGoalRequest) (mo
 	goal.Deadline = request.Deadline
 	goal.Status = request.Status
 
-	return *goal, nil
+	return goal, nil
 }
 
 func (u *inMemoryUserRepository) DeleteGoal(goalID int64) error {
@@ -249,7 +249,7 @@ func (u *inMemoryUserRepository) UnfollowUser(followerID, followeeID int64) erro
 	return nil
 }
 
-func (u *inMemoryUserRepository) GetUserFollowers(userID int64) ([]int64, error) {
+func (u *inMemoryUserRepository) ReadUserFollowers(userID int64) ([]int64, error) {
 	u.mutex.RLock()
 	defer u.mutex.RUnlock()
 
@@ -260,7 +260,7 @@ func (u *inMemoryUserRepository) GetUserFollowers(userID int64) ([]int64, error)
 	return user.Followers, nil
 }
 
-func (u *inMemoryUserRepository) GetUserFollowing(userID int64) ([]int64, error) {
+func (u *inMemoryUserRepository) ReadUserFollowing(userID int64) ([]int64, error) {
 	u.mutex.RLock()
 	defer u.mutex.RUnlock()
 
@@ -271,12 +271,12 @@ func (u *inMemoryUserRepository) GetUserFollowing(userID int64) ([]int64, error)
 	return user.Following, nil
 }
 
-func (u *inMemoryUserRepository) CreateRoutine(userID int64, request model.CreateRoutineRequest) (model.ExerciseRoutine, error) {
+func (u *inMemoryUserRepository) CreateRoutine(userID int64, request model.CreateRoutineRequest) (*model.ExerciseRoutine, error) {
 	u.mutex.Lock()
 	defer u.mutex.Unlock()
 
 	if _, exists := u.users[userID]; !exists {
-		return model.ExerciseRoutine{}, errors.New("user not found")
+		return nil, errors.New("user not found")
 	}
 
 	routine := &model.ExerciseRoutine{
@@ -291,10 +291,10 @@ func (u *inMemoryUserRepository) CreateRoutine(userID int64, request model.Creat
 
 	u.routines[u.nextRoutineID] = routine
 	u.nextRoutineID++
-	return *routine, nil
+	return routine, nil
 }
 
-func (u *inMemoryUserRepository) GetUserRoutines(userID int64) ([]model.ExerciseRoutine, error) {
+func (u *inMemoryUserRepository) ReadUserRoutines(userID int64) ([]*model.ExerciseRoutine, error) {
 	u.mutex.RLock()
 	defer u.mutex.RUnlock()
 
@@ -302,10 +302,10 @@ func (u *inMemoryUserRepository) GetUserRoutines(userID int64) ([]model.Exercise
 		return nil, errors.New("user not found")
 	}
 
-	var routines []model.ExerciseRoutine
+	var routines []*model.ExerciseRoutine
 	for _, routine := range u.routines {
 		if routine.UserID == userID {
-			routines = append(routines, *routine)
+			routines = append(routines, routine)
 		}
 	}
 	return routines, nil
@@ -323,15 +323,15 @@ func (u *inMemoryUserRepository) DeleteRoutine(routineID int64) error {
 	return nil
 }
 
-func (u *inMemoryUserRepository) GetRoutineWithExercises(routineID int64) (model.ExerciseRoutine, error) {
+func (u *inMemoryUserRepository) ReadRoutineWithExercises(routineID int64) (*model.ExerciseRoutine, error) {
 	u.mutex.RLock()
 	defer u.mutex.RUnlock()
 
 	routine, exists := u.routines[routineID]
 	if !exists {
-		return model.ExerciseRoutine{}, errors.New("routine not found")
+		return nil, errors.New("routine not found")
 	}
-	return *routine, nil
+	return routine, nil
 }
 
 func (u *inMemoryUserRepository) AddExerciseToRoutine(routineID, exerciseID int64) error {

@@ -16,8 +16,8 @@ func NewExerciseService(er repository.ExerciseRepository) service.ExerciseServic
 	}
 }
 
-func (e *exerciseService) GetAllExercises() ([]model.Exercise, error) {
-	return e.exerciseRepository.GetAllExercises()
+func (e *exerciseService) ReadAllExercises() ([]*model.Exercise, error) {
+	return e.exerciseRepository.ReadAllExercises()
 }
 
 func (e *exerciseService) ReadExerciseByID(id int64) (*model.Exercise, error) {

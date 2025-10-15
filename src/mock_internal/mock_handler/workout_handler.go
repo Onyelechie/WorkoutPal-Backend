@@ -10,7 +10,7 @@ import (
 
 type workoutHandler struct{}
 
-func NewMockWorkoutHandler() handler.WorkoutHandler {
+func NewMockWorkoutHandler() handler.RoutineHandler {
 	return &workoutHandler{}
 }
 
@@ -30,7 +30,7 @@ func (h *workoutHandler) CreateUserRoutine(w http.ResponseWriter, r *http.Reques
 	render.JSON(w, r, routine)
 }
 
-func (h *workoutHandler) GetUserRoutines(w http.ResponseWriter, r *http.Request) {
+func (h *workoutHandler) ReadUserRoutines(w http.ResponseWriter, r *http.Request) {
 	render.JSON(w, r, []model.ExerciseRoutine{routine})
 }
 
@@ -38,7 +38,7 @@ func (h *workoutHandler) DeleteRoutine(w http.ResponseWriter, r *http.Request) {
 	render.JSON(w, r, model.BasicResponse{Message: "Routine deleted successfully"})
 }
 
-func (h *workoutHandler) GetRoutineWithExercises(w http.ResponseWriter, r *http.Request) {
+func (h *workoutHandler) ReadRoutineWithExercises(w http.ResponseWriter, r *http.Request) {
 	render.JSON(w, r, routine)
 }
 

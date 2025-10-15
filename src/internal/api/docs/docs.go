@@ -183,7 +183,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/exercises/:id": {
+        "/exercises/{id}": {
             "get": {
                 "security": [
                     {
@@ -238,7 +238,6 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "global",
                     "auth"
                 ],
                 "summary": "Logs in a user",
@@ -266,15 +265,33 @@ const docTemplate = `{
         "/logout": {
             "post": {
                 "tags": [
-                    "global",
                     "auth"
                 ],
                 "summary": "Logs out user by clearing access_token",
                 "responses": {
                     "200": {
-                        "description": "Logged out",
+                        "description": "successful logout",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/me": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Get current authenticated user",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.User"
                         }
                     }
                 }
@@ -1277,171 +1294,6 @@ const docTemplate = `{
                     }
                 }
             }
-        },
-        "/workouts": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Workouts"
-                ],
-                "summary": "List workouts",
-                "responses": {
-                    "200": {
-                        "description": "Workouts retrieved successfully",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/model.Workout"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Validation error",
-                        "schema": {
-                            "$ref": "#/definitions/model.BasicResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/model.BasicResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "$ref": "#/definitions/model.BasicResponse"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Workouts"
-                ],
-                "summary": "Create a new workout",
-                "parameters": [
-                    {
-                        "description": "New workout payload",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/model.CreateWorkoutRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Workout created successfully",
-                        "schema": {
-                            "$ref": "#/definitions/model.Workout"
-                        }
-                    },
-                    "400": {
-                        "description": "Validation error",
-                        "schema": {
-                            "$ref": "#/definitions/model.BasicResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/model.BasicResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "$ref": "#/definitions/model.BasicResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/workouts/{id}": {
-            "put": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Workouts"
-                ],
-                "summary": "Update an existing workout",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Workout ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Updated workout payload",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/model.UpdateWorkoutRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Workout updated successfully",
-                        "schema": {
-                            "$ref": "#/definitions/model.Workout"
-                        }
-                    },
-                    "400": {
-                        "description": "Validation error",
-                        "schema": {
-                            "$ref": "#/definitions/model.BasicResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/model.BasicResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "$ref": "#/definitions/model.BasicResponse"
-                        }
-                    }
-                }
-            }
         }
     },
     "definitions": {
@@ -1603,26 +1455,6 @@ const docTemplate = `{
                     "type": "number"
                 },
                 "weightMetric": {
-                    "type": "string"
-                }
-            }
-        },
-        "model.CreateWorkoutRequest": {
-            "type": "object",
-            "properties": {
-                "exercises": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/model.RegisteredExercise"
-                    }
-                },
-                "frequency": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "nextRound": {
                     "type": "string"
                 }
             }
@@ -1792,29 +1624,6 @@ const docTemplate = `{
                 }
             }
         },
-        "model.RegisteredExercise": {
-            "type": "object",
-            "properties": {
-                "count": {
-                    "type": "integer"
-                },
-                "duration": {
-                    "type": "integer"
-                },
-                "endTime": {
-                    "type": "string"
-                },
-                "exercise": {
-                    "$ref": "#/definitions/model.Exercise"
-                },
-                "sets": {
-                    "type": "integer"
-                },
-                "startTime": {
-                    "type": "string"
-                }
-            }
-        },
         "model.UpdateUserRequest": {
             "type": "object",
             "properties": {
@@ -1849,26 +1658,6 @@ const docTemplate = `{
                     "type": "number"
                 },
                 "weightMetric": {
-                    "type": "string"
-                }
-            }
-        },
-        "model.UpdateWorkoutRequest": {
-            "type": "object",
-            "properties": {
-                "exercises": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/model.RegisteredExercise"
-                    }
-                },
-                "frequency": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "nextRound": {
                     "type": "string"
                 }
             }
@@ -1973,29 +1762,6 @@ const docTemplate = `{
                 },
                 "userId": {
                     "type": "integer"
-                }
-            }
-        },
-        "model.Workout": {
-            "type": "object",
-            "properties": {
-                "exercises": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/model.RegisteredExercise"
-                    }
-                },
-                "frequency": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "nextRound": {
-                    "type": "string"
                 }
             }
         }

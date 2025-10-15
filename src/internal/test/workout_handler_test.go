@@ -17,10 +17,10 @@ import (
 )
 
 // Workout handler test helpers
-func setupWorkoutHandler() (handler.WorkoutHandler, service.UserService) {
+func setupWorkoutHandler() (handler.RoutineHandler, service.UserService) {
 	repo := repository.NewInMemoryUserRepository()
 	userService := service_impl.NewUserService(repo)
-	workoutHandler := handler_impl.NewWorkoutHandler(userService)
+	workoutHandler := handler_impl.NewRoutineHandler(userService)
 	return workoutHandler, userService
 }
 
@@ -59,7 +59,7 @@ func TestWorkoutHandler_GetUserRoutines(t *testing.T) {
 	req := createRequestWithContext("GET", "/users/1/routines", "1", nil)
 	w := httptest.NewRecorder()
 
-	workoutHandler.GetUserRoutines(w, req)
+	workoutHandler.ReadUserRoutines(w, req)
 
 	assertStatusCode(t, http.StatusOK, w.Code)
 
@@ -89,7 +89,7 @@ func TestWorkoutHandler_DeleteRoutine(t *testing.T) {
 	assertResponseField(t, "Routine deleted successfully", response.Message, "message")
 
 	// Verify routine was deleted
-	routines, _ := userService.GetUserRoutines(1)
+	routines, _ := userService.ReadUserRoutines(1)
 	if len(routines) != 0 {
 		t.Errorf("Expected 0 routines after deletion, got %d", len(routines))
 	}
@@ -105,7 +105,7 @@ func TestWorkoutHandler_GetRoutineWithExercises(t *testing.T) {
 	req := createRequestWithContext("GET", "/routines/1", "1", nil)
 	w := httptest.NewRecorder()
 
-	workoutHandler.GetRoutineWithExercises(w, req)
+	workoutHandler.ReadRoutineWithExercises(w, req)
 
 	assertStatusCode(t, http.StatusOK, w.Code)
 

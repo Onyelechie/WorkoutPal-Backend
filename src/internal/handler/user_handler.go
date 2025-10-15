@@ -3,13 +3,12 @@ package handler
 import (
 	"encoding/json"
 	"net/http"
-	"strconv"
 	"workoutpal/src/internal/domain/handler"
 	"workoutpal/src/internal/domain/service"
 	"workoutpal/src/internal/model"
 	"workoutpal/src/internal/util"
+	"workoutpal/src/util/constants"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
 )
 
@@ -93,7 +92,7 @@ func (u *userHandler) ReadAllUsers(w http.ResponseWriter, r *http.Request) {
 	render.JSON(w, r, users)
 }
 
-// GetUserByID godoc
+// ReadUserByID godoc
 // @Summary Get user by ID
 // @Tags Users
 // @Produce json
@@ -102,16 +101,9 @@ func (u *userHandler) ReadAllUsers(w http.ResponseWriter, r *http.Request) {
 // @Failure 400 {object} model.BasicResponse "Invalid user ID"
 // @Failure 404 {object} model.BasicResponse "User not found"
 // @Router /users/{id} [get]
-func (u *userHandler) GetUserByID(w http.ResponseWriter, r *http.Request) {
-	idStr := chi.URLParam(r, "id")
-	id, err := strconv.ParseInt(idStr, 10, 64)
-	if err != nil {
-		render.Status(r, http.StatusBadRequest)
-		render.JSON(w, r, model.BasicResponse{Message: "Invalid user ID"})
-		return
-	}
-
-	user, err := u.userService.GetUserByID(id)
+func (u *userHandler) ReadUserByID(w http.ResponseWriter, r *http.Request) {
+	id := r.Context().Value(constants.ID_KEY).(int64)
+	user, err := u.userService.ReadUserByID(id)
 	if err != nil {
 		render.Status(r, http.StatusNotFound)
 		render.JSON(w, r, model.BasicResponse{Message: err.Error()})
@@ -133,13 +125,7 @@ func (u *userHandler) GetUserByID(w http.ResponseWriter, r *http.Request) {
 // @Failure 404 {object} model.BasicResponse "User not found"
 // @Router /users/{id} [patch]
 func (u *userHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
-	idStr := chi.URLParam(r, "id")
-	id, err := strconv.ParseInt(idStr, 10, 64)
-	if err != nil {
-		render.Status(r, http.StatusBadRequest)
-		render.JSON(w, r, model.BasicResponse{Message: "Invalid user ID"})
-		return
-	}
+	id := r.Context().Value(constants.ID_KEY).(int64)
 
 	var req model.UpdateUserRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -169,15 +155,9 @@ func (u *userHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 // @Failure 404 {object} model.BasicResponse "User not found"
 // @Router /users/{id} [delete]
 func (u *userHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
-	idStr := chi.URLParam(r, "id")
-	id, err := strconv.ParseInt(idStr, 10, 64)
-	if err != nil {
-		render.Status(r, http.StatusBadRequest)
-		render.JSON(w, r, model.BasicResponse{Message: "Invalid user ID"})
-		return
-	}
+	id := r.Context().Value(constants.ID_KEY).(int64)
 
-	err = u.userService.DeleteUser(model.DeleteUserRequest{ID: id})
+	err := u.userService.DeleteUser(model.DeleteUserRequest{ID: id})
 	if err != nil {
 		render.Status(r, http.StatusNotFound)
 		render.JSON(w, r, model.BasicResponse{Message: err.Error()})
@@ -186,5 +166,3 @@ func (u *userHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 
 	render.JSON(w, r, model.BasicResponse{Message: "User deleted successfully"})
 }
-
-

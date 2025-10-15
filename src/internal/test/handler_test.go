@@ -122,7 +122,7 @@ func TestUserHandler_GetUserByID(t *testing.T) {
 	req := createRequestWithContext("GET", "/users/1", "1", nil)
 	w := httptest.NewRecorder()
 
-	userHandler.GetUserByID(w, req)
+	userHandler.ReadUserByID(w, req)
 
 	assertStatusCode(t, http.StatusOK, w.Code)
 
@@ -169,4 +169,3 @@ func TestUserHandler_DeleteUser(t *testing.T) {
 	json.Unmarshal(w.Body.Bytes(), &response)
 	assertResponseField(t, "User deleted successfully", response.Message, "message")
 }
-
