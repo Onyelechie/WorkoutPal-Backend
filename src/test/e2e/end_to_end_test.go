@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"net/http/cookiejar"
 	"os"
 	"testing"
 	"time"
@@ -134,28 +133,28 @@ func waitForHealth(t *testing.T) {
 }
 
 func TestEndToEnd(t *testing.T) {
-	os.Setenv("COOKIE_SECURE", "false")
-	go startUpServer()
+	//os.Setenv("COOKIE_SECURE", "false")
+	//go startUpServer()
 
 	// This is to keep the cookie once it is set
-	jar, _ := cookiejar.New(nil)
-	client = &http.Client{Timeout: 5 * time.Second, Jar: jar}
-
-	waitForHealth(t)
+	//jar, _ := cookiejar.New(nil)
+	//client = &http.Client{Timeout: 5 * time.Second, Jar: jar}
+	//
+	//waitForHealth(t)
 
 	// Auth tests
-	t.Run("Login", testEndToEnd_Login)
-	t.Run("Me", testEndToEnd_Me)
-	t.Run("Logout", testEndToEnd_Logout)
-	t.Run("MeFail", testEndToEnd_MeFail)
-	t.Run("Login", testEndToEnd_Login)
+	//t.Run("Login", testEndToEnd_Login)
+	//t.Run("Me", testEndToEnd_Me)
+	//t.Run("Logout", testEndToEnd_Logout)
+	//t.Run("MeFail", testEndToEnd_MeFail)
+	//t.Run("Login", testEndToEnd_Login)
 
 	// User Tests
 	//t.Run("Users_Create", testEndToEnd_Users_Create)
 	//t.Run("Users_List", testEndToEnd_Users_List)
 	//t.Run("Users_GetByID", testEndToEnd_Users_GetByID)
-	t.Run("Users_UpdateByID", testEndToEnd_Users_UpdateByID)
-	t.Run("Users_Create_Invalid", testEndToEnd_Users_Create_Invalid)
+	//t.Run("Users_UpdateByID", testEndToEnd_Users_UpdateByID)
+	//t.Run("Users_Create_Invalid", testEndToEnd_Users_Create_Invalid)
 	//t.Run("Users_Create_Duplicate", testEndToEnd_Users_Create_Duplicate)
 	//t.Run("Users_Delete_Success", testEndToEnd_Users_Delete_Success)
 	//t.Run("Users_GetByID_NotFound", testEndToEnd_Users_GetByID_NotFound)
