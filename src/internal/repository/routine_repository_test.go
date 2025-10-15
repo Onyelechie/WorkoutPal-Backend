@@ -18,18 +18,17 @@ func TestRoutineRepository_CreateRoutine_OK(t *testing.T) {
 
 	req := model.CreateRoutineRequest{
 		Name:        "Push",
-		Description: "Upper push day",
 		ExerciseIDs: []int64{1, 2},
 	}
 
 	mock.ExpectBegin()
 	mock.ExpectQuery(regexp.QuoteMeta(`
-		INSERT INTO workout_routine (name, user_id, description)
-		VALUES ($1, $2, $3)
-		RETURNING id, name, user_id, description`)).
-		WithArgs(req.Name, int64(10), req.Description).
-		WillReturnRows(sqlmock.NewRows([]string{"id", "name", "user_id", "description"}).
-			AddRow(100, req.Name, 10, req.Description))
+		INSERT INTO workout_routine (name, user_id)
+		VALUES ($1, $2)
+		RETURNING id, name, user_id`)).
+		WithArgs(req.Name, int64(10)).
+		WillReturnRows(sqlmock.NewRows([]string{"id", "name", "user_id"}).
+			AddRow(100, req.Name, 10))
 
 	mock.ExpectExec(regexp.QuoteMeta(
 		"INSERT INTO exercises_in_routine (workout_routine_id, exercise_id) VALUES ($1, $2)",
@@ -54,13 +53,13 @@ func TestRoutineRepository_CreateRoutine_InsertExerciseFails_RollsBack(t *testin
 	defer db.Close()
 	repo := NewRoutineRepository(db)
 
-	req := model.CreateRoutineRequest{Name: "A", Description: "D", ExerciseIDs: []int64{1}}
+	req := model.CreateRoutineRequest{Name: "A", ExerciseIDs: []int64{1}}
 
 	mock.ExpectBegin()
 	mock.ExpectQuery("INSERT INTO workout_routine").
-		WithArgs("A", int64(5), "D").
-		WillReturnRows(sqlmock.NewRows([]string{"id", "name", "user_id", "description"}).
-			AddRow(77, "A", 5, "D"))
+		WithArgs("A", int64(5)).
+		WillReturnRows(sqlmock.NewRows([]string{"id", "name", "user_id"}).
+			AddRow(77, "A", 5))
 	mock.ExpectExec("INSERT INTO exercises_in_routine").
 		WithArgs(int64(77), int64(1)).
 		WillReturnError(errors.New("fk violation"))
@@ -78,11 +77,11 @@ func TestRoutineRepository_ReadUserRoutines_OK(t *testing.T) {
 	repo := NewRoutineRepository(db)
 
 	mock.ExpectQuery(regexp.QuoteMeta(
-		"SELECT id, name, user_id, description FROM workout_routine WHERE user_id = $1",
+		"SELECT id, name, user_id FROM workout_routine WHERE user_id = $1",
 	)).WithArgs(int64(10)).
-		WillReturnRows(sqlmock.NewRows([]string{"id", "name", "user_id", "description"}).
-			AddRow(1, "A", 10, "d1").
-			AddRow(2, "B", 10, "d2"))
+		WillReturnRows(sqlmock.NewRows([]string{"id", "name", "user_id"}).
+			AddRow(1, "A", 10).
+			AddRow(2, "B", 10))
 
 	mock.ExpectQuery(regexp.QuoteMeta(
 		"SELECT exercise_id FROM exercises_in_routine WHERE workout_routine_id = $1",
@@ -108,7 +107,7 @@ func TestRoutineRepository_ReadUserRoutines_OuterQueryError(t *testing.T) {
 	defer db.Close()
 	repo := NewRoutineRepository(db)
 
-	mock.ExpectQuery("SELECT id, name, user_id, description FROM workout_routine").
+	mock.ExpectQuery("SELECT id, name, user_id FROM workout_routine").
 		WithArgs(int64(9)).
 		WillReturnError(errors.New("db down"))
 
@@ -123,10 +122,10 @@ func TestRoutineRepository_ReadUserRoutines_InnerQueryError(t *testing.T) {
 	defer db.Close()
 	repo := NewRoutineRepository(db)
 
-	mock.ExpectQuery("SELECT id, name, user_id, description FROM workout_routine").
+	mock.ExpectQuery("SELECT id, name, user_id FROM workout_routine").
 		WithArgs(int64(9)).
-		WillReturnRows(sqlmock.NewRows([]string{"id", "name", "user_id", "description"}).
-			AddRow(1, "A", 9, "d1"))
+		WillReturnRows(sqlmock.NewRows([]string{"id", "name", "user_id"}).
+			AddRow(1, "A", 9))
 
 	mock.ExpectQuery("SELECT exercise_id FROM exercises_in_routine").
 		WithArgs(int64(1)).
@@ -144,10 +143,10 @@ func TestRoutineRepository_ReadRoutineWithExercises_OK(t *testing.T) {
 	repo := NewRoutineRepository(db)
 
 	mock.ExpectQuery(regexp.QuoteMeta(
-		"SELECT id, name, user_id, description FROM workout_routine WHERE id = $1",
+		"SELECT id, name, user_id FROM workout_routine WHERE id = $1",
 	)).WithArgs(int64(7)).
-		WillReturnRows(sqlmock.NewRows([]string{"id", "name", "user_id", "description"}).
-			AddRow(7, "Pull", 2, "d"))
+		WillReturnRows(sqlmock.NewRows([]string{"id", "name", "user_id"}).
+			AddRow(7, "Pull", 2))
 
 	mock.ExpectQuery(regexp.QuoteMeta(
 		"SELECT exercise_id FROM exercises_in_routine WHERE workout_routine_id = $1",
@@ -165,7 +164,7 @@ func TestRoutineRepository_ReadRoutineWithExercises_NotFound(t *testing.T) {
 	defer db.Close()
 	repo := NewRoutineRepository(db)
 
-	mock.ExpectQuery("SELECT id, name, user_id, description FROM workout_routine WHERE id = \\$1").
+	mock.ExpectQuery("SELECT id, name, user_id FROM workout_routine WHERE id = \\$1").
 		WithArgs(int64(99)).
 		WillReturnError(sql.ErrNoRows)
 
