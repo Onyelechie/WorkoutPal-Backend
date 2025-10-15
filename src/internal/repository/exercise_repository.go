@@ -23,9 +23,9 @@ func (e *exerciseRepository) ReadExerciseByID(id int64) (*model.Exercise, error)
 	var image, demo sql.NullString
 
 	err := e.db.QueryRow(
-		"SELECT id, name, description, targets, image, demo FROM exercises WHERE id = $1",
+		"SELECT id, name, description, targets, image FROM exercises WHERE id = $1",
 		id,
-	).Scan(&exercise.ID, &exercise.Name, &exercise.Description, &targetsStr, &image, &demo)
+	).Scan(&exercise.ID, &exercise.Name, &exercise.Description, &targetsStr, &image)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, errors.New("exercise not found")
@@ -46,7 +46,7 @@ func (e *exerciseRepository) ReadExerciseByID(id int64) (*model.Exercise, error)
 }
 
 func (e *exerciseRepository) ReadAllExercises() ([]*model.Exercise, error) {
-	rows, err := e.db.Query("SELECT id, name, description, targets, image, demo FROM exercises")
+	rows, err := e.db.Query("SELECT id, name, description, targets, image FROM exercises")
 	if err != nil {
 		return nil, err
 	}
@@ -58,7 +58,7 @@ func (e *exerciseRepository) ReadAllExercises() ([]*model.Exercise, error) {
 		var targetsStr string
 		var image, demo sql.NullString
 
-		if err := rows.Scan(&exercise.ID, &exercise.Name, &exercise.Description, &targetsStr, &image, &demo); err != nil {
+		if err := rows.Scan(&exercise.ID, &exercise.Name, &exercise.Description, &targetsStr, &image); err != nil {
 			return nil, err
 		}
 		if targetsStr != "" {

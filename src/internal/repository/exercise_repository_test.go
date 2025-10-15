@@ -13,11 +13,11 @@ func TestExerciseRepository_ReadExerciseByID_OK(t *testing.T) {
 	defer db.Close()
 	repo := NewExerciseRepository(db)
 
-	rows := sqlmock.NewRows([]string{"id", "name", "description", "targets", "image", "demo"}).
-		AddRow(42, "Deadlift", "posterior chain", "back,glutes,hamstrings", "img.png", "demo.mp4")
+	rows := sqlmock.NewRows([]string{"id", "name", "description", "targets", "image"}).
+		AddRow(42, "Deadlift", "posterior chain", "back,glutes,hamstrings", "img.png")
 
 	mock.ExpectQuery(regexp.QuoteMeta(
-		"SELECT id, name, description, targets, image, demo FROM exercises WHERE id = $1",
+		"SELECT id, name, description, targets, image FROM exercises WHERE id = $1",
 	)).
 		WithArgs(int64(42)).
 		WillReturnRows(rows)
@@ -29,7 +29,7 @@ func TestExerciseRepository_ReadExerciseByID_OK(t *testing.T) {
 	if got == nil || got.ID != 42 || got.Name != "Deadlift" {
 		t.Fatalf("unexpected exercise: %#v", got)
 	}
-	if len(got.Targets) != 3 || got.Targets[0] != "back" || got.Image != "img.png" || got.Demo != "demo.mp4" {
+	if len(got.Targets) != 3 || got.Targets[0] != "back" || got.Image != "img.png" {
 		t.Fatalf("unexpected fields: %#v", got)
 	}
 	if err := mock.ExpectationsWereMet(); err != nil {
@@ -43,7 +43,7 @@ func TestExerciseRepository_ReadExerciseByID_NotFound(t *testing.T) {
 	repo := NewExerciseRepository(db)
 
 	mock.ExpectQuery(regexp.QuoteMeta(
-		"SELECT id, name, description, targets, image, demo FROM exercises WHERE id = $1",
+		"SELECT id, name, description, targets, image FROM exercises WHERE id = $1",
 	)).
 		WithArgs(int64(7)).
 		WillReturnError(sql.ErrNoRows)
@@ -66,7 +66,7 @@ func TestExerciseRepository_ReadExerciseByID_DBError(t *testing.T) {
 	repo := NewExerciseRepository(db)
 
 	mock.ExpectQuery(regexp.QuoteMeta(
-		"SELECT id, name, description, targets, image, demo FROM exercises WHERE id = $1",
+		"SELECT id, name, description, targets, image FROM exercises WHERE id = $1",
 	)).
 		WithArgs(int64(9)).
 		WillReturnError(assertErr)
@@ -88,12 +88,12 @@ func TestExerciseRepository_ReadAllExercises_OK_WithNulls(t *testing.T) {
 	defer db.Close()
 	repo := NewExerciseRepository(db)
 
-	rows := sqlmock.NewRows([]string{"id", "name", "description", "targets", "image", "demo"}).
-		AddRow(1, "Push-ups", "desc1", "chest,shoulders,triceps", "img1.png", nil).
-		AddRow(2, "Pull-ups", "desc2", "back,biceps", nil, "demo2.mp4")
+	rows := sqlmock.NewRows([]string{"id", "name", "description", "targets", "image"}).
+		AddRow(1, "Push-ups", "desc1", "chest,shoulders,triceps", "img1.png").
+		AddRow(2, "Pull-ups", "desc2", "back,biceps", nil)
 
 	mock.ExpectQuery(regexp.QuoteMeta(
-		"SELECT id, name, description, targets, image, demo FROM exercises",
+		"SELECT id, name, description, targets, image FROM exercises",
 	)).WillReturnRows(rows)
 
 	got, err := repo.ReadAllExercises()
@@ -103,10 +103,10 @@ func TestExerciseRepository_ReadAllExercises_OK_WithNulls(t *testing.T) {
 	if len(got) != 2 {
 		t.Fatalf("want 2 rows, got %d", len(got))
 	}
-	if got[0].ID != 1 || got[0].Name != "Push-ups" || len(got[0].Targets) != 3 || got[0].Image != "img1.png" || got[0].Demo != "" {
+	if got[0].ID != 1 || got[0].Name != "Push-ups" || len(got[0].Targets) != 3 || got[0].Image != "img1.png" {
 		t.Fatalf("bad row1: %#v", got[0])
 	}
-	if got[1].ID != 2 || got[1].Name != "Pull-ups" || len(got[1].Targets) != 2 || got[1].Image != "" || got[1].Demo != "demo2.mp4" {
+	if got[1].ID != 2 || got[1].Name != "Pull-ups" || len(got[1].Targets) != 2 || got[1].Image != "" {
 		t.Fatalf("bad row2: %#v", got[1])
 	}
 	if err := mock.ExpectationsWereMet(); err != nil {
@@ -119,11 +119,11 @@ func TestExerciseRepository_ReadAllExercises_ScanError(t *testing.T) {
 	defer db.Close()
 	repo := NewExerciseRepository(db)
 
-	rows := sqlmock.NewRows([]string{"id", "name", "description", "targets", "image", "demo"}).
-		AddRow("bad", "X", "Y", "a,b", nil, nil)
+	rows := sqlmock.NewRows([]string{"id", "name", "description", "targets", "image"}).
+		AddRow("bad", "X", "Y", "a,b", nil)
 
 	mock.ExpectQuery(regexp.QuoteMeta(
-		"SELECT id, name, description, targets, image, demo FROM exercises",
+		"SELECT id, name, description, targets, image FROM exercises",
 	)).WillReturnRows(rows)
 
 	got, err := repo.ReadAllExercises()
@@ -142,13 +142,13 @@ func TestExerciseRepository_ReadAllExercises_RowsErr(t *testing.T) {
 	defer db.Close()
 	repo := NewExerciseRepository(db)
 
-	rows := sqlmock.NewRows([]string{"id", "name", "description", "targets", "image", "demo"}).
-		AddRow(1, "A", "d", "x,y", nil, nil).
-		AddRow(2, "B", "e", "p,q", nil, nil).
+	rows := sqlmock.NewRows([]string{"id", "name", "description", "targets", "image"}).
+		AddRow(1, "A", "d", "x,y", nil).
+		AddRow(2, "B", "e", "p,q", nil).
 		RowError(1, assertErr)
 
 	mock.ExpectQuery(regexp.QuoteMeta(
-		"SELECT id, name, description, targets, image, demo FROM exercises",
+		"SELECT id, name, description, targets, image FROM exercises",
 	)).WillReturnRows(rows)
 
 	got, err := repo.ReadAllExercises()
