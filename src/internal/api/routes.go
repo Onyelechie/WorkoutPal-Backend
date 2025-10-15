@@ -58,7 +58,7 @@ func Routes(r chi.Router, appDep dependency.AppDependencies, secret []byte) http
 	relationshipHandler := handler.NewRelationshipHandler(appDep.RelationshipService)
 	routineHandler := handler.NewRoutineHandler(appDep.RoutineService)
 	exerciseHandler := handler.NewExerciseHandler(appDep.ExerciseService)
-	authHandler := handler.NewAuthHandler(appDep.UserService, appDep.AuthService)
+	authHandler := handler.NewAuthHandler(appDep.UserService, appDep.AuthService, secret)
 
 	// --- Init Middleware ---
 	var idMiddleware = middleware2.IdMiddleware()

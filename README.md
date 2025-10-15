@@ -25,14 +25,6 @@ WorkoutPal is a comprehensive fitness tracking platform that helps users plan, l
 - **Testing**: Go testing package
 - **Documentation**: Swagger/OpenAPI
 
-
-## Testing
-```bash
-go test ./... -coverpkg=./... -covermode=atomic -coverprofile=coverage.out
-go tool cover -func=coverage.out
-go tool cover -html=coverage.out
-```
-
 ## Project Structure
 
 ```
@@ -44,51 +36,59 @@ src/
 │   ├── handler/       # HTTP handlers
 │   ├── model/         # Data models
 │   ├── repository/    # Data access layer
-│   ├── service/       # Business logic
-│   └── test/          # Tests
+│   └── service/       # Business logic
 ├── fitness-db/        # Database schema and setup
+├── test/          # Tests
 └── util/              # Utilities and constants
 ```
+
+---
 
 ## Quick Start
 
 ### Prerequisites
 
 - Go 1.25.1 or higher
-- PostgreSQL (optional - falls back to in-memory)
+- Docker (with docker compose)
 - Git
 
 ### Installation
 
-1. Clone the repository:
+1. Download and Install [Go](https://go.dev)
+
+2. Download and Install [Docker](https://www.docker.com/)
+
+3. Clone the repository:
 ```bash
-git clone <repository-url>
+git clone https://github.com/Onyelechie/WorkoutPal-Backend
 cd WorkoutPal-Backend
 ```
 
-2. Install dependencies:
+4. Install dependencies:
 ```bash
 go mod download
 ```
 
-3. Set up PostgreSQL (optional):
+5. Set up PostgreSQL container:
 ```bash
 cd src/fitness-db
 docker-compose up -d
 ```
 
-4. Run the application:
+6. Run the application:
 ```bash
 go run src/cmd/api/main.go
 ```
 
 The API will be available at `http://localhost:8080`
 
-### Testing
+---
 
-Run all tests:
+## Testing
+
+Run all tests with coverage:
 ```bash
-go test ./src/internal/test/... -v
+go test ./... -coverpkg=./... -covermode=atomic -coverprofile=coverage.out
 ```
 
 Run specific test files:
@@ -96,6 +96,18 @@ Run specific test files:
 go test ./src/internal/test/handler_test.go -v
 go test ./src/internal/test/repository_test.go -v
 ```
+
+View coverage in terminal
+```bash
+go tool cover -func=coverage.out
+```
+
+View coverage in browser
+```bash
+go tool cover -html=coverage.out
+```
+
+---
 
 ## API Endpoints
 
@@ -144,6 +156,8 @@ The application uses PostgreSQL with the following main tables:
 
 See `src/fitness-db/schema.sql` for complete schema.
 
+---
+
 ## Configuration
 
 The application automatically detects PostgreSQL availability:
@@ -172,7 +186,9 @@ go run src/cmd/api/main.go
 http://localhost:8080/swagger/index.html
 ```
 
-### Regenerating Documentation
+---
+
+## Regenerating Documentation
 
 1. Install swag CLI:
 ```bash
@@ -187,6 +203,8 @@ swag init -g src/cmd/api/main.go -o src/internal/api/docs
 
 3. Restart the server to see updated documentation
 
+---
+
 ## Manual Testing
 
 ### Start the Server
@@ -194,7 +212,9 @@ swag init -g src/cmd/api/main.go -o src/internal/api/docs
 go run src/cmd/api/main.go
 ```
 
-### Test Scripts
+---
+
+## Test Scripts
 Create and run these curl commands to test the API:
 
 #### Create a User
@@ -267,6 +287,8 @@ curl -v http://localhost:8080/users
 ## Related Repositories
 
 - [Frontend Repository](https://github.com/Onyelechie/WorkoutPal-Frontend) - React.js frontend application
+
+---
 
 ## Contributing
 

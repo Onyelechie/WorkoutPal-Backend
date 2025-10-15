@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 	"workoutpal/src/internal/domain/handler"
@@ -17,12 +18,14 @@ import (
 type authHandler struct {
 	userService service.UserService
 	authService service.AuthService
+	secret      []byte
 }
 
-func NewAuthHandler(us service.UserService, as service.AuthService) handler.AuthHandler {
+func NewAuthHandler(us service.UserService, as service.AuthService, secret []byte) handler.AuthHandler {
 	return &authHandler{
 		userService: us,
 		authService: as,
+		secret:      secret,
 	}
 }
 
@@ -58,10 +61,15 @@ func (h *authHandler) Login(w http.ResponseWriter, r *http.Request) {
 	}
 	tokenWithClaims := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	token, err := tokenWithClaims.SignedString([]byte("secret")) // TODO read this from environment variables
+	token, err := tokenWithClaims.SignedString(h.secret)
 	if err != nil {
 		http.Error(w, "failed to create token", http.StatusInternalServerError)
 		return
+	}
+
+	isSecure := true
+	if v := os.Getenv("COOKIE_SECURE"); strings.ToLower(v) == "false" {
+		isSecure = false
 	}
 
 	http.SetCookie(w, &http.Cookie{
@@ -69,7 +77,7 @@ func (h *authHandler) Login(w http.ResponseWriter, r *http.Request) {
 		Value:    token,
 		Path:     "/",
 		HttpOnly: true,
-		Secure:   true,
+		Secure:   isSecure,
 		SameSite: http.SameSiteDefaultMode,
 		MaxAge:   int(time.Hour.Seconds()),
 	})
