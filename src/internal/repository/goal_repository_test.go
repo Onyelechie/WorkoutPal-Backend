@@ -78,7 +78,6 @@ func TestGoalRepository_ReadUserGoals_ScanError(t *testing.T) {
 	defer db.Close()
 	repo := NewGoalRepository(db)
 
-	// wrong column type
 	rows := sqlmock.NewRows([]string{"id", "user_id", "name", "description", "deadline", "created_at", "status"}).
 		AddRow("BAD", 10, "Goal", "Desc", "2025", "ts", "active")
 
@@ -153,7 +152,7 @@ func TestGoalRepository_DeleteGoal_NotFound(t *testing.T) {
 
 	mock.ExpectExec("DELETE FROM goals").
 		WithArgs(int64(2)).
-		WillReturnResult(sqlmock.NewResult(0, 0)) // zero rows
+		WillReturnResult(sqlmock.NewResult(0, 0))
 
 	err := repo.DeleteGoal(2)
 	if err == nil || err.Error() != "goal not found" {

@@ -17,14 +17,10 @@ import (
 	"github.com/golang/mock/gomock"
 )
 
-/* ----------------------------- helpers ----------------------------- */
-
 func withIDCtx(r *http.Request, id int64) *http.Request {
 	ctx := context.WithValue(r.Context(), constants.ID_KEY, id)
 	return r.WithContext(ctx)
 }
-
-/* ------------------------------- tests ------------------------------ */
 
 func TestUserHandler_CreateNewUser_BadJSON(t *testing.T) {
 	ctrl := gomock.NewController(t)

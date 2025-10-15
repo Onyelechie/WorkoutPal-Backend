@@ -69,7 +69,7 @@ func TestExerciseRepository_ReadExerciseByID_DBError(t *testing.T) {
 		"SELECT id, name, description, targets, image, demo FROM exercises WHERE id = $1",
 	)).
 		WithArgs(int64(9)).
-		WillReturnError(assertErr) // custom error below
+		WillReturnError(assertErr)
 
 	got, err := repo.ReadExerciseByID(9)
 	if got != nil {
@@ -143,10 +143,8 @@ func TestExerciseRepository_ReadAllExercises_RowsErr(t *testing.T) {
 	repo := NewExerciseRepository(db)
 
 	rows := sqlmock.NewRows([]string{"id", "name", "description", "targets", "image", "demo"}).
-		// two valid rows...
 		AddRow(1, "A", "d", "x,y", nil, nil).
 		AddRow(2, "B", "e", "p,q", nil, nil).
-		// ...but inject an error on the *second* row (index 1)
 		RowError(1, assertErr)
 
 	mock.ExpectQuery(regexp.QuoteMeta(

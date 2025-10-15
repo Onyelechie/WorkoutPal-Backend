@@ -11,8 +11,6 @@ import (
 	"workoutpal/src/internal/model"
 )
 
-/* ------------------------ ReadUserByEmail ------------------------ */
-
 func TestUserRepository_ReadUserByEmail_OK(t *testing.T) {
 	db, mock, _ := sqlmock.New()
 	defer db.Close()
@@ -72,8 +70,6 @@ func TestUserRepository_ReadUserByEmail_DBError(t *testing.T) {
 	}
 }
 
-/* --------------------------- ReadUsers --------------------------- */
-
 func TestUserRepository_ReadUsers_OK_IncludingNullAvatar(t *testing.T) {
 	db, mock, _ := sqlmock.New()
 	defer db.Close()
@@ -131,8 +127,6 @@ func TestUserRepository_ReadUsers_ScanError(t *testing.T) {
 	}
 }
 
-/* ------------------------- ReadUserByID ------------------------- */
-
 func TestUserRepository_ReadUserByID_OK(t *testing.T) {
 	db, mock, _ := sqlmock.New()
 	defer db.Close()
@@ -182,8 +176,6 @@ func TestUserRepository_ReadUserByID_DBError(t *testing.T) {
 		t.Fatalf("expected db fail, got %v", err)
 	}
 }
-
-/* --------------------------- CreateUser --------------------------- */
 
 func TestUserRepository_CreateUser_OK(t *testing.T) {
 	db, mock, _ := sqlmock.New()
@@ -249,8 +241,6 @@ func TestUserRepository_CreateUser_DBError(t *testing.T) {
 	}
 }
 
-/* --------------------------- UpdateUser --------------------------- */
-
 func TestUserRepository_UpdateUser_OK(t *testing.T) {
 	db, mock, _ := sqlmock.New()
 	defer db.Close()
@@ -313,8 +303,6 @@ func TestUserRepository_UpdateUser_DBError(t *testing.T) {
 		t.Fatalf("expected update fail, got %v", err)
 	}
 }
-
-/* --------------------------- DeleteUser --------------------------- */
 
 func TestUserRepository_DeleteUser_OK(t *testing.T) {
 	db, mock, _ := sqlmock.New()

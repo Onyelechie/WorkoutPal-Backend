@@ -17,8 +17,6 @@ import (
 	"github.com/golang/mock/gomock"
 )
 
-/* ----------------------------- helpers ----------------------------- */
-
 func mustJSON[T any](t *testing.T, v T) *bytes.Buffer {
 	t.Helper()
 	b, err := json.Marshal(v)
@@ -27,8 +25,6 @@ func mustJSON[T any](t *testing.T, v T) *bytes.Buffer {
 	}
 	return bytes.NewBuffer(b)
 }
-
-/* ------------------------------- tests ------------------------------ */
 
 func TestExerciseHandler_ReadExercises_OK(t *testing.T) {
 	ctrl := gomock.NewController(t)

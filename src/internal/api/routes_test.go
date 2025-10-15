@@ -21,8 +21,6 @@ import (
 	mock_service "workoutpal/src/mock_internal/domain/service"
 )
 
-/* ----------------------------- helpers ----------------------------- */
-
 func do(ts *httptest.Server, method, path string, body io.Reader, headers map[string]string) *http.Response {
 	req, _ := http.NewRequest(method, ts.URL+path, body)
 	for k, v := range headers {
@@ -41,9 +39,6 @@ func chiRouterWithGlobalMiddleware() chi.Router {
 	return r
 }
 
-/* ------------------------------- tests ------------------------------ */
-
-// Basic sanity: the pure RegisterRoutes (which wraps with CORS & swagger) builds and /health works.
 func TestRegisterRoutes_Health_OK(t *testing.T) {
 	cfg := &config.Config{JWTSecret: "test-secret"}
 
@@ -78,21 +73,17 @@ func TestRegisterRoutes_CORS_AllowsAllowedOrigin_OnSimpleGET(t *testing.T) {
 	}
 }
 
-// Unit-test the DI seam: /login must call AuthService.Authenticate and succeed.
 func TestRoutes_Login_CallsAuthService_AndReturns200(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	t.Cleanup(ctrl.Finish)
 
-	// Build mocks for the services the handlers need.
 	mockAuth := mock_service.NewMockAuthService(ctrl)
 	mockUserSvc := mock_service.NewMockUserService(ctrl)
-	// Other services are needed only to construct handlers; no expectations required.
 	mockGoalSvc := mock_service.NewMockGoalService(ctrl)
 	mockRelSvc := mock_service.NewMockRelationshipService(ctrl)
 	mockRoutineSvc := mock_service.NewMockRoutineService(ctrl)
 	mockExerciseSvc := mock_service.NewMockExerciseService(ctrl)
 
-	// Some handlers take repositories directly; provide a mock user repo as required by your AuthHandler ctor.
 	mockUserRepo := mock_repository.NewMockUserRepository(ctrl)
 
 	deps := dependency.AppDependencies{
@@ -131,7 +122,6 @@ func TestRoutes_Login_CallsAuthService_AndReturns200(t *testing.T) {
 	}
 }
 
-// Protected endpoints without Authorization header should be rejected by AuthMiddleware.
 func TestRoutes_ProtectedEndpoints_UnauthorizedWithoutToken(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	t.Cleanup(ctrl.Finish)
@@ -151,20 +141,17 @@ func TestRoutes_ProtectedEndpoints_UnauthorizedWithoutToken(t *testing.T) {
 	ts := httptest.NewServer(h)
 	defer ts.Close()
 
-	// /me requires auth
 	resp := do(ts, http.MethodGet, "/me", nil, nil)
 	if resp.StatusCode != http.StatusUnauthorized {
 		t.Fatalf("GET /me status = %d, want 401", resp.StatusCode)
 	}
 
-	// /users GET requires auth
 	resp = do(ts, http.MethodGet, "/users/", nil, nil)
 	if resp.StatusCode != http.StatusUnauthorized {
 		t.Fatalf("GET /users status = %d, want 401", resp.StatusCode)
 	}
 }
 
-// Unprotected create route exists; with invalid body it should return a 4xx (but not 404), proving wiring.
 func TestRoutes_CreateUser_RouteExists_Returns4xxOnBadBody(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	t.Cleanup(ctrl.Finish)
@@ -184,7 +171,6 @@ func TestRoutes_CreateUser_RouteExists_Returns4xxOnBadBody(t *testing.T) {
 	ts := httptest.NewServer(h)
 	defer ts.Close()
 
-	// Bad/empty body to force handler to bail early without touching service/DB.
 	resp := do(ts, http.MethodPost, "/users/", bytes.NewBufferString(`{}`), map[string]string{
 		"Content-Type": "application/json",
 	})

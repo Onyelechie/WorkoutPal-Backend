@@ -27,8 +27,6 @@ func contextWithRouteCtx(ctx context.Context, rc *chi.Context) context.Context {
 	return context.WithValue(ctx, chi.RouteCtxKey, rc)
 }
 
-/* ------------------------------- tests ------------------------------ */
-
 func TestGoalHandler_CreateUserGoal_BadID(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	t.Cleanup(ctrl.Finish)

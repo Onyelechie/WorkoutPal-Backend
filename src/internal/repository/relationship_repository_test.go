@@ -63,7 +63,7 @@ func TestRelationshipRepository_UnfollowUser_NotFound(t *testing.T) {
 
 	mock.ExpectExec("DELETE FROM follows").
 		WithArgs(int64(1), int64(2)).
-		WillReturnResult(sqlmock.NewResult(0, 0)) // zero rows
+		WillReturnResult(sqlmock.NewResult(0, 0))
 
 	err := repo.UnfollowUser(1, 2)
 	if err == nil || err.Error() != "follow relationship not found" {
@@ -128,7 +128,7 @@ func TestRelationshipRepository_ReadUserFollowers_ScanError(t *testing.T) {
 	repo := NewRelationshipRepository(db)
 
 	rows := sqlmock.NewRows([]string{"following_user_id"}).
-		AddRow("bad-id") // scan will fail
+		AddRow("bad-id")
 
 	mock.ExpectQuery("SELECT following_user_id").
 		WithArgs(int64(2)).

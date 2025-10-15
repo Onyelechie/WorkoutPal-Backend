@@ -16,8 +16,6 @@ import (
 	mock_service "workoutpal/src/mock_internal/domain/service"
 )
 
-/* ----------------------------- helpers ----------------------------- */
-
 func withChiURLParam(r *http.Request, key, val string) *http.Request {
 	routeCtx := chi.NewRouteContext()
 	routeCtx.URLParams.Add(key, val)
@@ -32,8 +30,6 @@ func decodeMessage(t *testing.T, rr *httptest.ResponseRecorder) string {
 	_ = json.NewDecoder(rr.Body).Decode(&br)
 	return br.Message
 }
-
-/* ------------------------------- tests ------------------------------ */
 
 func TestRelationshipHandler_ReadFollowers_BadID(t *testing.T) {
 	ctrl := gomock.NewController(t)
