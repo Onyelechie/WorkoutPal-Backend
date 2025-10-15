@@ -151,12 +151,17 @@ func TestEndToEnd(t *testing.T) {
 	t.Run("Login", testEndToEnd_Login)
 
 	// User Tests
-	//t.Run("Users_Create", testEndToEnd_Users_Create)
-	//t.Run("Users_List", testEndToEnd_Users_List)
-	//t.Run("Users_GetByID", testEndToEnd_Users_GetByID)
-	//t.Run("Users_UpdateByID", testEndToEnd_Users_UpdateByID)
-	//t.Run("Users_Create_Invalid", testEndToEnd_Users_Create_Invalid)
-	//t.Run("Users_Create_Duplicate", testEndToEnd_Users_Create_Duplicate)
-	//t.Run("Users_Delete_Success", testEndToEnd_Users_Delete_Success)
-	//t.Run("Users_GetByID_NotFound", testEndToEnd_Users_GetByID_NotFound)
+	t.Run("Users_Create", testEndToEnd_Users_Create)
+	t.Run("Users_List", testEndToEnd_Users_List)
+	t.Run("Users_GetByID", testEndToEnd_Users_GetByID)
+	t.Run("Users_UpdateByID", testEndToEnd_Users_UpdateByID)
+	t.Run("Users_Create_Invalid", testEndToEnd_Users_Create_Invalid)
+	t.Run("Users_Create_Duplicate", testEndToEnd_Users_Create_Duplicate)
+	t.Run("Users_Delete_Success", testEndToEnd_Users_Delete_Success)
+	t.Run("Users_GetByID_NotFound", testEndToEnd_Users_GetByID_NotFound)
+
+	// Exercise Tests
+	t.Run("Exercises_List_WithQueryParams", testEndToEnd_Exercises_List_WithQueryParams)
+	t.Run("Exercises_GetByID", testEndToEnd_Exercises_GetByID)
+	t.Run("Exercises_GetByID_NotFound", testEndToEnd_Exercises_GetByID_NotFound)
 }
