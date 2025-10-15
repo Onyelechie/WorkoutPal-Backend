@@ -25,6 +25,14 @@ WorkoutPal is a comprehensive fitness tracking platform that helps users plan, l
 - **Testing**: Go testing package
 - **Documentation**: Swagger/OpenAPI
 
+
+## Testing
+```bash
+go test ./... -coverpkg=./... -covermode=atomic -coverprofile=coverage.out
+go tool cover -func=coverage.out
+go tool cover -html=coverage.out
+```
+
 ## Project Structure
 
 ```
