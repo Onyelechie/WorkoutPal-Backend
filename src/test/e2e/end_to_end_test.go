@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"net/http/cookiejar"
 	"os"
 	"testing"
 	"time"
@@ -133,21 +134,21 @@ func waitForHealth(t *testing.T) {
 }
 
 func TestEndToEnd(t *testing.T) {
-	//os.Setenv("COOKIE_SECURE", "false")
-	//go startUpServer()
+	os.Setenv("COOKIE_SECURE", "false")
+	go startUpServer()
 
 	// This is to keep the cookie once it is set
-	//jar, _ := cookiejar.New(nil)
-	//client = &http.Client{Timeout: 5 * time.Second, Jar: jar}
-	//
-	//waitForHealth(t)
+	jar, _ := cookiejar.New(nil)
+	client = &http.Client{Timeout: 5 * time.Second, Jar: jar}
+
+	waitForHealth(t)
 
 	// Auth tests
-	//t.Run("Login", testEndToEnd_Login)
-	//t.Run("Me", testEndToEnd_Me)
-	//t.Run("Logout", testEndToEnd_Logout)
-	//t.Run("MeFail", testEndToEnd_MeFail)
-	//t.Run("Login", testEndToEnd_Login)
+	t.Run("Login", testEndToEnd_Login)
+	t.Run("Me", testEndToEnd_Me)
+	t.Run("Logout", testEndToEnd_Logout)
+	t.Run("MeFail", testEndToEnd_MeFail)
+	t.Run("Login", testEndToEnd_Login)
 
 	// User Tests
 	//t.Run("Users_Create", testEndToEnd_Users_Create)
