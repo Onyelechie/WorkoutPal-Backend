@@ -20,4 +20,4 @@ jobs:
       - name: Build
         run: go build ./src/cmd/api/main.go
       - name: Run tests
-        run: go test ./src/internal/test/... -v
+        run: go test ./...

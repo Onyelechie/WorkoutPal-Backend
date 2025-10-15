@@ -104,19 +104,6 @@ definitions:
       weightMetric:
         type: string
     type: object
-  model.CreateWorkoutRequest:
-    properties:
-      exercises:
-        items:
-          $ref: '#/definitions/model.RegisteredExercise'
-        type: array
-      frequency:
-        type: string
-      name:
-        type: string
-      nextRound:
-        type: string
-    type: object
   model.Exercise:
     properties:
       custom:
@@ -225,21 +212,6 @@ definitions:
       title:
         type: string
     type: object
-  model.RegisteredExercise:
-    properties:
-      count:
-        type: integer
-      duration:
-        type: integer
-      endTime:
-        type: string
-      exercise:
-        $ref: '#/definitions/model.Exercise'
-      sets:
-        type: integer
-      startTime:
-        type: string
-    type: object
   model.UpdateUserRequest:
     properties:
       age:
@@ -263,19 +235,6 @@ definitions:
       weight:
         type: number
       weightMetric:
-        type: string
-    type: object
-  model.UpdateWorkoutRequest:
-    properties:
-      exercises:
-        items:
-          $ref: '#/definitions/model.RegisteredExercise'
-        type: array
-      frequency:
-        type: string
-      name:
-        type: string
-      nextRound:
         type: string
     type: object
   model.User:
@@ -345,21 +304,6 @@ definitions:
         type: string
       userId:
         type: integer
-    type: object
-  model.Workout:
-    properties:
-      exercises:
-        items:
-          $ref: '#/definitions/model.RegisteredExercise'
-        type: array
-      frequency:
-        type: string
-      id:
-        type: integer
-      name:
-        type: string
-      nextRound:
-        type: string
     type: object
 info:
   contact: {}
@@ -472,7 +416,7 @@ paths:
       summary: Create a new exercise
       tags:
       - Exercises
-  /exercises/:id:
+  /exercises/{id}:
     get:
       consumes:
       - application/json
@@ -521,18 +465,28 @@ paths:
             $ref: '#/definitions/model.User'
       summary: Logs in a user
       tags:
-      - global
       - auth
   /logout:
     post:
       responses:
         "200":
-          description: Logged out
+          description: successful logout
           schema:
-            type: string
+            $ref: '#/definitions/model.BasicResponse'
       summary: Logs out user by clearing access_token
       tags:
-      - global
+      - auth
+  /me:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.User'
+      summary: Get current authenticated user
+      tags:
       - auth
   /posts:
     get:
@@ -1181,108 +1135,4 @@ paths:
       summary: Unfollow a user
       tags:
       - Relationships
-  /workouts:
-    get:
-      consumes:
-      - application/json
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Workouts retrieved successfully
-          schema:
-            items:
-              $ref: '#/definitions/model.Workout'
-            type: array
-        "400":
-          description: Validation error
-          schema:
-            $ref: '#/definitions/model.BasicResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/model.BasicResponse'
-        "500":
-          description: Internal server error
-          schema:
-            $ref: '#/definitions/model.BasicResponse'
-      security:
-      - BearerAuth: []
-      summary: List workouts
-      tags:
-      - Workouts
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: New workout payload
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/model.CreateWorkoutRequest'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Workout created successfully
-          schema:
-            $ref: '#/definitions/model.Workout'
-        "400":
-          description: Validation error
-          schema:
-            $ref: '#/definitions/model.BasicResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/model.BasicResponse'
-        "500":
-          description: Internal server error
-          schema:
-            $ref: '#/definitions/model.BasicResponse'
-      security:
-      - BearerAuth: []
-      summary: Create a new workout
-      tags:
-      - Workouts
-  /workouts/{id}:
-    put:
-      consumes:
-      - application/json
-      parameters:
-      - description: Workout ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: Updated workout payload
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/model.UpdateWorkoutRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Workout updated successfully
-          schema:
-            $ref: '#/definitions/model.Workout'
-        "400":
-          description: Validation error
-          schema:
-            $ref: '#/definitions/model.BasicResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/model.BasicResponse'
-        "500":
-          description: Internal server error
-          schema:
-            $ref: '#/definitions/model.BasicResponse'
-      security:
-      - BearerAuth: []
-      summary: Update an existing workout
-      tags:
-      - Workouts
 swagger: "2.0"

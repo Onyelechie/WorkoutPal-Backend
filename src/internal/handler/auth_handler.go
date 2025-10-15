@@ -3,8 +3,10 @@ package handler
 import (
 	"encoding/json"
 	"net/http"
+	"os"
 	"strings"
 	"time"
+	"workoutpal/src/internal/domain/handler"
 	"workoutpal/src/internal/domain/service"
 	"workoutpal/src/internal/middleware"
 	"workoutpal/src/internal/model"
@@ -16,19 +18,21 @@ import (
 type authHandler struct {
 	userService service.UserService
 	authService service.AuthService
+	secret      []byte
 }
 
-func NewAuthHandler(us service.UserService, as service.AuthService) *authHandler {
+func NewAuthHandler(us service.UserService, as service.AuthService, secret []byte) handler.AuthHandler {
 	return &authHandler{
 		userService: us,
 		authService: as,
+		secret:      secret,
 	}
 }
 
 // Login godoc
 // @Summary Logs in a user
 // @Description Authenticates a user and sets access_token as cookie
-// @Tags global, auth
+// @Tags auth
 // @Accept json
 // @Produce json
 // @Param request body model.LoginRequest true "comment"
@@ -57,10 +61,15 @@ func (h *authHandler) Login(w http.ResponseWriter, r *http.Request) {
 	}
 	tokenWithClaims := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	token, err := tokenWithClaims.SignedString([]byte("secret")) // TODO read this from environment variables
+	token, err := tokenWithClaims.SignedString(h.secret)
 	if err != nil {
 		http.Error(w, "failed to create token", http.StatusInternalServerError)
 		return
+	}
+
+	isSecure := true
+	if v := os.Getenv("COOKIE_SECURE"); strings.ToLower(v) == "false" {
+		isSecure = false
 	}
 
 	http.SetCookie(w, &http.Cookie{
@@ -68,7 +77,7 @@ func (h *authHandler) Login(w http.ResponseWriter, r *http.Request) {
 		Value:    token,
 		Path:     "/",
 		HttpOnly: true,
-		Secure:   true,
+		Secure:   isSecure,
 		SameSite: http.SameSiteDefaultMode,
 		MaxAge:   int(time.Hour.Seconds()),
 	})
@@ -78,7 +87,7 @@ func (h *authHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 // Me godoc
 // @Summary Get current authenticated user
-// @Tags global, auth
+// @Tags auth
 // @Produce json
 // @Success 200 {object} model.User
 // @Router /me [get]
@@ -106,8 +115,8 @@ func (h *authHandler) Me(w http.ResponseWriter, r *http.Request) {
 
 // Logout godoc
 // @Summary Logs out user by clearing access_token
-// @Tags global, auth
-// @Success 200 {string} string "Logged out"
+// @Tags auth
+// @Success 200 {object} model.BasicResponse "successful logout"
 // @Router /logout [post]
 func (h *authHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, &http.Cookie{
@@ -120,7 +129,7 @@ func (h *authHandler) Logout(w http.ResponseWriter, r *http.Request) {
 		MaxAge:   -1,
 	})
 	w.WriteHeader(http.StatusOK)
-	render.JSON(w, r, map[string]string{"message": "logout success"})
+	render.JSON(w, r, model.BasicResponse{Message: "success"})
 }
 
 // GoogleAuth godoc

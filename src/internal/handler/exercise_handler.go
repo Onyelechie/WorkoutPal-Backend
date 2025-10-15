@@ -35,7 +35,7 @@ func NewExerciseHandler(es service.ExerciseService) handler.ExerciseHandler {
 // @Security BearerAuth
 // @Router /exercises [get]
 func (h *exerciseHandler) ReadExercises(w http.ResponseWriter, r *http.Request) {
-	exercises, err := h.exerciseService.GetAllExercises()
+	exercises, err := h.exerciseService.ReadAllExercises()
 	if err != nil {
 		render.Status(r, http.StatusInternalServerError)
 		render.JSON(w, r, model.BasicResponse{Message: err.Error()})
@@ -54,7 +54,7 @@ func (h *exerciseHandler) ReadExercises(w http.ResponseWriter, r *http.Request) 
 // @Failure 401 {object} model.BasicResponse "Unauthorized"
 // @Failure 500 {object} model.BasicResponse "Internal server error"
 // @Security BearerAuth
-// @Router /exercises/:id [get]
+// @Router /exercises/{id} [get]
 func (h *exerciseHandler) ReadExerciseByID(w http.ResponseWriter, r *http.Request) {
 	id := r.Context().Value(constants.ID_KEY).(int64)
 	exercise, err := h.exerciseService.ReadExerciseByID(id)

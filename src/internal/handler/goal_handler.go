@@ -13,12 +13,12 @@ import (
 )
 
 type goalHandler struct {
-	userService service.UserService
+	goalService service.GoalService
 }
 
-func NewGoalHandler(us service.UserService) handler.GoalHandler {
+func NewGoalHandler(gs service.GoalService) handler.GoalHandler {
 	return &goalHandler{
-		userService: us,
+		goalService: gs,
 	}
 }
 
@@ -49,7 +49,7 @@ func (g *goalHandler) CreateUserGoal(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	goal, err := g.userService.CreateGoal(id, req)
+	goal, err := g.goalService.CreateGoal(id, req)
 	if err != nil {
 		render.Status(r, http.StatusBadRequest)
 		render.JSON(w, r, model.BasicResponse{Message: err.Error()})
@@ -78,7 +78,7 @@ func (g *goalHandler) GetUserGoals(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	goals, err := g.userService.GetUserGoals(id)
+	goals, err := g.goalService.ReadUserGoals(id)
 	if err != nil {
 		render.Status(r, http.StatusNotFound)
 		render.JSON(w, r, model.BasicResponse{Message: err.Error()})
