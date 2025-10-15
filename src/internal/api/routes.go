@@ -9,7 +9,6 @@ import (
 	middleware2 "workoutpal/src/internal/middleware"
 	"workoutpal/src/internal/repository"
 	"workoutpal/src/internal/service"
-	mock_api "workoutpal/src/mock_internal/api"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -25,11 +24,6 @@ func RegisterRoutes(cfg *config.Config, db *sql.DB) http.Handler {
 	r.Use(middleware.RealIP)
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
-
-	// --- Mock Routes ---
-	r.Route("/mock", func(r chi.Router) {
-		mock_api.MockRoutes(r)
-	})
 
 	// --- Real Routes ---
 	r.Route("/", func(r chi.Router) {
