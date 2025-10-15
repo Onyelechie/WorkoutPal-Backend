@@ -5,10 +5,9 @@ import (
 	"net/http"
 	"workoutpal/src/internal/api/docs"
 	"workoutpal/src/internal/config"
+	"workoutpal/src/internal/dependency"
 	"workoutpal/src/internal/handler"
 	middleware2 "workoutpal/src/internal/middleware"
-	"workoutpal/src/internal/repository"
-	"workoutpal/src/internal/service"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -27,7 +26,8 @@ func RegisterRoutes(cfg *config.Config, db *sql.DB) http.Handler {
 
 	// --- Real Routes ---
 	r.Route("/", func(r chi.Router) {
-		Routes(r, db, []byte(cfg.JWTSecret))
+		appDep := dependency.NewAppDependencies(db)
+		Routes(r, appDep, []byte(cfg.JWTSecret))
 	})
 
 	// Swagger Docs
@@ -51,29 +51,14 @@ func RegisterRoutes(cfg *config.Config, db *sql.DB) http.Handler {
 	return corsHandler
 }
 
-func Routes(r chi.Router, db *sql.DB, secret []byte) http.Handler {
-	// --- Init Repositories ---
-	userRepository := repository.NewUserRepository(db)
-	relationshipRepository := repository.NewRelationshipRepository(db)
-	goalRepository := repository.NewGoalRepository(db)
-	exerciseRepository := repository.NewExerciseRepository(db)
-	routineRepository := repository.NewRoutineRepository(db)
-
-	// --- Init Services ---
-	userService := service.NewUserService(userRepository)
-	relationshipService := service.NewRelationshipService(relationshipRepository)
-	goalService := service.NewGoalService(goalRepository)
-	exerciseService := service.NewExerciseService(exerciseRepository)
-	routineService := service.NewRoutineService(routineRepository)
-	authService := service.NewAuthService(userRepository)
-
+func Routes(r chi.Router, appDep dependency.AppDependencies, secret []byte) http.Handler {
 	// --- Init Handlers ---
-	userHandler := handler.NewUserHandler(userService)
-	goalHandler := handler.NewGoalHandler(goalService)
-	relationshipHandler := handler.NewRelationshipHandler(relationshipService)
-	routineHandler := handler.NewRoutineHandler(routineService)
-	exerciseHandler := handler.NewExerciseHandler(exerciseService)
-	authHandler := handler.NewAuthHandler(userService, authService)
+	userHandler := handler.NewUserHandler(appDep.UserService)
+	goalHandler := handler.NewGoalHandler(appDep.GoalService)
+	relationshipHandler := handler.NewRelationshipHandler(appDep.RelationshipService)
+	routineHandler := handler.NewRoutineHandler(appDep.RoutineService)
+	exerciseHandler := handler.NewExerciseHandler(appDep.ExerciseService)
+	authHandler := handler.NewAuthHandler(appDep.UserService, appDep.AuthService)
 
 	// --- Init Middleware ---
 	var idMiddleware = middleware2.IdMiddleware()

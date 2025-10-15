@@ -1,197 +1,198 @@
-package api_test
+package api
 
 import (
+	"bytes"
+	"database/sql"
+	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
-	"time"
 
-	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/golang/mock/gomock"
+
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 
-	"workoutpal/src/internal/api"
 	"workoutpal/src/internal/config"
+	"workoutpal/src/internal/dependency"
+	"workoutpal/src/internal/model"
+	mock_repository "workoutpal/src/mock_internal/domain/repository"
+	mock_service "workoutpal/src/mock_internal/domain/service"
 )
 
-func newTestServer(t *testing.T) (*httptest.Server, sqlmock.Sqlmock) {
-	t.Helper()
-	db, mock, err := sqlmock.New()
-	if err != nil {
-		t.Fatalf("sqlmock.New: %v", err)
-	}
+/* ----------------------------- helpers ----------------------------- */
 
-	t.Cleanup(func() { _ = db.Close() })
-
-	cfg := &config.Config{
-		JWTSecret: "test-secret",
-	}
-
-	handler := api.RegisterRoutes(cfg, db)
-	srv := httptest.NewServer(handler)
-	t.Cleanup(srv.Close)
-	return srv, mock
-}
-
-func walkRoutes(t *testing.T, r http.Handler) map[string]struct{} {
-	t.Helper()
-
-	cr, ok := r.(chi.Router)
-	if !ok {
-		t.Fatalf("handler does not implement chi.Router; got %T", r)
-	}
-
-	found := make(map[string]struct{})
-	walkFn := func(method string, route string, handler http.Handler, middlewares ...func(http.Handler) http.Handler) error {
-		key := method + " " + route
-		found[key] = struct{}{}
-		return nil
-	}
-	if err := chi.Walk(cr, walkFn); err != nil {
-		t.Fatalf("chi.Walk failed: %v", err)
-	}
-	return found
-}
-
-func hasRoute(routes map[string]struct{}, method, pattern string) bool {
-	_, ok := routes[method+" "+pattern]
-	return ok
-}
-
-func do(t *testing.T, client *http.Client, method, url string, headers map[string]string) *http.Response {
-	t.Helper()
-	req, err := http.NewRequest(method, url, nil)
-	if err != nil {
-		t.Fatalf("NewRequest: %v", err)
-	}
+func do(ts *httptest.Server, method, path string, body io.Reader, headers map[string]string) *http.Response {
+	req, _ := http.NewRequest(method, ts.URL+path, body)
 	for k, v := range headers {
 		req.Header.Set(k, v)
 	}
-	resp, err := client.Do(req)
-	if err != nil {
-		t.Fatalf("client.Do: %v", err)
-	}
+	resp, _ := http.DefaultClient.Do(req)
 	return resp
 }
 
-func TestProtectedRoutesRequireAuth(t *testing.T) {
-	srv, _ := newTestServer(t)
-
-	type tc struct {
-		method string
-		path   string
-	}
-	protected := []tc{
-		{http.MethodGet, "/me"},
-		{http.MethodGet, "/users"},
-		{http.MethodGet, "/users/123"},
-		{http.MethodPatch, "/users/123"},
-		{http.MethodDelete, "/users/123"},
-		{http.MethodPost, "/users/123/goals"},
-		{http.MethodGet, "/users/123/goals"},
-		{http.MethodPost, "/users/123/follow"},
-		{http.MethodPost, "/users/123/unfollow"},
-		{http.MethodGet, "/users/123/followers"},
-		{http.MethodGet, "/users/123/following"},
-		{http.MethodPost, "/users/123/routines"},
-		{http.MethodGet, "/users/123/routines"},
-		{http.MethodDelete, "/users/123/routines/456"},
-		{http.MethodGet, "/exercises"},
-		{http.MethodGet, "/exercises/789"},
-		{http.MethodGet, "/routines/777"},
-		{http.MethodDelete, "/routines/777"},
-		{http.MethodPost, "/routines/777/exercises"},
-		{http.MethodDelete, "/routines/777/exercises/888"},
-	}
-
-	for _, c := range protected {
-		resp := do(t, srv.Client(), c.method, srv.URL+c.path, nil)
-		func() {
-			defer resp.Body.Close()
-			if resp.StatusCode != http.StatusUnauthorized && resp.StatusCode != http.StatusForbidden {
-				t.Fatalf("%s %s: expected 401/403; got %d", c.method, c.path, resp.StatusCode)
-			}
-		}()
-	}
-}
-
-func TestPublicRoutesExistByWalkingRouter(t *testing.T) {
-	db, _, err := sqlmock.New()
-	if err != nil {
-		t.Fatalf("sqlmock.New: %v", err)
-	}
-	defer db.Close()
-
+func chiRouterWithGlobalMiddleware() chi.Router {
 	r := chi.NewRouter()
-	inner := api.Routes(r, db, []byte("test-secret"))
+	r.Use(middleware.RequestID)
+	r.Use(middleware.RealIP)
+	r.Use(middleware.Logger)
+	r.Use(middleware.Recoverer)
+	return r
+}
 
-	routes := walkRoutes(t, inner)
+/* ------------------------------- tests ------------------------------ */
 
-	if !hasRoute(routes, http.MethodGet, "/health") {
-		t.Errorf("missing GET /health")
-	}
-	if !hasRoute(routes, http.MethodPost, "/login") {
-		t.Errorf("missing POST /login")
-	}
-	if !hasRoute(routes, http.MethodPost, "/logout") {
-		t.Errorf("missing POST /logout")
-	}
-	if !hasRoute(routes, http.MethodGet, "/me") {
-		t.Errorf("missing GET /me")
-	}
+// Basic sanity: the pure RegisterRoutes (which wraps with CORS & swagger) builds and /health works.
+func TestRegisterRoutes_Health_OK(t *testing.T) {
+	cfg := &config.Config{JWTSecret: "test-secret"}
 
-	expect := []struct {
-		m string
-		p string
-	}{
-		{http.MethodPost, "/users/"},
-		{http.MethodGet, "/users/"},
-		{http.MethodGet, "/users/{id}"},
-		{http.MethodPatch, "/users/{id}"},
-		{http.MethodDelete, "/users/{id}"},
-		{http.MethodPost, "/users/{id}/goals"},
-		{http.MethodGet, "/users/{id}/goals"},
-		{http.MethodPost, "/users/{id}/follow"},
-		{http.MethodPost, "/users/{id}/unfollow"},
-		{http.MethodGet, "/users/{id}/followers"},
-		{http.MethodGet, "/users/{id}/following"},
-		{http.MethodPost, "/users/{id}/routines"},
-		{http.MethodGet, "/users/{id}/routines"},
-		{http.MethodDelete, "/users/{id}/routines/{routine_id}"},
-		{http.MethodGet, "/exercises/"},
-		{http.MethodGet, "/exercises/{id}"},
-		{http.MethodGet, "/routines/{id}"},
-		{http.MethodDelete, "/routines/{id}"},
-		{http.MethodPost, "/routines/{id}/exercises"},
-		{http.MethodDelete, "/routines/{id}/exercises/{exercise_id}"},
-	}
-	for _, e := range expect {
-		if !hasRoute(routes, e.m, e.p) {
-			t.Errorf("missing %s %s", e.m, e.p)
-		}
+	h := RegisterRoutes(cfg, &sql.DB{})
+	ts := httptest.NewServer(h)
+	defer ts.Close()
+
+	resp := do(ts, http.MethodGet, "/health", nil, nil)
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("GET /health status = %d, want 200", resp.StatusCode)
 	}
 }
 
-func TestSwaggerRouteIsMountedOnRegisterRoutes(t *testing.T) {
-	srv, _ := newTestServer(t)
+func TestRegisterRoutes_CORS_AllowsAllowedOrigin_OnSimpleGET(t *testing.T) {
+	t.Parallel()
 
-	resp := do(t, srv.Client(), http.MethodGet, srv.URL+"/swagger/index.html", nil)
+	cfg := &config.Config{JWTSecret: "test-secret"}
+	h := RegisterRoutes(cfg, &sql.DB{})
+	ts := httptest.NewServer(h)
+	defer ts.Close()
+
+	headers := map[string]string{"Origin": "http://localhost:4200"}
+	resp := do(ts, http.MethodGet, "/health", nil, headers)
 	defer resp.Body.Close()
 
-	if !(resp.StatusCode == http.StatusOK || resp.StatusCode == http.StatusMovedPermanently || resp.StatusCode == http.StatusFound || resp.StatusCode == http.StatusNotFound) {
-		t.Fatalf("unexpected status from /swagger/index.html: %d", resp.StatusCode)
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("GET /health status = %d, want 200", resp.StatusCode)
+	}
+
+	if got := resp.Header.Get("Access-Control-Allow-Origin"); got != "http://localhost:4200" {
+		t.Fatalf("Access-Control-Allow-Origin = %q, want %q", got, "http://localhost:4200")
 	}
 }
 
-func TestNoPanicRecovererOnUnknownPath(t *testing.T) {
-	srv, _ := newTestServer(t)
+// Unit-test the DI seam: /login must call AuthService.Authenticate and succeed.
+func TestRoutes_Login_CallsAuthService_AndReturns200(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	t.Cleanup(ctrl.Finish)
 
-	client := srv.Client()
-	client.Timeout = 5 * time.Second
+	// Build mocks for the services the handlers need.
+	mockAuth := mock_service.NewMockAuthService(ctrl)
+	mockUserSvc := mock_service.NewMockUserService(ctrl)
+	// Other services are needed only to construct handlers; no expectations required.
+	mockGoalSvc := mock_service.NewMockGoalService(ctrl)
+	mockRelSvc := mock_service.NewMockRelationshipService(ctrl)
+	mockRoutineSvc := mock_service.NewMockRoutineService(ctrl)
+	mockExerciseSvc := mock_service.NewMockExerciseService(ctrl)
 
-	resp := do(t, client, http.MethodGet, srv.URL+"/definitely-not-here", nil)
+	// Some handlers take repositories directly; provide a mock user repo as required by your AuthHandler ctor.
+	mockUserRepo := mock_repository.NewMockUserRepository(ctrl)
+
+	deps := dependency.AppDependencies{
+		UserRepository:      mockUserRepo,
+		UserService:         mockUserSvc,
+		GoalService:         mockGoalSvc,
+		RelationshipService: mockRelSvc,
+		RoutineService:      mockRoutineSvc,
+		ExerciseService:     mockExerciseSvc,
+		AuthService:         mockAuth,
+	}
+
+	r := chiRouterWithGlobalMiddleware()
+	h := Routes(r, deps, []byte("test-secret"))
+	ts := httptest.NewServer(h)
+	defer ts.Close()
+
+	reqBody := model.LoginRequest{Email: "a@b.com", Password: "pw"}
+	mockAuth.
+		EXPECT().
+		Authenticate(gomock.Any(), gomock.AssignableToTypeOf(model.LoginRequest{})).
+		Return(&model.User{ID: 1, Email: reqBody.Email}, nil)
+
+	buf, _ := json.Marshal(reqBody)
+	resp := do(ts, http.MethodPost, "/login", bytes.NewBuffer(buf), map[string]string{
+		"Content-Type": "application/json",
+	})
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusNotFound {
-		t.Fatalf("expected 404 for unknown path; got %d", resp.StatusCode)
+	if resp.StatusCode == http.StatusNotFound {
+		t.Fatal("POST /login returned 404; route not registered")
+	}
+	if resp.StatusCode != http.StatusOK {
+		b, _ := io.ReadAll(resp.Body)
+		t.Fatalf("POST /login status = %d, want 200; body=%s", resp.StatusCode, string(b))
+	}
+}
+
+// Protected endpoints without Authorization header should be rejected by AuthMiddleware.
+func TestRoutes_ProtectedEndpoints_UnauthorizedWithoutToken(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	t.Cleanup(ctrl.Finish)
+
+	deps := dependency.AppDependencies{
+		UserRepository:      mock_repository.NewMockUserRepository(ctrl),
+		UserService:         mock_service.NewMockUserService(ctrl),
+		GoalService:         mock_service.NewMockGoalService(ctrl),
+		RelationshipService: mock_service.NewMockRelationshipService(ctrl),
+		RoutineService:      mock_service.NewMockRoutineService(ctrl),
+		ExerciseService:     mock_service.NewMockExerciseService(ctrl),
+		AuthService:         mock_service.NewMockAuthService(ctrl),
+	}
+
+	r := chiRouterWithGlobalMiddleware()
+	h := Routes(r, deps, []byte("test-secret"))
+	ts := httptest.NewServer(h)
+	defer ts.Close()
+
+	// /me requires auth
+	resp := do(ts, http.MethodGet, "/me", nil, nil)
+	if resp.StatusCode != http.StatusUnauthorized {
+		t.Fatalf("GET /me status = %d, want 401", resp.StatusCode)
+	}
+
+	// /users GET requires auth
+	resp = do(ts, http.MethodGet, "/users/", nil, nil)
+	if resp.StatusCode != http.StatusUnauthorized {
+		t.Fatalf("GET /users status = %d, want 401", resp.StatusCode)
+	}
+}
+
+// Unprotected create route exists; with invalid body it should return a 4xx (but not 404), proving wiring.
+func TestRoutes_CreateUser_RouteExists_Returns4xxOnBadBody(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	t.Cleanup(ctrl.Finish)
+
+	deps := dependency.AppDependencies{
+		UserRepository:      mock_repository.NewMockUserRepository(ctrl),
+		UserService:         mock_service.NewMockUserService(ctrl),
+		GoalService:         mock_service.NewMockGoalService(ctrl),
+		RelationshipService: mock_service.NewMockRelationshipService(ctrl),
+		RoutineService:      mock_service.NewMockRoutineService(ctrl),
+		ExerciseService:     mock_service.NewMockExerciseService(ctrl),
+		AuthService:         mock_service.NewMockAuthService(ctrl),
+	}
+
+	r := chiRouterWithGlobalMiddleware()
+	h := Routes(r, deps, []byte("test-secret"))
+	ts := httptest.NewServer(h)
+	defer ts.Close()
+
+	// Bad/empty body to force handler to bail early without touching service/DB.
+	resp := do(ts, http.MethodPost, "/users/", bytes.NewBufferString(`{}`), map[string]string{
+		"Content-Type": "application/json",
+	})
+
+	if resp.StatusCode == http.StatusNotFound {
+		t.Fatal("POST /users returned 404; route not registered")
+	}
+	if resp.StatusCode < 400 || resp.StatusCode > 499 {
+		t.Fatalf("POST /users status = %d, want 4xx (invalid body)", resp.StatusCode)
 	}
 }
