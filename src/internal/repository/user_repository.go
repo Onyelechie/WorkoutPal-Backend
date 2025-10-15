@@ -24,7 +24,7 @@ func (u *userRepository) ReadUserByEmail(email string) (*model.User, error) {
 	err := u.db.QueryRow("SELECT id, username, email, password, name, height, height_metric, weight, weight_metric, avatar_url FROM users WHERE email = $1", email).Scan(
 		&user.ID, &user.Username, &user.Email, &user.Password, &user.Name, &user.Height, &user.HeightMetric, &user.Weight, &user.WeightMetric, &avatarURL)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return nil, errors.New("user not found")
 		}
 		return nil, err
@@ -109,7 +109,7 @@ func (u *userRepository) UpdateUser(request model.UpdateUserRequest) (*model.Use
 		&user.ID, &user.Username, &user.Email, &user.Name,
 		&user.Height, &user.HeightMetric, &user.Weight, &user.WeightMetric, &avatarURL)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return nil, errors.New("user not found")
 		}
 		return nil, err
