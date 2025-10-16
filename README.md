@@ -1,3 +1,5 @@
+**Disclaimer: Lots of ChatGPT code was used in the creation of this project. Particularly for writing tests and repository functions**
+
 # WorkoutPal-Backend
 
 Backend API for the WorkoutPal gym workout tracking application built with Go.
@@ -36,51 +38,70 @@ src/
 │   ├── handler/       # HTTP handlers
 │   ├── model/         # Data models
 │   ├── repository/    # Data access layer
-│   ├── service/       # Business logic
-│   └── test/          # Tests
+│   └── service/       # Business logic
 ├── fitness-db/        # Database schema and setup
+├── test/          # Tests
 └── util/              # Utilities and constants
 ```
+
+---
 
 ## Quick Start
 
 ### Prerequisites
 
 - Go 1.25.1 or higher
-- PostgreSQL (optional - falls back to in-memory)
+- Docker (with docker compose)
 - Git
 
 ### Installation
 
-1. Clone the repository:
+1. Download and Install [Go](https://go.dev)
+
+2. Download and Install [Docker](https://www.docker.com/)
+
+3. Clone the repository:
 ```bash
-git clone <repository-url>
+git clone https://github.com/Onyelechie/WorkoutPal-Backend
 cd WorkoutPal-Backend
 ```
 
-2. Install dependencies:
+4. Install dependencies:
 ```bash
 go mod download
 ```
 
-3. Set up PostgreSQL (optional):
+5. Set up PostgreSQL container:
 ```bash
 cd src/fitness-db
 docker-compose up -d
 ```
 
-4. Run the application:
+6. Run the application:
 ```bash
 go run src/cmd/api/main.go
+```
+**OR Alternatively:**
+```bash
+# If using Windows Command Prompt
+run_go.bat 
+
+# If Windows Powershell
+.\run_go.bat 
+
+# If Linux, WSL, MacOS terminal
+./run_go.sh 
 ```
 
 The API will be available at `http://localhost:8080`
 
-### Testing
+---
 
-Run all tests:
+## Testing
+
+Run all tests with coverage:
 ```bash
-go test ./src/internal/test/... -v
+go test ./... -coverpkg=./... -covermode=atomic -coverprofile=coverage.out
 ```
 
 Run specific test files:
@@ -88,6 +109,18 @@ Run specific test files:
 go test ./src/internal/test/handler_test.go -v
 go test ./src/internal/test/repository_test.go -v
 ```
+
+View coverage in terminal
+```bash
+go tool cover -func=coverage.out
+```
+
+View coverage in browser
+```bash
+go tool cover -html=coverage.out
+```
+
+---
 
 ## API Endpoints
 
@@ -102,14 +135,28 @@ go test ./src/internal/test/repository_test.go -v
 - `POST /users/{id}/goals` - Create user goal
 - `GET /users/{id}/goals` - Get user goals
 
-### Social
+### Social/Relationships
 - `POST /users/{id}/follow` - Follow user
+- `POST /users/{id}/unfollow` - Unfollow user
 - `GET /users/{id}/followers` - Get user followers
 - `GET /users/{id}/following` - Get users being followed
 
-### Routines
+### User Routines
 - `POST /users/{id}/routines` - Create workout routine
 - `GET /users/{id}/routines` - Get user routines
+- `DELETE /users/{id}/routines/{routine_id}` - Delete user's routine
+
+### Exercises
+- `GET /exercises` - Get all exercises
+
+### Routines (Direct Access)
+- `GET /routines/{id}` - Get routine with exercises
+- `DELETE /routines/{id}` - Delete routine
+- `POST /routines/{id}/exercises?exercise_id={exercise_id}` - Add exercise to routine
+- `DELETE /routines/{id}/exercises/{exercise_id}` - Remove exercise from routine
+
+### Authentication
+- `POST /auth/google` - Google OAuth authentication
 
 ## Database Schema
 
@@ -121,6 +168,8 @@ The application uses PostgreSQL with the following main tables:
 - `exercises` - Exercise database
 
 See `src/fitness-db/schema.sql` for complete schema.
+
+---
 
 ## Configuration
 
@@ -138,6 +187,22 @@ Database connection: `host=localhost port=5432 user=user password=password dbnam
 
 ## Swagger Documentation
 
+### Viewing API Documentation
+
+1. Start the server:
+```bash
+go run src/cmd/api/main.go
+```
+
+2. Open your browser and navigate to:
+```
+http://localhost:8080/swagger/index.html
+```
+
+---
+
+## Regenerating Documentation
+
 1. Install swag CLI:
 ```bash
 go install github.com/swaggo/swag/cmd/swag@latest
@@ -145,12 +210,98 @@ go install github.com/swaggo/swag/cmd/swag@latest
 
 2. Generate swagger files:
 ```bash
+export PATH=$PATH:$(go env GOPATH)/bin
 swag init -g src/cmd/api/main.go -o src/internal/api/docs
 ```
+
+3. Restart the server to see updated documentation
+
+---
+
+## Manual Testing
+
+### Start the Server
+```bash
+go run src/cmd/api/main.go
+```
+
+---
+
+## Test Scripts
+Create and run these curl commands to test the API:
+
+#### Create a User
+```bash
+curl -X POST http://localhost:8080/users \
+  -H "Content-Type: application/json" \
+  -d '{"username":"testuser","email":"test@example.com","name":"Test User","password":"password123"}'
+```
+
+#### Get All Users
+```bash
+curl http://localhost:8080/users
+```
+
+#### Get All Exercises
+```bash
+curl http://localhost:8080/exercises
+```
+
+#### Create a Goal
+```bash
+curl -X POST http://localhost:8080/users/1/goals \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Weight Loss","description":"Lose 10kg","deadline":"2024-12-31"}'
+```
+
+#### Create a Routine
+```bash
+curl -X POST http://localhost:8080/users/1/routines \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Morning Workout","description":"Daily routine"}'
+```
+
+#### Add Exercise to Routine
+```bash
+curl -X POST "http://localhost:8080/routines/1/exercises?exercise_id=1"
+```
+
+#### Follow a User
+```bash
+curl -X POST "http://localhost:8080/users/2/follow?follower_id=1"
+```
+
+#### Get User's Routines
+```bash
+curl http://localhost:8080/users/1/routines
+```
+
+#### Delete User's Routine
+```bash
+curl -X DELETE http://localhost:8080/users/1/routines/1
+```
+
+### Automated Testing Script
+Run the complete API test suite:
+```bash
+./test-api.sh
+```
+
+### Testing with Verbose Output
+Add `-v` flag to any curl command to see detailed request/response:
+```bash
+curl -v http://localhost:8080/users
+```
+
+### Prerequisites for Testing
+- `jq` for JSON formatting: `brew install jq` (macOS) or `apt install jq` (Linux)
+- Server running on port 8080
 
 ## Related Repositories
 
 - [Frontend Repository](https://github.com/Onyelechie/WorkoutPal-Frontend) - React.js frontend application
+
+---
 
 ## Contributing
 

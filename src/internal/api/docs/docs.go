@@ -183,6 +183,120 @@ const docTemplate = `{
                 }
             }
         },
+        "/exercises/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Exercises"
+                ],
+                "summary": "Returns the exercise with the corresponding ID",
+                "responses": {
+                    "200": {
+                        "description": "Exercises retrieved successfully",
+                        "schema": {
+                            "$ref": "#/definitions/model.Exercise"
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/login": {
+            "post": {
+                "description": "Authenticates a user and sets access_token as cookie",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Logs in a user",
+                "parameters": [
+                    {
+                        "description": "comment",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.LoginRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.User"
+                        }
+                    }
+                }
+            }
+        },
+        "/logout": {
+            "post": {
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Logs out user by clearing access_token",
+                "responses": {
+                    "200": {
+                        "description": "successful logout",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/me": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Get current authenticated user",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.User"
+                        }
+                    }
+                }
+            }
+        },
         "/posts": {
             "get": {
                 "security": [
@@ -405,55 +519,77 @@ const docTemplate = `{
                 }
             }
         },
-        "/relationships/follow": {
-            "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
+        "/routines/{id}": {
+            "get": {
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "Relationships"
+                    "Routines"
                 ],
-                "summary": "Follow a user",
+                "summary": "Get routine with exercises",
                 "parameters": [
                     {
-                        "description": "User to follow (userID)",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/model.FollowRequest"
-                        }
+                        "type": "integer",
+                        "description": "Routine ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Followed successfully",
+                        "description": "Routine with exercises retrieved successfully",
+                        "schema": {
+                            "$ref": "#/definitions/model.ExerciseRoutine"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid routine ID",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Routine not found",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Routines"
+                ],
+                "summary": "Delete a routine",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Routine ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Routine deleted successfully",
                         "schema": {
                             "$ref": "#/definitions/model.BasicResponse"
                         }
                     },
                     "400": {
-                        "description": "Validation error",
+                        "description": "Invalid routine ID",
                         "schema": {
                             "$ref": "#/definitions/model.BasicResponse"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/model.BasicResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
+                    "404": {
+                        "description": "Routine not found",
                         "schema": {
                             "$ref": "#/definitions/model.BasicResponse"
                         }
@@ -461,13 +597,8 @@ const docTemplate = `{
                 }
             }
         },
-        "/relationships/unfollow": {
+        "/routines/{id}/exercises": {
             "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -475,30 +606,75 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Relationships"
+                    "Routines"
                 ],
-                "summary": "Unfollow a user",
+                "summary": "Add exercise to routine",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Routine ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Exercise ID",
+                        "name": "exercise_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "Unfollowed successfully",
+                        "description": "Exercise added to routine successfully",
                         "schema": {
                             "$ref": "#/definitions/model.BasicResponse"
                         }
                     },
                     "400": {
-                        "description": "Validation error",
+                        "description": "Invalid ID",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/routines/{id}/exercises/{exercise_id}": {
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Routines"
+                ],
+                "summary": "Remove exercise from routine",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Routine ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Exercise ID",
+                        "name": "exercise_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Exercise removed from routine successfully",
                         "schema": {
                             "$ref": "#/definitions/model.BasicResponse"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/model.BasicResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
+                    "400": {
+                        "description": "Invalid ID",
                         "schema": {
                             "$ref": "#/definitions/model.BasicResponse"
                         }
@@ -722,7 +898,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Social"
+                    "Relationships"
                 ],
                 "summary": "Follow a user",
                 "parameters": [
@@ -763,9 +939,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Social"
+                    "Relationships"
                 ],
-                "summary": "Get user followers",
+                "summary": "List a user's followers",
                 "parameters": [
                     {
                         "type": "integer",
@@ -807,9 +983,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Social"
+                    "Relationships"
                 ],
-                "summary": "Get users being followed",
+                "summary": "List users that the target user is following",
                 "parameters": [
                     {
                         "type": "integer",
@@ -838,54 +1014,6 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "User not found",
-                        "schema": {
-                            "$ref": "#/definitions/model.BasicResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/users/{id}/followings": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Relationships"
-                ],
-                "summary": "List users that the target user is following",
-                "responses": {
-                    "200": {
-                        "description": "Followings retrieved successfully",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/model.User"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Validation error",
-                        "schema": {
-                            "$ref": "#/definitions/model.BasicResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/model.BasicResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
                         "schema": {
                             "$ref": "#/definitions/model.BasicResponse"
                         }
@@ -1079,101 +1207,46 @@ const docTemplate = `{
                 }
             }
         },
-        "/workouts": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
+        "/users/{id}/routines/{routine_id}": {
+            "delete": {
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "Workouts"
+                    "Routines"
                 ],
-                "summary": "List workouts",
-                "responses": {
-                    "200": {
-                        "description": "Workouts retrieved successfully",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/model.Workout"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Validation error",
-                        "schema": {
-                            "$ref": "#/definitions/model.BasicResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/model.BasicResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "$ref": "#/definitions/model.BasicResponse"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Workouts"
-                ],
-                "summary": "Create a new workout",
+                "summary": "Delete user's routine",
                 "parameters": [
                     {
-                        "description": "New workout payload",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/model.CreateWorkoutRequest"
-                        }
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Routine ID",
+                        "name": "routine_id",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
-                    "201": {
-                        "description": "Workout created successfully",
+                    "200": {
+                        "description": "Routine deleted successfully",
                         "schema": {
-                            "$ref": "#/definitions/model.Workout"
+                            "$ref": "#/definitions/model.BasicResponse"
                         }
                     },
                     "400": {
-                        "description": "Validation error",
+                        "description": "Invalid ID",
                         "schema": {
                             "$ref": "#/definitions/model.BasicResponse"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/model.BasicResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
+                    "404": {
+                        "description": "Routine not found",
                         "schema": {
                             "$ref": "#/definitions/model.BasicResponse"
                         }
@@ -1181,62 +1254,40 @@ const docTemplate = `{
                 }
             }
         },
-        "/workouts/{id}": {
-            "put": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
+        "/users/{id}/unfollow": {
+            "post": {
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "Workouts"
+                    "Relationships"
                 ],
-                "summary": "Update an existing workout",
+                "summary": "Unfollow a user",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Workout ID",
+                        "description": "User ID to unfollow",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "Updated workout payload",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/model.UpdateWorkoutRequest"
-                        }
+                        "type": "integer",
+                        "description": "Follower user ID",
+                        "name": "follower_id",
+                        "in": "query",
+                        "required": true
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Workout updated successfully",
+                        "description": "Successfully unfollowed user",
                         "schema": {
-                            "$ref": "#/definitions/model.Workout"
+                            "$ref": "#/definitions/model.BasicResponse"
                         }
                     },
                     "400": {
-                        "description": "Validation error",
-                        "schema": {
-                            "$ref": "#/definitions/model.BasicResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/model.BasicResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
+                        "description": "Invalid user ID",
                         "schema": {
                             "$ref": "#/definitions/model.BasicResponse"
                         }
@@ -1294,6 +1345,9 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "demo": {
+                    "type": "string"
+                },
+                "description": {
                     "type": "string"
                 },
                 "expertise": {
@@ -1405,26 +1459,6 @@ const docTemplate = `{
                 }
             }
         },
-        "model.CreateWorkoutRequest": {
-            "type": "object",
-            "properties": {
-                "exercises": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/model.RegisteredExercise"
-                    }
-                },
-                "frequency": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "nextRound": {
-                    "type": "string"
-                }
-            }
-        },
         "model.Exercise": {
             "type": "object",
             "properties": {
@@ -1432,6 +1466,9 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "demo": {
+                    "type": "string"
+                },
+                "description": {
                     "type": "string"
                 },
                 "expertise": {
@@ -1475,6 +1512,12 @@ const docTemplate = `{
                 "description": {
                     "type": "string"
                 },
+                "exerciseIds": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
                 "exercises": {
                     "type": "array",
                     "items": {
@@ -1491,14 +1534,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "userId": {
-                    "type": "integer"
-                }
-            }
-        },
-        "model.FollowRequest": {
-            "type": "object",
-            "properties": {
-                "userID": {
                     "type": "integer"
                 }
             }
@@ -1546,6 +1581,17 @@ const docTemplate = `{
                 }
             }
         },
+        "model.LoginRequest": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
         "model.Post": {
             "type": "object",
             "properties": {
@@ -1574,29 +1620,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "title": {
-                    "type": "string"
-                }
-            }
-        },
-        "model.RegisteredExercise": {
-            "type": "object",
-            "properties": {
-                "count": {
-                    "type": "integer"
-                },
-                "duration": {
-                    "type": "integer"
-                },
-                "endTime": {
-                    "type": "string"
-                },
-                "exercise": {
-                    "$ref": "#/definitions/model.Exercise"
-                },
-                "sets": {
-                    "type": "integer"
-                },
-                "startTime": {
                     "type": "string"
                 }
             }
@@ -1635,26 +1658,6 @@ const docTemplate = `{
                     "type": "number"
                 },
                 "weightMetric": {
-                    "type": "string"
-                }
-            }
-        },
-        "model.UpdateWorkoutRequest": {
-            "type": "object",
-            "properties": {
-                "exercises": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/model.RegisteredExercise"
-                    }
-                },
-                "frequency": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "nextRound": {
                     "type": "string"
                 }
             }
@@ -1759,29 +1762,6 @@ const docTemplate = `{
                 },
                 "userId": {
                     "type": "integer"
-                }
-            }
-        },
-        "model.Workout": {
-            "type": "object",
-            "properties": {
-                "exercises": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/model.RegisteredExercise"
-                    }
-                },
-                "frequency": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "nextRound": {
-                    "type": "string"
                 }
             }
         }
