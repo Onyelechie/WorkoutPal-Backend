@@ -181,7 +181,7 @@ Database connection: `host=localhost port=5432 user=user password=password dbnam
 
 ## Documentation
 
-📋 **[Sprint 0 Documentation](./sprint0.md)** - Complete project overview, features, architecture, and planning details
+📋 **[Sprint 0 Documentation](./docs/sprint0.md)** - Complete project overview, features, architecture, and planning details
 
 📋 **[API Documentation](./support_files/Endpoint%20Documentation.md)** - Detailed endpoint documentation
 
