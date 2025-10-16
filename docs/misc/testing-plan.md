@@ -1,4 +1,4 @@
-# Testing Plan Template
+# Group 4: Testing Plan
 
 This document outlines the testing strategy, tools, and quality assurance approach for your project.  
 
