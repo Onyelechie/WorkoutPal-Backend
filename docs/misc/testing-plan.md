@@ -7,11 +7,11 @@ This document outlines the testing strategy, tools, and quality assurance approa
 ## Testing Goals and Scope  
 **Unit test**
 
-In our frontend, one important component to be unit tested is the module responsible for making HTTP request (apiRequests.ts). This is to ensure that the communication to the backend is always present and functional. The purpose of this test verify the behavior the API request functions and make sure that the response is being returned correctly to the caller.
+In our frontend, one important component to be unit tested is the utility class responsible for sending HTTP requests to the backend (apiRequests.ts). This is to ensure that the communication to the backend is functional and the functions correctly append the passed endpoint to the backend URL. See the [unit test](https://github.com/Onyelechie/WorkoutPal-Frontend/blob/3079c1eea150dfd967f67af3617622ff2c012460/src/utils/__unit_tests__/apiRequests.test.ts) and the [utility class](https://github.com/Onyelechie/WorkoutPal-Frontend/blob/3079c1eea150dfd967f67af3617622ff2c012460/src/utils/apiRequests.ts).
 
 **Acceptance test**
 
-Due to time constraints we decided to only test the Login feature. It is the only fully functional feature in this sprint. The test will cover the logging in, registering and logging out aspect of this feature.
+Due to time constraints, we decided to only test the authentication feature as it is the only fully functional feature in this sprint.
 
 This test will verify that:
 
@@ -28,18 +28,20 @@ This test will verify that:
 **Jest** is a popular framework for React unit testing, which is what the team originally planned to use. Although, we chose to use **Vitest** instead. This is because [Jest is not supported by Vite](https://jestjs.io/docs/getting-started), which is our chosen build tool. 
 
 - Why Vitest?
-    - Vitest is a modern alternative to Jest
-    - Works seamlessly with Vite without needing extra setup or configuration
-    - Built in support for mocks, and measuring coverage
-    - Faster to run tests
+    - Vitest is a modern alternative to Jest.
+    - Works seamlessly with Vite without needing extra setup or configuration.
+    - Built in support for mocks, and measuring coverage.
+    - Faster to run tests.
 
 **Acceptance Test**
 
-We initially chose **React Testing Library** with **Vitest** to perform our acceptance tests. However, due to the limitations of RTL, we had to mock certain parts of the system, such as routing (page navigation), which compromised the accuracy of our tests. By switching to **Cypress + Vitest**, we were able to test the application end-to-end without relying on mocks, resulting in more reliable and realistic acceptance testing.
+We initially chose **React Testing Library (RTL)** with **Vitest** to perform our acceptance tests. However, due to the limitations of RTL, we had to mock certain parts of the system, such as routing (page navigation). Therefore, we could not perform proper acceptance tests on our system with RTL. By switching to **Cypress + Vitest**, we were able to test the application end-to-end without relying on mocks, resulting in more reliable and realistic acceptance testing.
 
 - Why Cypress?
-    - Easy to use
-    - End-to-end testing to test real user interaction
+    - Ability to perform real end-to-end testing compared to RTL.
+    - Has test isolation, test retries and automatic waiting to [minimize test flakyness](https://www.cypress.io/app#flake_resistance).
+    - Test isolation also helps us create more deterministic tests.
+    - Has a GUI compared to RTL. The GUI shows us the exact flow of the tests, making the [debugging process of the tests themselves easier](https://www.cypress.io/app#visual_debugging).
 
 ### Backend
 
@@ -47,9 +49,9 @@ We chose Go’s built-in testing package because it provides a simple, efficient
 
 Go’s testing package
 
-- ease of use
-- quick and effective / no need to configure external packages
-- provides everything we need for testing (e.g. mocks)
+- Ease of use.
+- Quick and effective / no need to configure external packages.
+- Provides everything we need for testing (e.g. mocks).
 
 
 ## Test Organization and Structure  
@@ -68,9 +70,10 @@ Integration tests are located in `test/e2e`.The same naming convention is used a
 
 ### Frontend
 
-- [**Unit Test](https://github.com/Onyelechie/WorkoutPal-Frontend/tree/main/src/utils/__unit_tests__)** are located in `src/utils/__unit_tests__`
+- [**Unit Test**](https://github.com/Onyelechie/WorkoutPal-Frontend/tree/main/src/utils/__unit_tests__): `src/utils/__unit_tests__`
     - The test files are named `[fileBeingTested].test.ts` which is similar to the backend naming conventions
-- [**Acceptance Test](https://github.com/Onyelechie/WorkoutPal-Frontend/tree/main/cypress/e2e):** `cypress/e2e`
+- [**Acceptance Test**](https://github.com/Onyelechie/WorkoutPal-Frontend/tree/main/cypress/e2e): `cypress/e2e`
+    - The test files are name `[fileBeingTested].cy.ts`.
 
 
 ## Coverage Targets  
@@ -98,6 +101,9 @@ npm run test:coverage
 
 ### Frontend Acceptance Testing
 
+Some assumptions, requirements and notes, under 'Acceptance Tests', are outlined in the [README.md](https://github.com/Onyelechie/WorkoutPal-Frontend/blob/3079c1eea150dfd967f67af3617622ff2c012460/README.md).
+The tests will fail without the prerequisites and assumptions.
+
 ```bash
 # Run frontend acceptance test
 npm run cy:run
@@ -119,7 +125,7 @@ go test ./src/internal/test/handler_test.go -v
 ### Frontend Test Report
 Our coverage results can be found in `documentation/tests/sprint_1_test_coverage.png`
 
-[Coverage screenshot](https://github.com/Onyelechie/WorkoutPal-Frontend/blob/main/documentation/tests/sprint_1_test_coverage.png). This shows that ≥ 80% of lines have been tested.
+[Coverage screenshot](https://github.com/Onyelechie/WorkoutPal-Frontend/blob/3079c1eea150dfd967f67af3617622ff2c012460/documentation/tests/sprint_1_test_coverage.png). This screenshot shows a line coverage of 92.98% for our utility classes `src/utils`, which contains our frontend logic.
 
 ### Backend Test Report
 [Coverage txt file](/coverage.txt)
