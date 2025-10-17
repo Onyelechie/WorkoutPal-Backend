@@ -131,15 +131,18 @@ Our coverage results can be found in `documentation/tests/sprint_1_test_coverage
 [Coverage txt file](/coverage.txt)
 
 
-## Test Data and Environment Setup  
+## Test Data and Environment Setup
 
+All the setup required to run our tests are explained in both our [Frontend](https://github.com/Onyelechie/WorkoutPal-Frontend/blob/main/README.md) and [Backend](https://github.com/Onyelechie/WorkoutPal-Backend/blob/main/README.md) README.md. There are special requirements outlined in the frontend for acceptance tests, which is already highlighted in the README.md, under 'Acceptance Tests'.
 
+## Quality Assurance and Exceptions
 
-## Quality Assurance and Exceptions  
+We maintain overall quality by ensuring consistent code reviews. On every pull request we create, we will have someone other than the creator of the pull request comb through the files and ensure that we are following consistent coding standards and using existing constants and utility functions. On the final stage of our sprint, we perform another code review and refactor any inconsistencies with variable naming. Our continuous integration tests also lints through the code and fails when there are unused imports or variables.
 
-
+The exception for untested components has already been explained in the [sprint 1 worksheet](../sprint1.md), under "Frontend" of "2. Unit / Integration / Acceptance Testing".  
 
 ## Continuous Integration
+
 All tests currently run automatically in a CI pipeline for both backend and frontend. Our frontend code tests itself against the backend in our acceptance tests as well. This ensures that all code is working as expected and removes the need to worry about running the tests last minute and seeing some fail. The frontend tests also prove that new frontend code interacts correctly with the current backend.
 
 
