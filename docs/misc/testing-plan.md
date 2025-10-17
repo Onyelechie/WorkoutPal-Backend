@@ -53,7 +53,24 @@ Go’s testing package
 
 
 ## Test Organization and Structure  
+### Backend
 
+**Unit Test**
+
+Tests are located in the same directory as the module they test. This makes it easier to locate and access them quickly. The module is suffixed with `_test` to indicate it is testing a module.
+
+- Example:  `handler/exercise_handler.go`
+    - Test file: `handler/exercise_handler_test.go`
+
+**Integration test**
+
+Integration tests are located in `test/e2e`.The same naming convention is used as the unit test to indicate what is being tested.
+
+### Frontend
+
+- [**Unit Test](https://github.com/Onyelechie/WorkoutPal-Frontend/tree/main/src/utils/__unit_tests__)** are located in `src/utils/__unit_tests__`
+    - The test files are named `[fileBeingTested].test.ts` which is similar to the backend naming conventions
+- [**Acceptance Test](https://github.com/Onyelechie/WorkoutPal-Frontend/tree/main/cypress/e2e):** `cypress/e2e`
 
 
 ## Coverage Targets  
@@ -102,11 +119,10 @@ go test ./src/internal/test/handler_test.go -v
 ### Frontend Test Report
 Our coverage results can be found in `documentation/tests/sprint_1_test_coverage.png`
 
-[Coverage screenshot](https://github.com/Onyelechie/WorkoutPal-Frontend/blob/main/documentation/tests/sprint_1_test_coverage.png)
-This shows that ≥ 80% of lines have been tested.
+[Coverage screenshot](https://github.com/Onyelechie/WorkoutPal-Frontend/blob/main/documentation/tests/sprint_1_test_coverage.png). This shows that ≥ 80% of lines have been tested.
 
 ### Backend Test Report
-
+[Coverage txt file](/coverage.txt)
 
 
 ## Test Data and Environment Setup  
