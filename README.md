@@ -183,6 +183,8 @@ Database connection: `host=localhost port=5432 user=user password=password dbnam
 
 📋 **[Sprint 0 Documentation](./docs/sprint0.md)** - Complete project overview, features, architecture, and planning details
 
+📋 **[Sprint 1 Documentation](./docs/sprint1.md)** - Testing coverage, test importance, and environment reproducibility.
+
 📋 **[API Documentation](./support_files/Endpoint%20Documentation.md)** - Detailed endpoint documentation
 
 ## Swagger Documentation
