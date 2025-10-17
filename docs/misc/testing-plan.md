@@ -57,8 +57,16 @@ Go’s testing package
 
 
 ## Coverage Targets  
+Our testing coverage goals are designed to ensure reliability, maintainability, and alignment with sprint requirements.
 
-
+### Frontend Target
+- **Logic:** ≥80% coverage.
+- **UI:** Login, User Profiles (not met), Dashboard (not met)
+  
+### Backend Target
+- **Logic:** ≥80% line coverage
+- **API Layer:** 100% method coverage to target all endpoints
+- **Integration:** 100% class coverage
 
 ## Running Tests  
 ### Frontend Unit Testing
