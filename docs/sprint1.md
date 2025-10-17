@@ -29,7 +29,7 @@
 ---
 ### Coverage Report
 
-[Backend coverage report](./misc/coverage.txt)
+[Backend coverage report](../coverage.txt)
 
 [Frontend coverage report](https://github.com/Onyelechie/WorkoutPal-Frontend/blob/main/documentation/tests/sprint_1_test_coverage.png)
 ---
@@ -38,11 +38,75 @@
 
 ### Unit tests:
 
+1. Authentication
 
+File: src/internal/handler/auth_handler_test.go
+Test: TestAuthHandler_Login_OK
+Description: 
+Verifies a successful login flow
+Lowercases incoming email
+AuthService is called correctly
+Sets access_token cookie with HttpOnly
+Returns authenticated user JSON
+
+---
+
+2. User CRUD
+
+File: src/internal/handler/user_handler_test.go
+Test: TestUserHandler_UpdateUser_OK
+Description: 
+Ensures user updates are handled properly
+ID is propagated from request context
+Service receives correct payload
+Returns the updated user
+
+---
+
+3. Validation Utilities
+
+File: src/internal/util/validation_test.go
+Test: TestValidateEmail
+Description: 
+Validates email input behavior
+Rejects missing/invalid formats
+Ensures early input sanitization
 
 ### Integration tests:
 
+Integration Tests:
 
+1. Me Test
+
+File: src/test/e2e/auth_test.go
+Test: testEndToEnd_Me
+Description:
+The /me endpoint returns the authenticated user
+Session state is preserved via cookies
+Authorization logic works correctly
+
+---
+
+2. Login Test
+
+File: src/test/e2e/auth_test.go
+Test: testEndToEnd_Login
+Description:
+The /login endpoint verifies the user exists in the system
+and that the provided email was valid. Returns the user object
+along with a set-cookie header
+
+---
+
+3. User Update
+
+File: src/test/e2e/user_test.go
+Test: testEndToEnd_UpdateByID
+Description:
+Creates a user, and then patches it.
+Tests both the user creation process
+and manipulating existing users
+While ensuring the return id stayed consistent
 
 ### Acceptance Tests:
 
@@ -85,7 +149,21 @@ Since our automated acceptance tests currently only tests authentication, the st
 - A direct link to the front end start instructions from the README.md can be helpful.
 
 ### Summary
-- Build time [4 mins]. Running the website [5 mins].
+
+- Build time was 4 mins and running the website was 5 mins.
 - Building the server is straight forward (using docker).
 - Clarity of documentation can be improved. More detailed steps for running the frontend can be beneficial, especially for someone not familiar with VSCode.
 
+## **Sprint 1 Quick Checklist**
+
+- [x]  Link to testing plan.
+- [x]  Backend: API 100% method coverage, logic classes ≥80% line coverage.
+- [x]  Backend integration tests: 100% class coverage.
+- [x]  Frontend logic coverage ≥80% (if applicable).
+- [x]  UI test approach described.
+- [x]  Missing tests explained (if any).
+- [x]  Coverage report included.
+- [x]  Top 3 unit tests linked & described.
+- [x]  Top 3 integration tests linked & described.
+- [x]  Top 3 acceptance tests linked & described.
+- [x]  Environment setup for another team tested (screenshots + notes).

@@ -128,7 +128,7 @@ Our coverage results can be found in `documentation/tests/sprint_1_test_coverage
 [Coverage screenshot](https://github.com/Onyelechie/WorkoutPal-Frontend/blob/3079c1eea150dfd967f67af3617622ff2c012460/documentation/tests/sprint_1_test_coverage.png). This screenshot shows a line coverage of 92.98% for our utility classes `src/utils`, which contains our frontend logic.
 
 ### Backend Test Report
-[Coverage txt file](/coverage.txt)
+[Coverage txt file](../../coverage.txt)
 
 
 ## Test Data and Environment Setup
