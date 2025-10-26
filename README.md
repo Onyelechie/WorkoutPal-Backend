@@ -10,9 +10,9 @@ WorkoutPal is a comprehensive fitness tracking platform that helps users plan, l
 
 ## Features
 
-- **User Management**: Create, read, update, delete user profiles
+- **User Management**: Create, read, update, delete user profiles with age, height, weight tracking
 - **Goal Tracking**: Set and monitor fitness goals with deadlines
-- **Social Features**: Follow other users and view their progress
+- **Social Features**: Follow/unfollow users, view followers and following lists
 - **Workout Routines**: Create and manage custom exercise routines
 - **Database Support**: PostgreSQL with fallback to in-memory storage
 - **REST API**: Clean HTTP endpoints with JSON responses
@@ -134,6 +134,11 @@ go tool cover -html=coverage.out
 ### Goals
 - `POST /users/{id}/goals` - Create user goal
 - `GET /users/{id}/goals` - Get user goals
+
+### Authentication
+- `POST /login` - User login
+- `POST /logout` - User logout  
+- `GET /me` - Get current authenticated user
 
 ### Social/Relationships
 - `POST /users/{id}/follow` - Follow user
