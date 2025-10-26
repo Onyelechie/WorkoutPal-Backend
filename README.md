@@ -12,7 +12,7 @@ WorkoutPal is a comprehensive fitness tracking platform that helps users plan, l
 
 - **User Management**: Create, read, update, delete user profiles with age, height, weight tracking
 - **Goal Tracking**: Set and monitor fitness goals with deadlines
-- **Social Features**: Follow/unfollow users, view followers and following lists
+- **Social Infrastructure**: Backend support for user relationships (followers/following)
 - **Workout Routines**: Create and manage custom exercise routines
 - **Database Support**: PostgreSQL with fallback to in-memory storage
 - **REST API**: Clean HTTP endpoints with JSON responses
