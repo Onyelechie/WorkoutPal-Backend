@@ -9,7 +9,7 @@ type Schedule struct {
 	Name          string    `json:"name"`
 	UserID        int64     `json:"userId"`
 	DayOfWeek     int64     `json:"dayOfWeek"`     // index from 0 to 6. Sunday to Saturday. e.g. Sunday = 0, Saturday = 6.
-	RoutineID     []int64   `json:"routineId"`     // list of routines that are consecutive of each other in the time slot. index 0 starts first
+	RoutineIDs    []int64   `json:"routineIds"`    // list of routines that are consecutive of each other in the time slot. index 0 starts first
 	TimeSlot      time.Time `json:"timeSlot"`      // start time of list of routines
 	RoutineLength time.Time `json:"routineLength"` // total length of list of routines in minutes
 }
@@ -18,7 +18,7 @@ type CreateScheduleRequest struct {
 	Name          string    `json:"name"`
 	UserID        int64     `json:"userId"`
 	DayOfWeek     int64     `json:"dayOfWeek"`
-	RoutineID     []int64   `json:"routineId"`
+	RoutineIDs    []int64   `json:"routineIds"`
 	TimeSlot      time.Time `json:"timeSlot"`
 	RoutineLength time.Time `json:"routineLength"`
 }
@@ -28,7 +28,7 @@ type UpdateScheduleRequest struct {
 	Name          string    `json:"name"`
 	UserID        int64     `json:"userId"`
 	DayOfWeek     int64     `json:"dayOfWeek"`
-	RoutineID     []int64   `json:"routineId"`
+	RoutineIDs    []int64   `json:"routineIds"`
 	TimeSlot      time.Time `json:"timeSlot"`
 	RoutineLength time.Time `json:"routineLength"`
 }
