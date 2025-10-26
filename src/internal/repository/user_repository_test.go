@@ -187,6 +187,7 @@ func TestUserRepository_CreateUser_OK(t *testing.T) {
 		Email:        "a@b.com",
 		Password:     "hashed",
 		Name:         "Max",
+		Age:          25,
 		Height:       180,
 		HeightMetric: "cm",
 		Weight:       75.0,
@@ -195,16 +196,16 @@ func TestUserRepository_CreateUser_OK(t *testing.T) {
 	}
 
 	rows := sqlmock.NewRows([]string{
-		"id", "username", "email", "name",
+		"id", "username", "email", "name", "age",
 		"height", "height_metric", "weight", "weight_metric", "avatar_url",
-	}).AddRow(1, req.Username, req.Email, req.Name,
+	}).AddRow(1, req.Username, req.Email, req.Name, req.Age,
 		req.Height, req.HeightMetric, req.Weight, req.WeightMetric, req.Avatar)
 
 	mock.ExpectQuery(regexp.QuoteMeta(`
-		INSERT INTO users (username, email, password, name, height, height_metric, weight, weight_metric, avatar_url) 
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) 
-		RETURNING id, username, email, name, height, height_metric, weight, weight_metric, avatar_url`)).
-		WithArgs(req.Username, req.Email, req.Password, req.Name, req.Height, req.HeightMetric, req.Weight, req.WeightMetric, req.Avatar).
+		INSERT INTO users (username, email, password, name, age, height, height_metric, weight, weight_metric, avatar_url) 
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) 
+		RETURNING id, username, email, name, age, height, height_metric, weight, weight_metric, avatar_url`)).
+		WithArgs(req.Username, req.Email, req.Password, req.Name, req.Age, req.Height, req.HeightMetric, req.Weight, req.WeightMetric, req.Avatar).
 		WillReturnRows(rows)
 
 	got, err := repo.CreateUser(req)

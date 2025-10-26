@@ -78,12 +78,12 @@ func (u *userRepository) ReadUserByID(id int64) (*model.User, error) {
 func (u *userRepository) CreateUser(request model.CreateUserRequest) (*model.User, error) {
 	var user model.User
 	err := u.db.QueryRow(`
-		INSERT INTO users (username, email, password, name, height, height_metric, weight, weight_metric, avatar_url) 
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) 
-		RETURNING id, username, email, name, height, height_metric, weight, weight_metric, avatar_url`,
-		request.Username, request.Email, request.Password, request.Name,
+		INSERT INTO users (username, email, password, name, age, height, height_metric, weight, weight_metric, avatar_url) 
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) 
+		RETURNING id, username, email, name, age, height, height_metric, weight, weight_metric, avatar_url`,
+		request.Username, request.Email, request.Password, request.Name, request.Age,
 		request.Height, request.HeightMetric, request.Weight, request.WeightMetric, request.Avatar).Scan(
-		&user.ID, &user.Username, &user.Email, &user.Name,
+		&user.ID, &user.Username, &user.Email, &user.Name, &user.Age,
 		&user.Height, &user.HeightMetric, &user.Weight, &user.WeightMetric, &user.Avatar)
 
 	if err != nil {

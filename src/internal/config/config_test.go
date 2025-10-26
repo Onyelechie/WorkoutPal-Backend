@@ -32,7 +32,7 @@ func Test_getEnv(t *testing.T) {
 }
 
 func TestLoad(t *testing.T) {
-	const defaultDB = "host=localhost port=5432 user=user password=password dbname=workoutpal sslmode=disable"
+	const defaultDB = "host=127.0.0.1 port=5433 user=user password=password dbname=workoutpal sslmode=disable"
 
 	t.Run("uses defaults when env not set or empty", func(t *testing.T) {
 		t.Setenv("DATABASE_URL", "")
