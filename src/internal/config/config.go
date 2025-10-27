@@ -13,7 +13,7 @@ type Config struct {
 
 func Load() *Config {
 	return &Config{
-		DatabaseURL:    getEnv("DATABASE_URL", "host=127.0.0.1 port=5433 user=user password=password dbname=workoutpal sslmode=disable"),
+		DatabaseURL:    getEnv("DATABASE_URL", "host=127.0.0.1 port=5432 user=user password=password dbname=workoutpal sslmode=disable"),
 		GoogleClientID: getEnv("GOOGLE_CLIENT_ID", ""),
 		JWTSecret:      getEnv("JWT_SECRET", "your-secret-key"),
 		Port:           getEnv("PORT", "8080"),
