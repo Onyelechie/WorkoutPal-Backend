@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"workoutpal/src/util/constants"
 
 	"github.com/golang-jwt/jwt/v5"
 )
@@ -19,7 +20,6 @@ func ClaimsFromContext(ctx context.Context) (jwt.MapClaims, bool) {
 }
 
 func AuthMiddleware(secret []byte) func(http.Handler) http.Handler {
-	fmt.Println(os.Getenv("APP_ENV"))
 	if os.Getenv("APP_ENV") == "test" {
 		return func(next http.Handler) http.Handler {
 			return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -59,7 +59,11 @@ func AuthMiddleware(secret []byte) func(http.Handler) http.Handler {
 				return
 			}
 
+			userIDFloat, _ := claims["sub"].(float64)
+			userID := int64(userIDFloat)
+
 			ctx := context.WithValue(r.Context(), claimsCtxKey, claims)
+			ctx = context.WithValue(ctx, constants.USER_ID_KEY, userID)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}

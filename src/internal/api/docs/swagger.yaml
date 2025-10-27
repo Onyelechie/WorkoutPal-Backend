@@ -81,6 +81,23 @@ definitions:
       name:
         type: string
     type: object
+  model.CreateScheduleRequest:
+    properties:
+      dayOfWeek:
+        type: integer
+      name:
+        type: string
+      routineIds:
+        items:
+          type: integer
+        type: array
+      routineLengthMinutes:
+        type: integer
+      timeSlot:
+        type: string
+      userId:
+        type: integer
+    type: object
   model.CreateUserRequest:
     properties:
       age:
@@ -211,6 +228,44 @@ definitions:
         type: string
       title:
         type: string
+    type: object
+  model.Schedule:
+    properties:
+      dayOfWeek:
+        type: integer
+      id:
+        type: integer
+      name:
+        type: string
+      routineIds:
+        items:
+          type: integer
+        type: array
+      routineLengthMinutes:
+        type: integer
+      timeSlot:
+        type: string
+      userId:
+        type: integer
+    type: object
+  model.UpdateScheduleRequest:
+    properties:
+      dayOfWeek:
+        type: integer
+      id:
+        type: integer
+      name:
+        type: string
+      routineIds:
+        items:
+          type: integer
+        type: array
+      routineLengthMinutes:
+        type: integer
+      timeSlot:
+        type: string
+      userId:
+        type: integer
     type: object
   model.UpdateUserRequest:
     properties:
@@ -488,6 +543,36 @@ paths:
       summary: Get current authenticated user
       tags:
       - auth
+  /me/schedules:
+    get:
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Schedule'
+            type: array
+      summary: Read all schedules for the authenticated user
+      tags:
+      - schedules
+  /me/schedules/{dayOfWeek}:
+    get:
+      parameters:
+      - description: Day of week (0-6)
+        in: path
+        name: dayOfWeek
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Schedule'
+            type: array
+      summary: Read schedules for the authenticated user on a specific day
+      tags:
+      - schedules
   /posts:
     get:
       consumes:
@@ -734,6 +819,83 @@ paths:
       summary: Remove exercise from routine
       tags:
       - Routines
+  /schedules:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Schedule create payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreateScheduleRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.Schedule'
+      summary: Create a schedule
+      tags:
+      - schedules
+  /schedules/{id}:
+    delete:
+      parameters:
+      - description: Schedule ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+          schema:
+            type: string
+      summary: Delete a schedule
+      tags:
+      - schedules
+    get:
+      parameters:
+      - description: Schedule ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Schedule'
+      summary: Read schedule by ID
+      tags:
+      - schedules
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Schedule ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Schedule update payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdateScheduleRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Schedule'
+      summary: Update a schedule
+      tags:
+      - schedules
   /users:
     get:
       produces:
