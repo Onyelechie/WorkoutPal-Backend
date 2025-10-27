@@ -6,6 +6,7 @@ CREATE TABLE users (
     email CITEXT UNIQUE,
     password VARCHAR NOT NULL,
     name VARCHAR,
+    age INTEGER,
     height NUMERIC,
     height_metric VARCHAR,
     weight NUMERIC,
@@ -141,13 +142,13 @@ CREATE TABLE user_exercise_settings (
 );
 
 -- Insert mock users
-INSERT INTO users (username, email, password, name, height, height_metric, weight, weight_metric, bio, avatar_url, birthday, role)
+INSERT INTO users (username, email, password, name, age, height, height_metric, weight, weight_metric, bio, avatar_url, birthday, role)
 VALUES
-('john_doe', 'john@example.com', '$2a$10$D215vTZhHzyp4MUj70x2L.f.MjEd4wR.NpCt1sRlJ1SbqDekfv6w.', 'John Doe', 180, 'cm', 75, 'kg', 'Fitness enthusiast', 'https://example.com/avatar1.png', '1990-05-15', 'user'),
-('jane_smith', 'jane@example.com', '$2a$10$D215vTZhHzyp4MUj70x2L.f.MjEd4wR.NpCt1sRlJ1SbqDekfv6w.', 'Jane Smith', 165, 'cm', 60, 'kg', 'Loves running and yoga', 'https://example.com/avatar2.png', '1992-08-22', 'user'),
-('admin_user', 'admin@example.com', '$2a$10$D215vTZhHzyp4MUj70x2L.f.MjEd4wR.NpCt1sRlJ1SbqDekfv6w.', 'Admin User', 175, 'cm', 70, 'kg', 'Site administrator', 'https://example.com/avatar3.png', '1985-01-10', 'admin'),
-('alice_wong', 'alice@example.com', '$2a$10$D215vTZhHzyp4MUj70x2L.f.MjEd4wR.NpCt1sRlJ1SbqDekfv6w.', 'Alice Wong', 170, 'cm', 65, 'kg', 'Strength training lover', 'https://example.com/avatar4.png', '1995-03-05', 'user'),
-('bob_jackson', 'bob@example.com', '$2a$10$D215vTZhHzyp4MUj70x2L.f.MjEd4wR.NpCt1sRlJ1SbqDekfv6w.', 'Bob Jackson', 182, 'cm', 80, 'kg', 'Gym rat', 'https://example.com/avatar5.png', '1988-11-30', 'user');
+('john_doe', 'john@example.com', '$2a$10$D215vTZhHzyp4MUj70x2L.f.MjEd4wR.NpCt1sRlJ1SbqDekfv6w.', 'John Doe', 34, 180, 'cm', 75, 'kg', 'Fitness enthusiast', 'https://example.com/avatar1.png', '1990-05-15', 'user'),
+('jane_smith', 'jane@example.com', '$2a$10$D215vTZhHzyp4MUj70x2L.f.MjEd4wR.NpCt1sRlJ1SbqDekfv6w.', 'Jane Smith', 32, 165, 'cm', 60, 'kg', 'Loves running and yoga', 'https://example.com/avatar2.png', '1992-08-22', 'user'),
+('admin_user', 'admin@example.com', '$2a$10$D215vTZhHzyp4MUj70x2L.f.MjEd4wR.NpCt1sRlJ1SbqDekfv6w.', 'Admin User', 39, 175, 'cm', 70, 'kg', 'Site administrator', 'https://example.com/avatar3.png', '1985-01-10', 'admin'),
+('alice_wong', 'alice@example.com', '$2a$10$D215vTZhHzyp4MUj70x2L.f.MjEd4wR.NpCt1sRlJ1SbqDekfv6w.', 'Alice Wong', 29, 170, 'cm', 65, 'kg', 'Strength training lover', 'https://example.com/avatar4.png', '1995-03-05', 'user'),
+('bob_jackson', 'bob@example.com', '$2a$10$D215vTZhHzyp4MUj70x2L.f.MjEd4wR.NpCt1sRlJ1SbqDekfv6w.', 'Bob Jackson', 36, 182, 'cm', 80, 'kg', 'Gym rat', 'https://example.com/avatar5.png', '1988-11-30', 'user');
 
 INSERT INTO "exercises" ("name", "description", "targets") VALUES
     ('3/4 sit-up', 'Lie flat on your back with your knees bent and feet flat on the ground. Place your hands behind your head with your elbows pointing outwards. Engaging your abs, slowly lift your upper body off the ground, curling forward until your torso is at a 45-degree angle. Pause for a moment at the top, then slowly lower your upper body back down to the starting position. Repeat for the desired number of repetitions.', '{abs,hip flexors,lower back}'),

@@ -79,7 +79,11 @@ func TestRelationshipHandler_ReadFollowers_OK(t *testing.T) {
 	h := &relationshipHandler{relationshipService: mockSvc}
 
 	const userID int64 = 2
-	want := []int64{5, 7, 9}
+	want := []model.User{
+		{ID: 5, Name: "User5", Username: "user5"},
+		{ID: 7, Name: "User7", Username: "user7"},
+		{ID: 9, Name: "User9", Username: "user9"},
+	}
 	mockSvc.EXPECT().ReadUserFollowers(userID).Return(want, nil)
 
 	w := httptest.NewRecorder()
@@ -90,11 +94,11 @@ func TestRelationshipHandler_ReadFollowers_OK(t *testing.T) {
 	if w.Code != http.StatusOK {
 		t.Fatalf("status = %d, want 200", w.Code)
 	}
-	var got []int64
+	var got []model.User
 	if err := json.NewDecoder(w.Body).Decode(&got); err != nil {
 		t.Fatalf("decode: %v", err)
 	}
-	if len(got) != len(want) || got[0] != want[0] || got[2] != want[2] {
+	if len(got) != len(want) || got[0].ID != want[0].ID || got[2].ID != want[2].ID {
 		t.Fatalf("unexpected followers: %+v", got)
 	}
 }
@@ -147,7 +151,10 @@ func TestRelationshipHandler_ReadFollowings_OK(t *testing.T) {
 	h := &relationshipHandler{relationshipService: mockSvc}
 
 	const userID int64 = 4
-	want := []int64{11, 12}
+	want := []model.User{
+		{ID: 11, Name: "User11", Username: "user11"},
+		{ID: 12, Name: "User12", Username: "user12"},
+	}
 	mockSvc.EXPECT().ReadUserFollowing(userID).Return(want, nil)
 
 	w := httptest.NewRecorder()
@@ -158,11 +165,11 @@ func TestRelationshipHandler_ReadFollowings_OK(t *testing.T) {
 	if w.Code != http.StatusOK {
 		t.Fatalf("status = %d, want 200", w.Code)
 	}
-	var got []int64
+	var got []model.User
 	if err := json.NewDecoder(w.Body).Decode(&got); err != nil {
 		t.Fatalf("decode: %v", err)
 	}
-	if len(got) != len(want) || got[1] != want[1] {
+	if len(got) != len(want) || got[1].ID != want[1].ID {
 		t.Fatalf("unexpected following: %+v", got)
 	}
 }
