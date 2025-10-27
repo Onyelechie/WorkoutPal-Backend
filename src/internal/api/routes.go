@@ -59,6 +59,7 @@ func Routes(r chi.Router, appDep dependency.AppDependencies, secret []byte) http
 	routineHandler := handler.NewRoutineHandler(appDep.RoutineService)
 	exerciseHandler := handler.NewExerciseHandler(appDep.ExerciseService)
 	authHandler := handler.NewAuthHandler(appDep.UserService, appDep.AuthService, secret)
+	scheduleHandler := handler.NewScheduleHandler(appDep.ScheduleService)
 
 	// --- Init Middleware ---
 	var idMiddleware = middleware2.IdMiddleware()
@@ -108,6 +109,16 @@ func Routes(r chi.Router, appDep dependency.AppDependencies, secret []byte) http
 		r.With(idMiddleware).Delete("/{id}", routineHandler.DeleteRoutine)
 		r.With(idMiddleware).Post("/{id}/exercises", routineHandler.AddExerciseToRoutine)
 		r.With(idMiddleware).Delete("/{id}/exercises/{exercise_id}", routineHandler.RemoveExerciseFromRoutine)
+	})
+
+	// Schedules
+	r.With(authMiddleware).Route("/schedules", func(r chi.Router) {
+		r.Get("/", scheduleHandler.ReadUserSchedules)
+		r.Get("/{dayOfWeek}", scheduleHandler.ReadUserSchedulesByDay)
+		r.Post("/", scheduleHandler.CreateSchedule)
+		r.With(idMiddleware).Get("/{id}", scheduleHandler.ReadScheduleByID)
+		r.With(idMiddleware).Put("/{id}", scheduleHandler.UpdateSchedule)
+		r.With(idMiddleware).Delete("/{id}", scheduleHandler.DeleteSchedule)
 	})
 
 	return r

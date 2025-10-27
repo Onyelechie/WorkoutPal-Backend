@@ -1485,3 +1485,19 @@ INSERT INTO "exercises" ("name", "description", "targets") VALUES
     ('world greatest stretch', 'Start in a lunge position with your right foot forward and your left foot back. Place your hands on the ground on either side of your right foot. Lower your left knee to the ground and extend your right leg, keeping your right foot flat on the ground. Rotate your torso to the right, reaching your right arm up towards the ceiling. Hold this position for a few seconds, then return to the starting position. Switch sides and repeat the stretch with your left foot forward.', '{hamstrings,glutes,quadriceps}'),
     ('wrist circles', 'Extend your arms straight out in front of you. Make a fist with both hands. Rotate your wrists in a circular motion, keeping your arms still. Continue the wrist circles for the desired number of repetitions.', '{forearms,hands,wrists}'),
     ('wrist rollerer', 'Attach a weight to one end of a rope or bar. Hold the other end of the rope or bar with both hands, palms facing down. Stand with your feet shoulder-width apart and your arms fully extended in front of you. Slowly roll the weight up towards your hands by flexing your wrists. Pause for a moment at the top, then slowly lower the weight back down to the starting position. Repeat for the desired number of repetitions.', '{forearms,biceps,triceps}');
+
+CREATE TABLE IF NOT EXISTS schedule (
+                                        id SERIAL PRIMARY KEY,
+                                        name TEXT NOT NULL,
+                                        user_id INT NOT NULL,
+                                        day_of_week INT NOT NULL,
+                                        time_slot TIME NOT NULL,
+                                        routine_length_minutes INT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS schedule_routine (
+                                                schedule_id INT NOT NULL REFERENCES schedule(id) ON DELETE CASCADE,
+                                                routine_id INT NOT NULL REFERENCES workout_routine(id),
+                                                position INT NOT NULL,
+                                                PRIMARY KEY (schedule_id, routine_id)
+);

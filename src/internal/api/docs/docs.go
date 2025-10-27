@@ -297,6 +297,53 @@ const docTemplate = `{
                 }
             }
         },
+        "/me/schedules": {
+            "get": {
+                "tags": [
+                    "schedules"
+                ],
+                "summary": "Read all schedules for the authenticated user",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.Schedule"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/me/schedules/{dayOfWeek}": {
+            "get": {
+                "tags": [
+                    "schedules"
+                ],
+                "summary": "Read schedules for the authenticated user on a specific day",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Day of week (0-6)",
+                        "name": "dayOfWeek",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.Schedule"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/posts": {
             "get": {
                 "security": [
@@ -677,6 +724,125 @@ const docTemplate = `{
                         "description": "Invalid ID",
                         "schema": {
                             "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/schedules": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "schedules"
+                ],
+                "summary": "Create a schedule",
+                "parameters": [
+                    {
+                        "description": "Schedule create payload",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.CreateScheduleRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/model.Schedule"
+                        }
+                    }
+                }
+            }
+        },
+        "/schedules/{id}": {
+            "get": {
+                "tags": [
+                    "schedules"
+                ],
+                "summary": "Read schedule by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Schedule ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Schedule"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "schedules"
+                ],
+                "summary": "Update a schedule",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Schedule ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Schedule update payload",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.UpdateScheduleRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Schedule"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "schedules"
+                ],
+                "summary": "Delete a schedule",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Schedule ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content",
+                        "schema": {
+                            "type": "string"
                         }
                     }
                 }
@@ -1424,6 +1590,32 @@ const docTemplate = `{
                 }
             }
         },
+        "model.CreateScheduleRequest": {
+            "type": "object",
+            "properties": {
+                "dayOfWeek": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "routineIds": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "routineLengthMinutes": {
+                    "type": "integer"
+                },
+                "timeSlot": {
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "integer"
+                }
+            }
+        },
         "model.CreateUserRequest": {
             "type": "object",
             "properties": {
@@ -1621,6 +1813,64 @@ const docTemplate = `{
                 },
                 "title": {
                     "type": "string"
+                }
+            }
+        },
+        "model.Schedule": {
+            "type": "object",
+            "properties": {
+                "dayOfWeek": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "routineIds": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "routineLengthMinutes": {
+                    "type": "integer"
+                },
+                "timeSlot": {
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "integer"
+                }
+            }
+        },
+        "model.UpdateScheduleRequest": {
+            "type": "object",
+            "properties": {
+                "dayOfWeek": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "routineIds": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "routineLengthMinutes": {
+                    "type": "integer"
+                },
+                "timeSlot": {
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "integer"
                 }
             }
         },
