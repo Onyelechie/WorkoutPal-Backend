@@ -91,17 +91,6 @@ CREATE TABLE exercises_in_routine (
     FOREIGN KEY (workout_routine_id) REFERENCES workout_routine(id) ON DELETE CASCADE
 );
 
--- Table: scheduled_routines
-CREATE TABLE scheduled_routines (
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL,
-    workout_routine_id INTEGER NOT NULL,
-    scheduled_at TIMESTAMP,
-    created_at TIMESTAMP DEFAULT NOW(),
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (workout_routine_id) REFERENCES workout_routine(id) ON DELETE CASCADE
-);
-
 -- Table: achievements
 CREATE TABLE achievements (
     id SERIAL PRIMARY KEY,
