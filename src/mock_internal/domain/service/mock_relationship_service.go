@@ -6,7 +6,6 @@ package mock_service
 
 import (
 	reflect "reflect"
-	"workoutpal/src/internal/model"
 
 	gomock "github.com/golang/mock/gomock"
 )
@@ -49,10 +48,10 @@ func (mr *MockRelationshipServiceMockRecorder) FollowUser(arg0, arg1 interface{}
 }
 
 // ReadUserFollowers mocks base method.
-func (m *MockRelationshipService) ReadUserFollowers(arg0 int64) ([]model.User, error) {
+func (m *MockRelationshipService) ReadUserFollowers(arg0 int64) ([]int64, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ReadUserFollowers", arg0)
-	ret0, _ := ret[0].([]model.User)
+	ret0, _ := ret[0].([]int64)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -64,10 +63,10 @@ func (mr *MockRelationshipServiceMockRecorder) ReadUserFollowers(arg0 interface{
 }
 
 // ReadUserFollowing mocks base method.
-func (m *MockRelationshipService) ReadUserFollowing(arg0 int64) ([]model.User, error) {
+func (m *MockRelationshipService) ReadUserFollowing(arg0 int64) ([]int64, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ReadUserFollowing", arg0)
-	ret0, _ := ret[0].([]model.User)
+	ret0, _ := ret[0].([]int64)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

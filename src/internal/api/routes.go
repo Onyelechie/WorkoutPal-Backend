@@ -44,7 +44,7 @@ func RegisterRoutes(cfg *config.Config, db *sql.DB) http.Handler {
 			"http://localhost:5173",
 		},
 		AllowCredentials: true,
-		AllowedMethods:   []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Content-Type", "Authorization"},
 	}).Handler(r)
 

@@ -34,7 +34,7 @@ func NewAppDependencies(db *sql.DB) AppDependencies {
 
 	// --- Init Services ---
 	userService := service2.NewUserService(userRepository)
-	relationshipService := service2.NewRelationshipService(relationshipRepository, userRepository)
+	relationshipService := service2.NewRelationshipService(relationshipRepository)
 	goalService := service2.NewGoalService(goalRepository)
 	exerciseService := service2.NewExerciseService(exerciseRepository)
 	routineService := service2.NewRoutineService(routineRepository)

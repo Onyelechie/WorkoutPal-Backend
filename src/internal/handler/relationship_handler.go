@@ -26,7 +26,7 @@ func NewRelationshipHandler(rs service.RelationshipService) handler.Relationship
 // @Tags Relationships
 // @Produce json
 // @Param id path int true "User ID"
-// @Success 200 {array} model.User "Followers retrieved successfully"
+// @Success 200 {array} int64 "Follower IDs retrieved successfully"
 // @Failure 400 {object} model.BasicResponse "Invalid user ID"
 // @Failure 404 {object} model.BasicResponse "User not found"
 // @Router /users/{id}/followers [get]
@@ -54,7 +54,7 @@ func (h *relationshipHandler) ReadFollowers(w http.ResponseWriter, r *http.Reque
 // @Tags Relationships
 // @Produce json
 // @Param id path int true "User ID"
-// @Success 200 {array} model.User "Following users retrieved successfully"
+// @Success 200 {array} int64 "Following IDs retrieved successfully"
 // @Failure 400 {object} model.BasicResponse "Invalid user ID"
 // @Failure 404 {object} model.BasicResponse "User not found"
 // @Router /users/{id}/following [get]

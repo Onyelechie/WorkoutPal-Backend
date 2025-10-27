@@ -17,15 +17,15 @@ func TestUserRepository_ReadUserByEmail_OK(t *testing.T) {
 	repo := NewUserRepository(db)
 
 	rows := sqlmock.NewRows([]string{
-		"id", "username", "email", "password", "name", "age",
+		"id", "username", "email", "password", "name",
 		"height", "height_metric", "weight", "weight_metric", "avatar_url",
 	}).AddRow(
-		1, "max", "a@b.com", "hashed", "Max", 25,
+		1, "max", "a@b.com", "hashed", "Max",
 		180, "cm", 75.0, "kg", "https://img/avatar.png",
 	)
 
 	mock.ExpectQuery(regexp.QuoteMeta(
-		"SELECT id, username, email, password, name, age, height, height_metric, weight, weight_metric, avatar_url FROM users WHERE email = $1",
+		"SELECT id, username, email, password, name, height, height_metric, weight, weight_metric, avatar_url FROM users WHERE email = $1",
 	)).WithArgs("a@b.com").WillReturnRows(rows)
 
 	got, err := repo.ReadUserByEmail("a@b.com")
@@ -43,7 +43,7 @@ func TestUserRepository_ReadUserByEmail_NotFound(t *testing.T) {
 	repo := NewUserRepository(db)
 
 	mock.ExpectQuery(regexp.QuoteMeta(
-		"SELECT id, username, email, password, name, age, height, height_metric, weight, weight_metric, avatar_url FROM users WHERE email = $1",
+		"SELECT id, username, email, password, name, height, height_metric, weight, weight_metric, avatar_url FROM users WHERE email = $1",
 	)).WithArgs("x@y.com").WillReturnError(sql.ErrNoRows)
 
 	got, err := repo.ReadUserByEmail("x@y.com")
@@ -76,13 +76,13 @@ func TestUserRepository_ReadUsers_OK_IncludingNullAvatar(t *testing.T) {
 	repo := NewUserRepository(db)
 
 	rows := sqlmock.NewRows([]string{
-		"id", "username", "email", "name", "age",
+		"id", "username", "email", "name",
 		"height", "height_metric", "weight", "weight_metric", "avatar_url",
-	}).AddRow(1, "max", "a@b.com", "Max", 25, 180, "cm", 75.0, "kg", "https://img/a.png").
-		AddRow(2, "sam", "c@d.com", "Sam", 30, 175, "cm", 70.0, "kg", nil)
+	}).AddRow(1, "max", "a@b.com", "Max", 180, "cm", 75.0, "kg", "https://img/a.png").
+		AddRow(2, "sam", "c@d.com", "Sam", 175, "cm", 70.0, "kg", nil)
 
 	mock.ExpectQuery(regexp.QuoteMeta(
-		"SELECT id, username, email, name, age, height, height_metric, weight, weight_metric, avatar_url FROM users",
+		"SELECT id, username, email, name, height, height_metric, weight, weight_metric, avatar_url FROM users",
 	)).WillReturnRows(rows)
 
 	got, err := repo.ReadUsers()
@@ -114,9 +114,9 @@ func TestUserRepository_ReadUsers_ScanError(t *testing.T) {
 	repo := NewUserRepository(db)
 
 	rows := sqlmock.NewRows([]string{
-		"id", "username", "email", "name", "age",
+		"id", "username", "email", "name",
 		"height", "height_metric", "weight", "weight_metric", "avatar_url",
-	}).AddRow("bad", "u", "e", "n", 25, 170, "cm", 60.0, "kg", nil)
+	}).AddRow("bad", "u", "e", "n", 170, "cm", 60.0, "kg", nil)
 
 	mock.ExpectQuery("SELECT id, username, email, name").
 		WillReturnRows(rows)
@@ -133,12 +133,12 @@ func TestUserRepository_ReadUserByID_OK(t *testing.T) {
 	repo := NewUserRepository(db)
 
 	rows := sqlmock.NewRows([]string{
-		"id", "username", "email", "name", "age",
+		"id", "username", "email", "name",
 		"height", "height_metric", "weight", "weight_metric", "avatar_url",
-	}).AddRow(7, "max", "a@b.com", "Max", 25, 180, "cm", 75.0, "kg", "https://img/a.png")
+	}).AddRow(7, "max", "a@b.com", "Max", 180, "cm", 75.0, "kg", "https://img/a.png")
 
 	mock.ExpectQuery(regexp.QuoteMeta(
-		"SELECT id, username, email, name, age, height, height_metric, weight, weight_metric, avatar_url FROM users WHERE id = $1",
+		"SELECT id, username, email, name, height, height_metric, weight, weight_metric, avatar_url FROM users WHERE id = $1",
 	)).WithArgs(int64(7)).WillReturnRows(rows)
 
 	got, err := repo.ReadUserByID(7)
@@ -187,7 +187,6 @@ func TestUserRepository_CreateUser_OK(t *testing.T) {
 		Email:        "a@b.com",
 		Password:     "hashed",
 		Name:         "Max",
-		Age:          25,
 		Height:       180,
 		HeightMetric: "cm",
 		Weight:       75.0,
@@ -196,16 +195,16 @@ func TestUserRepository_CreateUser_OK(t *testing.T) {
 	}
 
 	rows := sqlmock.NewRows([]string{
-		"id", "username", "email", "name", "age",
+		"id", "username", "email", "name",
 		"height", "height_metric", "weight", "weight_metric", "avatar_url",
-	}).AddRow(1, req.Username, req.Email, req.Name, req.Age,
+	}).AddRow(1, req.Username, req.Email, req.Name,
 		req.Height, req.HeightMetric, req.Weight, req.WeightMetric, req.Avatar)
 
 	mock.ExpectQuery(regexp.QuoteMeta(`
-		INSERT INTO users (username, email, password, name, age, height, height_metric, weight, weight_metric, avatar_url) 
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) 
-		RETURNING id, username, email, name, age, height, height_metric, weight, weight_metric, avatar_url`)).
-		WithArgs(req.Username, req.Email, req.Password, req.Name, req.Age, req.Height, req.HeightMetric, req.Weight, req.WeightMetric, req.Avatar).
+		INSERT INTO users (username, email, password, name, height, height_metric, weight, weight_metric, avatar_url) 
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) 
+		RETURNING id, username, email, name, height, height_metric, weight, weight_metric, avatar_url`)).
+		WithArgs(req.Username, req.Email, req.Password, req.Name, req.Height, req.HeightMetric, req.Weight, req.WeightMetric, req.Avatar).
 		WillReturnRows(rows)
 
 	got, err := repo.CreateUser(req)
@@ -252,7 +251,6 @@ func TestUserRepository_UpdateUser_OK(t *testing.T) {
 		Username:     "newname",
 		Email:        "new@e.com",
 		Name:         "New",
-		Age:          26,
 		Height:       181,
 		HeightMetric: "cm",
 		Weight:       76.0,
@@ -261,15 +259,15 @@ func TestUserRepository_UpdateUser_OK(t *testing.T) {
 	}
 
 	rows := sqlmock.NewRows([]string{
-		"id", "username", "email", "name", "age",
+		"id", "username", "email", "name",
 		"height", "height_metric", "weight", "weight_metric", "avatar_url",
-	}).AddRow(req.ID, req.Username, req.Email, req.Name, req.Age,
+	}).AddRow(req.ID, req.Username, req.Email, req.Name,
 		req.Height, req.HeightMetric, req.Weight, req.WeightMetric, req.Avatar)
 
 	mock.ExpectQuery(regexp.QuoteMeta(`
-		UPDATE users SET username=$2, email=$3, name=$4, age=$5, height=$6, height_metric=$7, weight=$8, weight_metric=$9, avatar_url=$10
-		WHERE id=$1 RETURNING id, username, email, name, age, height, height_metric, weight, weight_metric, avatar_url`)).
-		WithArgs(req.ID, req.Username, req.Email, req.Name, req.Age, req.Height, req.HeightMetric, req.Weight, req.WeightMetric, req.Avatar).
+		UPDATE users SET username=$2, email=$3, name=$4, height=$5, height_metric=$6, weight=$7, weight_metric=$8, avatar_url=$9
+		WHERE id=$1 RETURNING id, username, email, name, height, height_metric, weight, weight_metric, avatar_url`)).
+		WithArgs(req.ID, req.Username, req.Email, req.Name, req.Height, req.HeightMetric, req.Weight, req.WeightMetric, req.Avatar).
 		WillReturnRows(rows)
 
 	got, err := repo.UpdateUser(req)
