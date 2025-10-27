@@ -114,7 +114,7 @@ func Routes(r chi.Router, appDep dependency.AppDependencies, secret []byte) http
 	// Schedules
 	r.With(authMiddleware).Route("/schedules", func(r chi.Router) {
 		r.Get("/", scheduleHandler.ReadUserSchedules)
-		r.Get("/{dayOfWeek}", scheduleHandler.ReadUserSchedulesByDay)
+		r.Get("/of/{dayOfWeek}", scheduleHandler.ReadUserSchedulesByDay)
 		r.Post("/", scheduleHandler.CreateSchedule)
 		r.With(idMiddleware).Get("/{id}", scheduleHandler.ReadScheduleByID)
 		r.With(idMiddleware).Put("/{id}", scheduleHandler.UpdateSchedule)
