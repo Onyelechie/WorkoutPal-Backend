@@ -146,6 +146,33 @@ func TestScheduleService_CreateSchedule_OK(t *testing.T) {
 	}
 }
 
+func TestScheduleService_CreateSchedule_Error(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	t.Cleanup(ctrl.Finish)
+
+	mockRepo := mock_repository.NewMockScheduleRepository(ctrl)
+	svc := &scheduleService{repository: mockRepo}
+
+	req := model.CreateScheduleRequest{
+		Name:      "oops",
+		UserID:    1,
+		DayOfWeek: 2,
+		TimeSlot:  "bad",
+	}
+
+	mockRepo.EXPECT().
+		CreateSchedule(req).
+		Return(nil, errors.New("create fail"))
+
+	got, err := svc.CreateSchedule(req)
+	if got != nil {
+		t.Fatalf("expected nil, got %#v", got)
+	}
+	if err == nil || err.Error() != "create fail" {
+		t.Fatalf("expected create fail, got %v", err)
+	}
+}
+
 func TestScheduleService_UpdateSchedule_OK(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	t.Cleanup(ctrl.Finish)
@@ -185,6 +212,34 @@ func TestScheduleService_UpdateSchedule_OK(t *testing.T) {
 	}
 }
 
+func TestScheduleService_UpdateSchedule_Error(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	t.Cleanup(ctrl.Finish)
+
+	mockRepo := mock_repository.NewMockScheduleRepository(ctrl)
+	svc := &scheduleService{repository: mockRepo}
+
+	req := model.UpdateScheduleRequest{
+		ID:        999,
+		UserID:    44,
+		Name:      "doesn't matter",
+		DayOfWeek: 6,
+		TimeSlot:  "xx",
+	}
+
+	mockRepo.EXPECT().
+		UpdateSchedule(req).
+		Return(nil, errors.New("update fail"))
+
+	got, err := svc.UpdateSchedule(req)
+	if got != nil {
+		t.Fatalf("expected nil, got %#v", got)
+	}
+	if err == nil || err.Error() != "update fail" {
+		t.Fatalf("expected update fail, got %v", err)
+	}
+}
+
 func TestScheduleService_DeleteSchedule_OK(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	t.Cleanup(ctrl.Finish)
@@ -200,5 +255,24 @@ func TestScheduleService_DeleteSchedule_OK(t *testing.T) {
 
 	if err := svc.DeleteSchedule(req); err != nil {
 		t.Fatalf("unexpected err: %v", err)
+	}
+}
+
+func TestScheduleService_DeleteSchedule_Error(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	t.Cleanup(ctrl.Finish)
+
+	mockRepo := mock_repository.NewMockScheduleRepository(ctrl)
+	svc := &scheduleService{repository: mockRepo}
+
+	req := model.DeleteScheduleRequest{ID: 123}
+
+	mockRepo.EXPECT().
+		DeleteSchedule(req).
+		Return(errors.New("delete fail"))
+
+	err := svc.DeleteSchedule(req)
+	if err == nil || err.Error() != "delete fail" {
+		t.Fatalf("expected delete fail, got %v", err)
 	}
 }

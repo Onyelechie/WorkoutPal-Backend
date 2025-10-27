@@ -175,11 +175,11 @@ func TestEndToEnd(t *testing.T) {
 	t.Run("Routines_DeleteUserRoutine", testEndToEnd_Routines_DeleteUserRoutine)
 
 	// Schedule Tests
+	t.Run("Schedules_GetByID_NotFound", testEndToEnd_Schedules_GetByID_NotFound)
+	t.Run("Schedules_Create", testEndToEnd_Schedules_Create)
 	t.Run("Schedules_ListMine", testEndToEnd_Schedules_ListMine)
 	t.Run("Schedules_ListMineByDay", testEndToEnd_Schedules_ListMineByDay)
 	t.Run("Schedules_GetByID", testEndToEnd_Schedules_GetByID)
-	t.Run("Schedules_GetByID_NotFound", testEndToEnd_Schedules_GetByID_NotFound)
-	t.Run("Schedules_Create", testEndToEnd_Schedules_Create)
 	t.Run("Schedules_Update", testEndToEnd_Schedules_Update)
 	t.Run("Schedules_Delete_OK", testEndToEnd_Schedules_Delete_OK)
 	t.Run("Schedules_Delete_Idempotent", testEndToEnd_Schedules_Delete_Idempotent)

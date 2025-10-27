@@ -25,6 +25,12 @@ func mustJSONBuf[T any](t *testing.T, v T) *bytes.Buffer {
 	return bytes.NewBuffer(b)
 }
 
+func muxWithParam(r *http.Request, key, val string) *http.Request {
+	rc := chi.NewRouteContext()
+	rc.URLParams.Add(key, val)
+	return r.WithContext(context.WithValue(r.Context(), chi.RouteCtxKey, rc))
+}
+
 func TestScheduleHandler_ReadUserSchedules_OK(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	t.Cleanup(ctrl.Finish)
@@ -44,8 +50,9 @@ func TestScheduleHandler_ReadUserSchedules_OK(t *testing.T) {
 		Return(want, nil)
 
 	w := httptest.NewRecorder()
-	r := httptest.NewRequest(http.MethodGet, "/schedules/me", nil)
-	r = r.WithContext(context.WithValue(r.Context(), constants.ID_KEY, userID))
+	r := httptest.NewRequest(http.MethodGet, "/me/schedules", nil)
+	// handler pulls from constants.USER_ID_KEY
+	r = r.WithContext(context.WithValue(r.Context(), constants.USER_ID_KEY, userID))
 
 	h.ReadUserSchedules(w, r)
 
@@ -79,8 +86,8 @@ func TestScheduleHandler_ReadUserSchedules_Error(t *testing.T) {
 		Return(nil, errors.New("boom"))
 
 	w := httptest.NewRecorder()
-	r := httptest.NewRequest(http.MethodGet, "/schedules/me", nil)
-	r = r.WithContext(context.WithValue(r.Context(), constants.ID_KEY, userID))
+	r := httptest.NewRequest(http.MethodGet, "/me/schedules", nil)
+	r = r.WithContext(context.WithValue(r.Context(), constants.USER_ID_KEY, userID))
 
 	h.ReadUserSchedules(w, r)
 
@@ -115,7 +122,11 @@ func TestScheduleHandler_ReadUserSchedulesByDay_OK(t *testing.T) {
 		Return(want, nil)
 
 	w := httptest.NewRecorder()
-	r := httptest.NewRequest(http.MethodGet, "/schedules/me/2", nil)
+	r := httptest.NewRequest(http.MethodGet, "/me/schedules/2", nil)
+
+	// handler does two things:
+	//   - context.USER_ID_KEY for user
+	//   - chi.URLParam(constants.DAY_OF_WEEK_KEY)
 	r = r.WithContext(context.WithValue(r.Context(), constants.USER_ID_KEY, userID))
 	r = muxWithParam(r, constants.DAY_OF_WEEK_KEY, "2")
 
@@ -132,7 +143,7 @@ func TestScheduleHandler_ReadUserSchedulesByDay_OK(t *testing.T) {
 	if err := json.NewDecoder(resp.Body).Decode(&got); err != nil {
 		t.Fatalf("decode: %v", err)
 	}
-	if len(got) != 1 || got[0].Name != "Legs" {
+	if len(got) != 1 || got[0].Name != "Legs" || got[0].DayOfWeek != day {
 		t.Fatalf("unexpected payload: %#v", got)
 	}
 }
@@ -152,7 +163,8 @@ func TestScheduleHandler_ReadUserSchedulesByDay_Error(t *testing.T) {
 		Return(nil, errors.New("boom"))
 
 	w := httptest.NewRecorder()
-	r := httptest.NewRequest(http.MethodGet, "/schedules/me/4", nil)
+	r := httptest.NewRequest(http.MethodGet, "/me/schedules/4", nil)
+
 	r = r.WithContext(context.WithValue(r.Context(), constants.USER_ID_KEY, userID))
 	r = muxWithParam(r, constants.DAY_OF_WEEK_KEY, "4")
 
@@ -186,6 +198,8 @@ func TestScheduleHandler_ReadScheduleByID_OK(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest(http.MethodGet, "/schedules/55", nil)
+
+	// handler reads ID from constants.ID_KEY context value
 	r = r.WithContext(context.WithValue(r.Context(), constants.ID_KEY, id))
 
 	h.ReadScheduleByID(w, r)
@@ -277,7 +291,8 @@ func TestScheduleHandler_CreateSchedule_OK(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest(http.MethodPost, "/schedules", mustJSONBuf(t, inReq))
-	r = r.WithContext(context.WithValue(r.Context(), constants.ID_KEY, userID))
+	// handler reads constants.USER_ID_KEY
+	r = r.WithContext(context.WithValue(r.Context(), constants.USER_ID_KEY, userID))
 
 	h.CreateSchedule(w, r)
 
@@ -329,7 +344,7 @@ func TestScheduleHandler_CreateSchedule_Error(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest(http.MethodPost, "/schedules", mustJSONBuf(t, inReq))
-	r = r.WithContext(context.WithValue(r.Context(), constants.ID_KEY, userID))
+	r = r.WithContext(context.WithValue(r.Context(), constants.USER_ID_KEY, userID))
 
 	h.CreateSchedule(w, r)
 
@@ -389,8 +404,10 @@ func TestScheduleHandler_UpdateSchedule_OK(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest(http.MethodPut, "/schedules/123", mustJSONBuf(t, inReq))
-	ctx := context.WithValue(r.Context(), constants.ID_KEY, id)
-	ctx = context.WithValue(ctx, constants.USER_ID_KEY, userID)
+
+	// handler pulls both USER_ID_KEY and ID_KEY from context
+	ctx := context.WithValue(r.Context(), constants.USER_ID_KEY, userID)
+	ctx = context.WithValue(ctx, constants.ID_KEY, id)
 	r = r.WithContext(ctx)
 
 	h.UpdateSchedule(w, r)
@@ -445,8 +462,9 @@ func TestScheduleHandler_UpdateSchedule_Error(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest(http.MethodPut, "/schedules/123", mustJSONBuf(t, inReq))
-	ctx := context.WithValue(r.Context(), constants.ID_KEY, id)
-	ctx = context.WithValue(ctx, constants.USER_ID_KEY, userID)
+
+	ctx := context.WithValue(r.Context(), constants.USER_ID_KEY, userID)
+	ctx = context.WithValue(ctx, constants.ID_KEY, id)
 	r = r.WithContext(ctx)
 
 	h.UpdateSchedule(w, r)
@@ -478,13 +496,44 @@ func TestScheduleHandler_DeleteSchedule_OK(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest(http.MethodDelete, "/schedules/123", nil)
+
+	// handler only pulls ID from context
 	r = r.WithContext(context.WithValue(r.Context(), constants.ID_KEY, id))
 
 	h.DeleteSchedule(w, r)
+
+	resp := w.Result()
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("status = %d, want 200", resp.StatusCode)
+	}
 }
 
-func muxWithParam(r *http.Request, key, val string) *http.Request {
-	rc := chi.NewRouteContext()
-	rc.URLParams.Add(key, val)
-	return r.WithContext(context.WithValue(r.Context(), chi.RouteCtxKey, rc))
+func TestScheduleHandler_DeleteSchedule_ErrorStill204(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	t.Cleanup(ctrl.Finish)
+
+	mockSvc := mock_service.NewMockScheduleService(ctrl)
+	h := &scheduleHandler{service: mockSvc}
+
+	id := int64(999)
+
+	mockSvc.EXPECT().
+		DeleteSchedule(model.DeleteScheduleRequest{ID: id}).
+		Return(errors.New("could not delete"))
+
+	w := httptest.NewRecorder()
+	r := httptest.NewRequest(http.MethodDelete, "/schedules/999", nil)
+
+	r = r.WithContext(context.WithValue(r.Context(), constants.ID_KEY, id))
+
+	h.DeleteSchedule(w, r)
+
+	resp := w.Result()
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("status = %d, want 200", resp.StatusCode)
+	}
 }

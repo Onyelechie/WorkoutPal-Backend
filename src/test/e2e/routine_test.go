@@ -45,7 +45,7 @@ func testEndToEnd_Routines_Create(t *testing.T) {
 	if created.Name != body.Name {
 		t.Fatalf("expected name=%q got=%q", body.Name, created.Name)
 	}
-	if len(created.Exercises) == 0 {
+	if len(created.ExerciseIDs) == 0 {
 		t.Fatalf("expected routine to have exercises")
 	}
 }
@@ -92,11 +92,8 @@ func testEndToEnd_Routines_ReadRoutineWithExercises(t *testing.T) {
 	if got.ID != created.ID {
 		t.Fatalf("expected id=%d got=%d", created.ID, got.ID)
 	}
-	if len(got.Exercises) == 0 {
+	if len(got.ExerciseIDs) == 0 {
 		t.Fatalf("expected exercises on routine")
-	}
-	if got.Exercises[0].Name == "" {
-		t.Fatalf("expected exercise to have a name")
 	}
 }
 
@@ -130,8 +127,8 @@ func testEndToEnd_Routines_AddExerciseToRoutine(t *testing.T) {
 	mustStatus(t, checkResp, http.StatusOK)
 
 	got := mustDecode[exerciseRoutine](t, checkResp)
-	if len(got.Exercises) < 2 {
-		t.Fatalf("expected >=2 exercises after add, got %d", len(got.Exercises))
+	if len(got.ExerciseIDs) < 2 {
+		t.Fatalf("expected >=2 exercises after add, got %d", len(got.ExerciseIDs))
 	}
 }
 
@@ -150,11 +147,11 @@ func testEndToEnd_Routines_RemoveExerciseFromRoutine(t *testing.T) {
 	if created.ID == 0 {
 		t.Fatalf("expected created routine id != 0")
 	}
-	if len(created.Exercises) < 2 {
+	if len(created.ExerciseIDs) < 2 {
 		t.Fatalf("expected at least 2 exercises at creation")
 	}
 
-	exID := created.Exercises[0].ID
+	exID := created.ExerciseIDs[0]
 
 	delExResp := doRequest(t, http.MethodDelete, "/routines/"+int64ToStr(created.ID)+"/exercises/"+int64ToStr(exID), nil, nil)
 	defer delExResp.Body.Close()
@@ -170,8 +167,8 @@ func testEndToEnd_Routines_RemoveExerciseFromRoutine(t *testing.T) {
 	mustStatus(t, checkResp, http.StatusOK)
 
 	got := mustDecode[exerciseRoutine](t, checkResp)
-	if len(got.Exercises) != len(created.Exercises)-1 {
-		t.Fatalf("expected %d exercises after removal, got %d", len(created.Exercises)-1, len(got.Exercises))
+	if len(got.ExerciseIDs) != len(created.ExerciseIDs)-1 {
+		t.Fatalf("expected %d exercises after removal, got %d", len(created.ExerciseIDs)-1, len(got.ExerciseIDs))
 	}
 }
 

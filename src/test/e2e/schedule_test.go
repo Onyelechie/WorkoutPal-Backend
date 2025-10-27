@@ -1,6 +1,7 @@
 package e2e
 
 import (
+	"fmt"
 	"net/http"
 	"testing"
 )
@@ -35,7 +36,7 @@ type updateScheduleDTO struct {
 }
 
 func testEndToEnd_Schedules_Create(t *testing.T) {
-	validRoutineID := int64(1)
+	validRoutineID := int64(2)
 
 	reqBody := createScheduleDTO{
 		Name:                 "E2E Schedule " + randStringAlphaNum(6),
@@ -51,6 +52,7 @@ func testEndToEnd_Schedules_Create(t *testing.T) {
 
 	if resp.StatusCode == http.StatusCreated {
 		created := mustDecode[scheduleDTO](t, resp)
+		fmt.Println("I MADE THIS!! ", created)
 		if created.ID == 0 {
 			t.Fatalf("expected non-zero schedule ID")
 		}
@@ -63,13 +65,8 @@ func testEndToEnd_Schedules_Create(t *testing.T) {
 		return
 	}
 
-	if resp.StatusCode != http.StatusInternalServerError {
-		t.Fatalf("status %d (want 201 or 500)", resp.StatusCode)
-	}
-
-	errObj := mustDecode[map[string]any](t, resp)
-	if _, ok := errObj["error"]; !ok {
-		t.Fatalf("expected error body, got %v", errObj)
+	if resp.StatusCode != http.StatusCreated {
+		t.Fatalf("status %d (want 201)", resp.StatusCode)
 	}
 }
 
@@ -255,7 +252,7 @@ func testEndToEnd_Schedules_Delete_Idempotent(t *testing.T) {
 	delResp := doRequest(t, http.MethodDelete, "/schedules/987654321", nil, nil)
 	defer delResp.Body.Close()
 
-	if delResp.StatusCode != http.StatusNoContent {
-		t.Fatalf("status %d (want 204)", delResp.StatusCode)
+	if delResp.StatusCode != http.StatusOK {
+		t.Fatalf("status %d (want 200)", delResp.StatusCode)
 	}
 }
