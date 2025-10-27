@@ -59,8 +59,11 @@ func AuthMiddleware(secret []byte) func(http.Handler) http.Handler {
 				return
 			}
 
+			userIDFloat, _ := claims["sub"].(float64)
+			userID := int64(userIDFloat)
+
 			ctx := context.WithValue(r.Context(), claimsCtxKey, claims)
-			ctx = context.WithValue(ctx, constants.USER_ID_KEY, claims["sub"].(int64))
+			ctx = context.WithValue(ctx, constants.USER_ID_KEY, userID)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}

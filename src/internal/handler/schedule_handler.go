@@ -27,7 +27,7 @@ func NewScheduleHandler(s service.ScheduleService) handler.ScheduleHandler {
 // @Success 200 {array} model.Schedule
 // @Router /me/schedules [get]
 func (h *scheduleHandler) ReadUserSchedules(w http.ResponseWriter, r *http.Request) {
-	userID := r.Context().Value(constants.ID_KEY).(int64)
+	userID := r.Context().Value(constants.USER_ID_KEY).(int64)
 
 	schedules, err := h.service.ReadUserSchedules(userID)
 	if err != nil {
@@ -87,7 +87,7 @@ func (h *scheduleHandler) ReadScheduleByID(w http.ResponseWriter, r *http.Reques
 // @Success 201 {object} model.Schedule
 // @Router /schedules [post]
 func (h *scheduleHandler) CreateSchedule(w http.ResponseWriter, r *http.Request) {
-	userID := r.Context().Value(constants.ID_KEY).(int64)
+	userID := r.Context().Value(constants.USER_ID_KEY).(int64)
 
 	var req model.CreateScheduleRequest
 	_ = render.DecodeJSON(r.Body, &req)

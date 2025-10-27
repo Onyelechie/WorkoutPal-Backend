@@ -164,4 +164,23 @@ func TestEndToEnd(t *testing.T) {
 	t.Run("Exercises_List_WithQueryParams", testEndToEnd_Exercises_List_WithQueryParams)
 	t.Run("Exercises_GetByID", testEndToEnd_Exercises_GetByID)
 	t.Run("Exercises_GetByID_NotFound", testEndToEnd_Exercises_GetByID_NotFound)
+
+	// Routine Tests
+	t.Run("Routines_Create", testEndToEnd_Routines_Create)
+	t.Run("Routines_ListForUser", testEndToEnd_Routines_ListForUser)
+	t.Run("Routines_ReadRoutineWithExercises", testEndToEnd_Routines_ReadRoutineWithExercises)
+	t.Run("Routines_AddExerciseToRoutine", testEndToEnd_Routines_AddExerciseToRoutine)
+	t.Run("Routines_RemoveExerciseFromRoutine", testEndToEnd_Routines_RemoveExerciseFromRoutine)
+	t.Run("Routines_DeleteRoutine", testEndToEnd_Routines_DeleteRoutine)
+	t.Run("Routines_DeleteUserRoutine", testEndToEnd_Routines_DeleteUserRoutine)
+
+	// Schedule Tests
+	t.Run("Schedules_ListMine", testEndToEnd_Schedules_ListMine)
+	t.Run("Schedules_ListMineByDay", testEndToEnd_Schedules_ListMineByDay)
+	t.Run("Schedules_GetByID", testEndToEnd_Schedules_GetByID)
+	t.Run("Schedules_GetByID_NotFound", testEndToEnd_Schedules_GetByID_NotFound)
+	t.Run("Schedules_Create", testEndToEnd_Schedules_Create)
+	t.Run("Schedules_Update", testEndToEnd_Schedules_Update)
+	t.Run("Schedules_Delete_OK", testEndToEnd_Schedules_Delete_OK)
+	t.Run("Schedules_Delete_Idempotent", testEndToEnd_Schedules_Delete_Idempotent)
 }
