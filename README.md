@@ -97,6 +97,19 @@ The API will be available at `http://localhost:8080`
 
 ---
 
+## Continuous Deployment (CD)
+
+WorkoutPal-Backend uses GitHub Actions to automatically build, push, and deploy Docker images to Azure App Service whenever changes are merged into the main branch.
+
+### How It Works
+
+- Build: On every push to main, GitHub Actions checks out the code and builds a Docker image of the backend.
+
+- Push: The image is pushed to Docker Hub (ilightlysaltedi/workoutpal-backend:latest).
+
+- Deploy: Azure App Service is configured to pull the latest image automatically, updating the running backend without downtime. deployed backend can be found [here](workoutpal-api-daghb9augub5g9ez.canadacentral-01.azurewebsites.net)
+---
+
 ## Testing
 
 Run all tests with coverage:
