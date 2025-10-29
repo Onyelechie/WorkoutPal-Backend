@@ -42,6 +42,7 @@ func RegisterRoutes(cfg *config.Config, db *sql.DB) http.Handler {
 			// TODO read this from config
 			"http://localhost:4200",
 			"http://localhost:5173",
+			"https://brave-coast-0eeb4d10f.3.azurestaticapps.net",
 		},
 		AllowCredentials: true,
 		AllowedMethods:   []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
