@@ -78,7 +78,7 @@ func (h *authHandler) Login(w http.ResponseWriter, r *http.Request) {
 		Path:     "/",
 		HttpOnly: true,
 		Secure:   isSecure,
-		SameSite: http.SameSiteDefaultMode,
+		SameSite: http.SameSiteNoneMode,
 		MaxAge:   int(time.Hour.Seconds()),
 	})
 
