@@ -61,6 +61,7 @@ func Routes(r chi.Router, appDep dependency.AppDependencies, secret []byte) http
 	exerciseHandler := handler.NewExerciseHandler(appDep.ExerciseService)
 	authHandler := handler.NewAuthHandler(appDep.UserService, appDep.AuthService, secret)
 	scheduleHandler := handler.NewScheduleHandler(appDep.ScheduleService)
+	postHandler := handler.NewPostHandler(appDep.PostService)
 
 	// --- Init Middleware ---
 	var idMiddleware = middleware2.IdMiddleware()
@@ -120,6 +121,14 @@ func Routes(r chi.Router, appDep dependency.AppDependencies, secret []byte) http
 		r.With(idMiddleware).Get("/{id}", scheduleHandler.ReadScheduleByID)
 		r.With(idMiddleware).Put("/{id}", scheduleHandler.UpdateSchedule)
 		r.With(idMiddleware).Delete("/{id}", scheduleHandler.DeleteSchedule)
+	})
+
+	r.With(authMiddleware).Route("/posts", func(r chi.Router) {
+		r.Get("/", postHandler.ReadPosts)
+		r.Post("/", postHandler.CreatePost)
+		r.With(idMiddleware).Delete("/{id}", postHandler.DeletePost)
+		r.Post("/comment", postHandler.CommentOnPost)
+		r.Post("/comment/reply", postHandler.CommentOnComment)
 	})
 
 	return r
