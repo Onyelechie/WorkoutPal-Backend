@@ -15,6 +15,162 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/achievements": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Achievements"
+                ],
+                "summary": "List achievements",
+                "responses": {
+                    "200": {
+                        "description": "Achievements retrieved successfully",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.Achievement"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Achievements"
+                ],
+                "summary": "Create a new achievement",
+                "parameters": [
+                    {
+                        "description": "New achievement payload",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.CreateAchievementRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Achievement created successfully",
+                        "schema": {
+                            "$ref": "#/definitions/model.Achievement"
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/achievements/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Achievements"
+                ],
+                "summary": "Delete an achievement",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Achievement ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Achievement deleted successfully",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Achievement not found",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/auth/google": {
             "post": {
                 "consumes": [
@@ -510,7 +666,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/posts/like": {
+        "/posts/comment/reply": {
             "post": {
                 "security": [
                     {
@@ -526,21 +682,21 @@ const docTemplate = `{
                 "tags": [
                     "Posts"
                 ],
-                "summary": "Like a post",
+                "summary": "Comment on another comment",
                 "parameters": [
                     {
-                        "description": "Target post to like",
+                        "description": "Target comment and reply text",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.LikePostRequest"
+                            "$ref": "#/definitions/model.CommentOnCommentRequest"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Post liked successfully",
+                        "description": "Reply added successfully",
                         "schema": {
                             "$ref": "#/definitions/model.BasicResponse"
                         }
@@ -553,6 +709,66 @@ const docTemplate = `{
                     },
                     "401": {
                         "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/posts/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Posts"
+                ],
+                "summary": "Delete a post",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Post ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Post deleted successfully",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Post not found",
                         "schema": {
                             "$ref": "#/definitions/model.BasicResponse"
                         }
@@ -1119,12 +1335,11 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Follower IDs retrieved successfully",
+                        "description": "Followers retrieved successfully",
                         "schema": {
                             "type": "array",
                             "items": {
-                                "type": "integer",
-                                "format": "int64"
+                                "$ref": "#/definitions/model.User"
                             }
                         }
                     },
@@ -1163,12 +1378,11 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Following IDs retrieved successfully",
+                        "description": "Following users retrieved successfully",
                         "schema": {
                             "type": "array",
                             "items": {
-                                "type": "integer",
-                                "format": "int64"
+                                "$ref": "#/definitions/model.User"
                             }
                         }
                     },
@@ -1463,6 +1677,29 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "model.Achievement": {
+            "type": "object",
+            "properties": {
+                "badgeIcon": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "earnedAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "integer"
+                }
+            }
+        },
         "model.AuthResponse": {
             "type": "object",
             "properties": {
@@ -1488,11 +1725,37 @@ const docTemplate = `{
                 "comment": {
                     "type": "string"
                 },
-                "commentedBy": {
-                    "type": "string"
-                },
                 "date": {
                     "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "replies": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Comment"
+                    }
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.CommentOnCommentRequest": {
+            "type": "object",
+            "properties": {
+                "comment": {
+                    "type": "string"
+                },
+                "commentId": {
+                    "type": "integer"
+                },
+                "postId": {
+                    "type": "integer"
+                },
+                "userId": {
+                    "type": "integer"
                 }
             }
         },
@@ -1503,6 +1766,29 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "postId": {
+                    "type": "integer"
+                },
+                "userId": {
+                    "type": "integer"
+                }
+            }
+        },
+        "model.CreateAchievementRequest": {
+            "type": "object",
+            "properties": {
+                "badgeIcon": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "earnedAt": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "userId": {
                     "type": "integer"
                 }
             }
@@ -1562,10 +1848,16 @@ const docTemplate = `{
         "model.CreatePostRequest": {
             "type": "object",
             "properties": {
+                "body": {
+                    "type": "string"
+                },
                 "caption": {
                     "type": "string"
                 },
-                "content": {
+                "postedBy": {
+                    "type": "integer"
+                },
+                "status": {
                     "type": "string"
                 },
                 "title": {
@@ -1765,14 +2057,6 @@ const docTemplate = `{
                 }
             }
         },
-        "model.LikePostRequest": {
-            "type": "object",
-            "properties": {
-                "postID": {
-                    "type": "integer"
-                }
-            }
-        },
         "model.LoginRequest": {
             "type": "object",
             "properties": {
@@ -1787,6 +2071,9 @@ const docTemplate = `{
         "model.Post": {
             "type": "object",
             "properties": {
+                "body": {
+                    "type": "string"
+                },
                 "caption": {
                     "type": "string"
                 },
@@ -1795,9 +2082,6 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/model.Comment"
                     }
-                },
-                "content": {
-                    "type": "string"
                 },
                 "date": {
                     "type": "string"
@@ -1809,6 +2093,9 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "postedBy": {
+                    "type": "string"
+                },
+                "status": {
                     "type": "string"
                 },
                 "title": {
@@ -1915,12 +2202,6 @@ const docTemplate = `{
         "model.User": {
             "type": "object",
             "properties": {
-                "achievements": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/model.UserAchievement"
-                    }
-                },
                 "age": {
                     "type": "integer"
                 },
@@ -1989,29 +2270,6 @@ const docTemplate = `{
                 },
                 "weightMetric": {
                     "type": "string"
-                }
-            }
-        },
-        "model.UserAchievement": {
-            "type": "object",
-            "properties": {
-                "badgeIcon": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "earnedAt": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "title": {
-                    "type": "string"
-                },
-                "userId": {
-                    "type": "integer"
                 }
             }
         }

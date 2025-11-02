@@ -24,7 +24,7 @@ func (p *PostRepository) ReadPosts() ([]*model.Post, error) {
 	}
 	defer rows.Close()
 
-	var result []*model.Post
+	var result []*model.Post = make([]*model.Post, 0)
 	for rows.Next() {
 		var post model.Post
 		err := rows.Scan(&post.ID, &post.Title, &post.Body, &post.Caption, &post.Status, &post.Date, &post.PostedBy)
@@ -99,7 +99,7 @@ func (p *PostRepository) ReadCommentsByPost(postID int64) ([]*model.Comment, err
 	}
 	defer rows.Close()
 
-	var result []*model.Comment
+	var result []*model.Comment = make([]*model.Comment, 0)
 	for rows.Next() {
 		var c model.Comment
 		err := rows.Scan(&c.ID, &c.Comment, &c.Date, &c.Username)
