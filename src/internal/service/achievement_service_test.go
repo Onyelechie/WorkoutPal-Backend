@@ -10,7 +10,7 @@ import (
 	"github.com/golang/mock/gomock"
 )
 
-func TestAchievementService_Read_OK(t *testing.T) {
+func TestAchievementService_ReadUser_OK(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	t.Cleanup(ctrl.Finish)
 
@@ -18,9 +18,9 @@ func TestAchievementService_Read_OK(t *testing.T) {
 	svc := NewAchievementService(repo)
 
 	want := []*model.Achievement{{ID: 1}, {ID: 2}}
-	repo.EXPECT().ReadAchievements().Return(want, nil)
+	repo.EXPECT().ReadAchievements(int64(1)).Return(want, nil)
 
-	got, err := svc.ReadAchievements()
+	got, err := svc.ReadAchievements(1)
 	if err != nil {
 		t.Fatalf("err=%v", err)
 	}
@@ -29,16 +29,16 @@ func TestAchievementService_Read_OK(t *testing.T) {
 	}
 }
 
-func TestAchievementService_Read_Error(t *testing.T) {
+func TestAchievementService_ReadUser_Error(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	t.Cleanup(ctrl.Finish)
 
 	repo := mock_repository.NewMockAchievementRepository(ctrl)
 	svc := NewAchievementService(repo)
 
-	repo.EXPECT().ReadAchievements().Return(nil, errors.New("boom"))
+	repo.EXPECT().ReadAchievements(int64(1)).Return(nil, errors.New("boom"))
 
-	got, err := svc.ReadAchievements()
+	got, err := svc.ReadAchievements(1)
 	if got != nil || err == nil {
 		t.Fatalf("expected error")
 	}

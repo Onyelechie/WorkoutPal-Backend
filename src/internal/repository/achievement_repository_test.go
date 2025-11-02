@@ -18,12 +18,13 @@ func TestAchievementRepository_ReadAchievements_OK(t *testing.T) {
 	mock.ExpectQuery(regexp.QuoteMeta(
 		`SELECT id, user_id, title, badge_icon, description, created_at
 		FROM achievements
+		WHERE user_id = $1
 		ORDER BY created_at DESC`,
 	)).WillReturnRows(sqlmock.NewRows(
 		[]string{"id", "user_id", "title", "badge_icon", "description", "created_at"},
 	).AddRow(int64(1), int64(2), "T", "I", "D", "2025-01-01T00:00:00Z"))
 
-	got, err := repo.ReadAchievements()
+	got, err := repo.ReadAchievements(2)
 	if err != nil {
 		t.Fatalf("err=%v", err)
 	}
@@ -39,7 +40,7 @@ func TestAchievementRepository_ReadAchievements_Error(t *testing.T) {
 
 	mock.ExpectQuery("SELECT id, user_id, title").WillReturnError(errors.New("db down"))
 
-	_, err := repo.ReadAchievements()
+	_, err := repo.ReadAchievements(0)
 	if err == nil {
 		t.Fatalf("expected error")
 	}

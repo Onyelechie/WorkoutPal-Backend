@@ -57,7 +57,9 @@ func (h *AchievementHandler) CreateAchievement(w http.ResponseWriter, r *http.Re
 // @Security BearerAuth
 // @Router /achievements [get]
 func (h *AchievementHandler) ReadAchievements(w http.ResponseWriter, r *http.Request) {
-	list, err := h.svc.ReadAchievements()
+	userID := r.Context().Value(constants.USER_ID_KEY).(int64)
+
+	list, err := h.svc.ReadAchievements(userID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

@@ -14,11 +14,12 @@ func NewAchievementRepository(db *sql.DB) domainrepo.AchievementRepository {
 	return &achievementRepository{db: db}
 }
 
-func (r *achievementRepository) ReadAchievements() ([]*model.Achievement, error) {
+func (r *achievementRepository) ReadAchievements(userID int64) ([]*model.Achievement, error) {
 	rows, err := r.db.Query(`
 		SELECT id, user_id, title, badge_icon, description, created_at
 		FROM achievements
-		ORDER BY created_at DESC`)
+		WHERE user_id = $1
+		ORDER BY created_at DESC`, userID)
 	if err != nil {
 		return nil, err
 	}

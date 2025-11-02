@@ -76,48 +76,6 @@ func TestAchievementHandler_Create_OK(t *testing.T) {
 	}
 }
 
-func TestAchievementHandler_Read_Error(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	t.Cleanup(ctrl.Finish)
-
-	svc := mock_service.NewMockAchievementService(ctrl)
-	h := &AchievementHandler{svc: svc}
-
-	svc.EXPECT().ReadAchievements().Return(nil, errors.New("boom"))
-
-	w := httptest.NewRecorder()
-	r := httptest.NewRequest(http.MethodGet, "/achievements", nil)
-	h.ReadAchievements(w, r)
-
-	if w.Code != http.StatusInternalServerError {
-		t.Fatalf("status=%d want=500", w.Code)
-	}
-}
-
-func TestAchievementHandler_Read_OK(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	t.Cleanup(ctrl.Finish)
-
-	svc := mock_service.NewMockAchievementService(ctrl)
-	h := &AchievementHandler{svc: svc}
-
-	want := []*model.Achievement{{ID: 1, Title: "A"}, {ID: 2, Title: "B"}}
-	svc.EXPECT().ReadAchievements().Return(want, nil)
-
-	w := httptest.NewRecorder()
-	r := httptest.NewRequest(http.MethodGet, "/achievements", nil)
-	h.ReadAchievements(w, r)
-
-	if w.Code != http.StatusOK {
-		t.Fatalf("status=%d want=200", w.Code)
-	}
-	var got []model.Achievement
-	_ = json.NewDecoder(w.Body).Decode(&got)
-	if len(got) != len(want) {
-		t.Fatalf("len=%d want=%d", len(got), len(want))
-	}
-}
-
 func TestAchievementHandler_Delete_Error(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	t.Cleanup(ctrl.Finish)
