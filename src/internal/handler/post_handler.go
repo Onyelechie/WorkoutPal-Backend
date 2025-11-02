@@ -1,14 +1,19 @@
 package handler
 
 import (
+	"encoding/json"
 	"net/http"
-	"workoutpal/src/internal/domain/handler"
+	"workoutpal/src/internal/domain/service"
+	"workoutpal/src/internal/model"
+	"workoutpal/src/util/constants"
 )
 
-type postHandler struct{}
+type PostHandler struct {
+	svc service.PostService
+}
 
-func NewPostHandler() handler.PostHandler {
-	return &postHandler{}
+func NewPostHandler(svc service.PostService) *PostHandler {
+	return &PostHandler{svc: svc}
 }
 
 // CreatePost godoc
@@ -23,43 +28,21 @@ func NewPostHandler() handler.PostHandler {
 // @Failure 500 {object} model.BasicResponse "Internal server error"
 // @Security BearerAuth
 // @Router /posts [post]
-func (p *postHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
-	//TODO implement me
-	panic("implement me")
-}
+func (p *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
+	var req model.CreatePostRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 
-// CommentOnPost godoc
-// @Summary Comment on a post
-// @Tags Posts
-// @Accept json
-// @Produce json
-// @Param request body model.CommentOnPostRequest true "Target post and comment text"
-// @Success 200 {object} model.BasicResponse "Comment added successfully"
-// @Failure 400 {object} model.BasicResponse "Validation error"
-// @Failure 401 {object} model.BasicResponse "Unauthorized"
-// @Failure 500 {object} model.BasicResponse "Internal server error"
-// @Security BearerAuth
-// @Router /posts/comment [post]
-func (p *postHandler) CommentOnPost(w http.ResponseWriter, r *http.Request) {
-	//TODO implement me
-	panic("implement me")
-}
+	post, err := p.svc.CreatePost(req)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
-// LikePost godoc
-// @Summary Like a post
-// @Tags Posts
-// @Accept json
-// @Produce json
-// @Param request body model.LikePostRequest true "Target post to like"
-// @Success 200 {object} model.BasicResponse "Post liked successfully"
-// @Failure 400 {object} model.BasicResponse "Validation error"
-// @Failure 401 {object} model.BasicResponse "Unauthorized"
-// @Failure 500 {object} model.BasicResponse "Internal server error"
-// @Security BearerAuth
-// @Router /posts/like [post]
-func (p *postHandler) LikePost(w http.ResponseWriter, r *http.Request) {
-	//TODO implement me
-	panic("implement me")
+	w.WriteHeader(http.StatusCreated)
+	_ = json.NewEncoder(w).Encode(post)
 }
 
 // ReadPosts godoc
@@ -74,7 +57,97 @@ func (p *postHandler) LikePost(w http.ResponseWriter, r *http.Request) {
 // @Failure 500 {object} model.BasicResponse "Internal server error"
 // @Security BearerAuth
 // @Router /posts [get]
-func (p *postHandler) ReadPosts(w http.ResponseWriter, r *http.Request) {
-	//TODO implement me
-	panic("implement me")
+func (p *PostHandler) ReadPosts(w http.ResponseWriter, r *http.Request) {
+	posts, err := p.svc.ReadPosts()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	_ = json.NewEncoder(w).Encode(posts)
+}
+
+// CommentOnPost godoc
+// @Summary Comment on a post
+// @Tags Posts
+// @Accept json
+// @Produce json
+// @Param request body model.CommentOnPostRequest true "Target post and comment text"
+// @Success 200 {object} model.BasicResponse "Comment added successfully"
+// @Failure 400 {object} model.BasicResponse "Validation error"
+// @Failure 401 {object} model.BasicResponse "Unauthorized"
+// @Failure 500 {object} model.BasicResponse "Internal server error"
+// @Security BearerAuth
+// @Router /posts/comment [post]
+func (p *PostHandler) CommentOnPost(w http.ResponseWriter, r *http.Request) {
+	var req model.CommentOnPostRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if err := p.svc.CommentOnPost(req); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	resp := model.BasicResponse{Message: "Success"}
+	w.WriteHeader(http.StatusOK)
+	_ = json.NewEncoder(w).Encode(resp)
+}
+
+// CommentOnComment godoc
+// @Summary Comment on another comment
+// @Tags Posts
+// @Accept json
+// @Produce json
+// @Param request body model.CommentOnCommentRequest true "Target comment and reply text"
+// @Success 200 {object} model.BasicResponse "Reply added successfully"
+// @Failure 400 {object} model.BasicResponse "Validation error"
+// @Failure 401 {object} model.BasicResponse "Unauthorized"
+// @Failure 500 {object} model.BasicResponse "Internal server error"
+// @Security BearerAuth
+// @Router /posts/comment/reply [post]
+func (p *PostHandler) CommentOnComment(w http.ResponseWriter, r *http.Request) {
+	var req model.CommentOnCommentRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if err := p.svc.CommentOnComment(req); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	resp := model.BasicResponse{Message: "Success"}
+	w.WriteHeader(http.StatusOK)
+	_ = json.NewEncoder(w).Encode(resp)
+}
+
+// DeletePost godoc
+// @Summary Delete a post
+// @Tags Posts
+// @Accept json
+// @Produce json
+// @Param id path int true "Post ID"
+// @Success 200 {object} model.BasicResponse "Post deleted successfully"
+// @Failure 400 {object} model.BasicResponse "Validation error"
+// @Failure 401 {object} model.BasicResponse "Unauthorized"
+// @Failure 404 {object} model.BasicResponse "Post not found"
+// @Failure 500 {object} model.BasicResponse "Internal server error"
+// @Security BearerAuth
+// @Router /posts/{id} [delete]
+func (p *PostHandler) DeletePost(w http.ResponseWriter, r *http.Request) {
+	id := r.Context().Value(constants.ID_KEY).(int64)
+
+	if err := p.svc.DeletePost(id); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	resp := model.BasicResponse{Message: "Success"}
+	w.WriteHeader(http.StatusOK)
+	_ = json.NewEncoder(w).Encode(resp)
 }

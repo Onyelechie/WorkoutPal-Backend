@@ -183,4 +183,16 @@ func TestEndToEnd(t *testing.T) {
 	t.Run("Schedules_Update", testEndToEnd_Schedules_Update)
 	t.Run("Schedules_Delete_OK", testEndToEnd_Schedules_Delete_OK)
 	t.Run("Schedules_Delete_Idempotent", testEndToEnd_Schedules_Delete_Idempotent)
+
+	// Post Tests
+	t.Run("Posts_Create", testEndToEnd_Posts_Create)
+	t.Run("Posts_List", testEndToEnd_Posts_List)
+	t.Run("Posts_CommentOnPost", testEndToEnd_Posts_CommentOnPost)
+	t.Run("Posts_CommentOnComment", testEndToEnd_Posts_CommentOnComment)
+	t.Run("Posts_Delete", testEndToEnd_Posts_Delete)
+
+	// Achievement Tests
+	t.Run("Achievements_Create", testEndToEnd_Achievements_Create)
+	t.Run("Achievements_List", testEndToEnd_Achievements_List)
+	t.Run("Achievements_Delete", testEndToEnd_Achievements_Delete)
 }

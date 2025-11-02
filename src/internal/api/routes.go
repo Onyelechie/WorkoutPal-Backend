@@ -61,6 +61,8 @@ func Routes(r chi.Router, appDep dependency.AppDependencies, secret []byte) http
 	exerciseHandler := handler.NewExerciseHandler(appDep.ExerciseService)
 	authHandler := handler.NewAuthHandler(appDep.UserService, appDep.AuthService, secret)
 	scheduleHandler := handler.NewScheduleHandler(appDep.ScheduleService)
+	postHandler := handler.NewPostHandler(appDep.PostService)
+	achievementHandler := handler.NewAchievementHandler(appDep.AchievementService)
 
 	// --- Init Middleware ---
 	var idMiddleware = middleware2.IdMiddleware()
@@ -120,6 +122,22 @@ func Routes(r chi.Router, appDep dependency.AppDependencies, secret []byte) http
 		r.With(idMiddleware).Get("/{id}", scheduleHandler.ReadScheduleByID)
 		r.With(idMiddleware).Put("/{id}", scheduleHandler.UpdateSchedule)
 		r.With(idMiddleware).Delete("/{id}", scheduleHandler.DeleteSchedule)
+	})
+
+	// Posts
+	r.With(authMiddleware).Route("/posts", func(r chi.Router) {
+		r.Get("/", postHandler.ReadPosts)
+		r.Post("/", postHandler.CreatePost)
+		r.With(idMiddleware).Delete("/{id}", postHandler.DeletePost)
+		r.Post("/comment", postHandler.CommentOnPost)
+		r.Post("/comment/reply", postHandler.CommentOnComment)
+	})
+
+	// Achievements
+	r.With(authMiddleware).Route("/achievements", func(r chi.Router) {
+		r.Get("/", achievementHandler.ReadAchievements)
+		r.Post("/", achievementHandler.CreateAchievement)
+		r.With(idMiddleware).Delete("/{id}", achievementHandler.DeleteAchievement)
 	})
 
 	return r

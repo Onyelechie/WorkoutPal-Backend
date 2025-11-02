@@ -6,7 +6,7 @@ package mock_service
 
 import (
 	reflect "reflect"
-	"workoutpal/src/internal/model"
+	model "workoutpal/src/internal/model"
 
 	gomock "github.com/golang/mock/gomock"
 )
