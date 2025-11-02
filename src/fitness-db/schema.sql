@@ -1491,3 +1491,7 @@ CREATE TABLE IF NOT EXISTS schedule_routine (
                                                 position INT NOT NULL,
                                                 PRIMARY KEY (schedule_id, routine_id)
 );
+
+ALTER TABLE achievements ADD COLUMN badge_icon VARCHAR(250);
+ALTER TABLE achievements ADD COLUMN title VARCHAR(250);
+ALTER TABLE achievements ADD COLUMN user_id INT REFERENCES users(id);

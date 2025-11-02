@@ -1,4 +1,19 @@
 definitions:
+  model.Achievement:
+    properties:
+      badgeIcon:
+        type: string
+      description:
+        type: string
+      earnedAt:
+        type: string
+      id:
+        type: integer
+      title:
+        type: string
+      userId:
+        type: integer
+    type: object
   model.AuthResponse:
     properties:
       token:
@@ -43,6 +58,19 @@ definitions:
         type: string
       postId:
         type: integer
+      userId:
+        type: integer
+    type: object
+  model.CreateAchievementRequest:
+    properties:
+      badgeIcon:
+        type: string
+      description:
+        type: string
+      earnedAt:
+        type: string
+      title:
+        type: string
       userId:
         type: integer
     type: object
@@ -314,10 +342,6 @@ definitions:
     type: object
   model.User:
     properties:
-      achievements:
-        items:
-          $ref: '#/definitions/model.UserAchievement'
-        type: array
       age:
         type: integer
       avatar:
@@ -365,24 +389,107 @@ definitions:
       weightMetric:
         type: string
     type: object
-  model.UserAchievement:
-    properties:
-      badgeIcon:
-        type: string
-      description:
-        type: string
-      earnedAt:
-        type: string
-      id:
-        type: integer
-      title:
-        type: string
-      userId:
-        type: integer
-    type: object
 info:
   contact: {}
 paths:
+  /achievements:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Achievements retrieved successfully
+          schema:
+            items:
+              $ref: '#/definitions/model.Achievement'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+      security:
+      - BearerAuth: []
+      summary: List achievements
+      tags:
+      - Achievements
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: New achievement payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreateAchievementRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Achievement created successfully
+          schema:
+            $ref: '#/definitions/model.Achievement'
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a new achievement
+      tags:
+      - Achievements
+  /achievements/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: Achievement ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Achievement deleted successfully
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "404":
+          description: Achievement not found
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete an achievement
+      tags:
+      - Achievements
   /auth/google:
     post:
       consumes:

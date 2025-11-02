@@ -19,7 +19,6 @@ type User struct {
 	Followers    []int64           `json:"followers,omitempty"`
 	Following    []int64           `json:"following,omitempty"`
 	Goals        []Goal            `json:"goals,omitempty"`
-	Achievements []UserAchievement `json:"achievements,omitempty"`
 	Routines     []ExerciseRoutine `json:"routines,omitempty"`
 }
 
@@ -31,15 +30,6 @@ type Goal struct {
 	Deadline    string `json:"deadline"`
 	CreatedAt   string `json:"createdAt"`
 	Status      string `json:"status"` // "active", "completed", "paused"
-}
-
-type UserAchievement struct {
-	ID          int64  `json:"id"`
-	UserID      int64  `json:"userId"`
-	Title       string `json:"title"`
-	Description string `json:"description"`
-	BadgeIcon   string `json:"badgeIcon"`
-	EarnedAt    string `json:"earnedAt"`
 }
 
 type ExerciseRoutine struct {

@@ -9,6 +9,7 @@ package domain
 //go:generate mockgen -destination=../../mock_internal/domain/service/mock_user_service.go          -package=mock_service workoutpal/src/internal/domain/service UserService
 //go:generate mockgen -destination=../../mock_internal/domain/service/mock_schedule_service.go      -package=mock_service workoutpal/src/internal/domain/service ScheduleService
 //go:generate mockgen -destination=../../mock_internal/domain/service/mock_post_service.go      	-package=mock_service workoutpal/src/internal/domain/service PostService
+//go:generate mockgen -destination=../../mock_internal/domain/service/mock_achievement_service.go   -package=mock_service workoutpal/src/internal/domain/service AchievementService
 // Repositories
 //go:generate mockgen -destination=../../mock_internal/domain/repository/mock_exercise_repository.go     -package=mock_repository workoutpal/src/internal/domain/repository ExerciseRepository
 //go:generate mockgen -destination=../../mock_internal/domain/repository/mock_goal_repository.go         -package=mock_repository workoutpal/src/internal/domain/repository GoalRepository
@@ -17,3 +18,4 @@ package domain
 //go:generate mockgen -destination=../../mock_internal/domain/repository/mock_user_repository.go         -package=mock_repository workoutpal/src/internal/domain/repository UserRepository
 //go:generate mockgen -destination=../../mock_internal/domain/repository/mock_schedule_repository.go     -package=mock_repository workoutpal/src/internal/domain/repository ScheduleRepository
 //go:generate mockgen -destination=../../mock_internal/domain/repository/mock_post_repository.go		 -package=mock_repository workoutpal/src/internal/domain/repository PostRepository
+//go:generate mockgen -destination=../../mock_internal/domain/repository/mock_achievement_repository.go	 -package=mock_repository workoutpal/src/internal/domain/repository AchievementRepository

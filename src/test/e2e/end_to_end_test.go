@@ -190,4 +190,9 @@ func TestEndToEnd(t *testing.T) {
 	t.Run("Posts_CommentOnPost", testEndToEnd_Posts_CommentOnPost)
 	t.Run("Posts_CommentOnComment", testEndToEnd_Posts_CommentOnComment)
 	t.Run("Posts_Delete", testEndToEnd_Posts_Delete)
+
+	// Achievement Tests
+	t.Run("Achievements_Create", testEndToEnd_Achievements_Create)
+	t.Run("Achievements_List", testEndToEnd_Achievements_List)
+	t.Run("Achievements_Delete", testEndToEnd_Achievements_Delete)
 }

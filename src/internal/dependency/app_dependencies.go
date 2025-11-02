@@ -22,6 +22,7 @@ type AppDependencies struct {
 	ScheduleService        service.ScheduleService
 	AuthService            service.AuthService
 	PostService            service.PostService
+	AchievementService     service.AchievementService
 }
 
 func NewAppDependencies(db *sql.DB) AppDependencies {
@@ -33,6 +34,7 @@ func NewAppDependencies(db *sql.DB) AppDependencies {
 	routineRepository := repository2.NewRoutineRepository(db)
 	scheduleRepository := repository2.NewScheduleRepository(db)
 	postRepository := repository2.NewPostRepository(db)
+	achievementRepository := repository2.NewAchievementRepository(db)
 
 	// --- Init Services ---
 	userService := service2.NewUserService(userRepository)
@@ -43,6 +45,7 @@ func NewAppDependencies(db *sql.DB) AppDependencies {
 	authService := service2.NewAuthService(userRepository)
 	scheduleService := service2.NewScheduleService(scheduleRepository)
 	postService := service2.NewPostService(postRepository)
+	achievementService := service2.NewAchievementService(achievementRepository)
 
 	return AppDependencies{
 		UserRepository:         userRepository,
@@ -58,5 +61,6 @@ func NewAppDependencies(db *sql.DB) AppDependencies {
 		ScheduleService:        scheduleService,
 		AuthService:            authService,
 		PostService:            postService,
+		AchievementService:     achievementService,
 	}
 }

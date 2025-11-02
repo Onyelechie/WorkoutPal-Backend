@@ -15,6 +15,162 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/achievements": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Achievements"
+                ],
+                "summary": "List achievements",
+                "responses": {
+                    "200": {
+                        "description": "Achievements retrieved successfully",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.Achievement"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Achievements"
+                ],
+                "summary": "Create a new achievement",
+                "parameters": [
+                    {
+                        "description": "New achievement payload",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.CreateAchievementRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Achievement created successfully",
+                        "schema": {
+                            "$ref": "#/definitions/model.Achievement"
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/achievements/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Achievements"
+                ],
+                "summary": "Delete an achievement",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Achievement ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Achievement deleted successfully",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Achievement not found",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/auth/google": {
             "post": {
                 "consumes": [
@@ -1521,6 +1677,29 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "model.Achievement": {
+            "type": "object",
+            "properties": {
+                "badgeIcon": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "earnedAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "integer"
+                }
+            }
+        },
         "model.AuthResponse": {
             "type": "object",
             "properties": {
@@ -1588,6 +1767,26 @@ const docTemplate = `{
                 },
                 "postId": {
                     "type": "integer"
+                },
+                "userId": {
+                    "type": "integer"
+                }
+            }
+        },
+        "model.CreateAchievementRequest": {
+            "type": "object",
+            "properties": {
+                "badgeIcon": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "earnedAt": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
                 },
                 "userId": {
                     "type": "integer"
@@ -2003,12 +2202,6 @@ const docTemplate = `{
         "model.User": {
             "type": "object",
             "properties": {
-                "achievements": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/model.UserAchievement"
-                    }
-                },
                 "age": {
                     "type": "integer"
                 },
@@ -2077,29 +2270,6 @@ const docTemplate = `{
                 },
                 "weightMetric": {
                     "type": "string"
-                }
-            }
-        },
-        "model.UserAchievement": {
-            "type": "object",
-            "properties": {
-                "badgeIcon": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "earnedAt": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "title": {
-                    "type": "string"
-                },
-                "userId": {
-                    "type": "integer"
                 }
             }
         }
