@@ -35,10 +35,10 @@ func (m *MockAchievementService) EXPECT() *MockAchievementServiceMockRecorder {
 }
 
 // CreateAchievement mocks base method.
-func (m *MockAchievementService) CreateAchievement(arg0 model.CreateAchievementRequest) (*model.Achievement, error) {
+func (m *MockAchievementService) CreateAchievement(arg0 model.CreateAchievementRequest) (*model.UserAchievement, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateAchievement", arg0)
-	ret0, _ := ret[0].(*model.Achievement)
+	ret0, _ := ret[0].(*model.UserAchievement)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -49,31 +49,32 @@ func (mr *MockAchievementServiceMockRecorder) CreateAchievement(arg0 interface{}
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateAchievement", reflect.TypeOf((*MockAchievementService)(nil).CreateAchievement), arg0)
 }
 
-// DeleteAchievement mocks base method.
-func (m *MockAchievementService) DeleteAchievement(arg0 int64) error {
+// ReadAllAchievements mocks base method.
+func (m *MockAchievementService) ReadAllAchievements() ([]*model.Achievement, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeleteAchievement", arg0)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// DeleteAchievement indicates an expected call of DeleteAchievement.
-func (mr *MockAchievementServiceMockRecorder) DeleteAchievement(arg0 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteAchievement", reflect.TypeOf((*MockAchievementService)(nil).DeleteAchievement), arg0)
-}
-
-// ReadAchievements mocks base method.
-func (m *MockAchievementService) ReadAchievements(arg0 int64) ([]*model.Achievement, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ReadAchievements", arg0)
+	ret := m.ctrl.Call(m, "ReadAllAchievements")
 	ret0, _ := ret[0].([]*model.Achievement)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// ReadAchievements indicates an expected call of ReadAchievements.
-func (mr *MockAchievementServiceMockRecorder) ReadAchievements(arg0 interface{}) *gomock.Call {
+// ReadAllAchievements indicates an expected call of ReadAllAchievements.
+func (mr *MockAchievementServiceMockRecorder) ReadAllAchievements() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReadAchievements", reflect.TypeOf((*MockAchievementService)(nil).ReadAchievements), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReadAllAchievements", reflect.TypeOf((*MockAchievementService)(nil).ReadAllAchievements))
+}
+
+// ReadUnlockedAchievements mocks base method.
+func (m *MockAchievementService) ReadUnlockedAchievements(arg0 int64) ([]*model.UserAchievement, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ReadUnlockedAchievements", arg0)
+	ret0, _ := ret[0].([]*model.UserAchievement)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ReadUnlockedAchievements indicates an expected call of ReadUnlockedAchievements.
+func (mr *MockAchievementServiceMockRecorder) ReadUnlockedAchievements(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReadUnlockedAchievements", reflect.TypeOf((*MockAchievementService)(nil).ReadUnlockedAchievements), arg0)
 }

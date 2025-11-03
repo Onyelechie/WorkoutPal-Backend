@@ -31,7 +31,7 @@ const docTemplate = `{
                 "tags": [
                     "Achievements"
                 ],
-                "summary": "List achievements",
+                "summary": "List all achievements (catalog)",
                 "responses": {
                     "200": {
                         "description": "Achievements retrieved successfully",
@@ -62,6 +62,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
+                "description": "Creates a user_achievement row (i.e., marks the achievement as earned for the user).",
                 "consumes": [
                     "application/json"
                 ],
@@ -71,10 +72,10 @@ const docTemplate = `{
                 "tags": [
                     "Achievements"
                 ],
-                "summary": "Create a new achievement",
+                "summary": "Unlock an achievement for a user",
                 "parameters": [
                     {
-                        "description": "New achievement payload",
+                        "description": "Unlock achievement payload",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -85,9 +86,9 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "201": {
-                        "description": "Achievement created successfully",
+                        "description": "UserAchievement created successfully",
                         "schema": {
-                            "$ref": "#/definitions/model.Achievement"
+                            "$ref": "#/definitions/model.UserAchievement"
                         }
                     },
                     "400": {
@@ -111,8 +112,8 @@ const docTemplate = `{
                 }
             }
         },
-        "/achievements/{id}": {
-            "delete": {
+        "/achievements/unlocked": {
+            "get": {
                 "security": [
                     {
                         "BearerAuth": []
@@ -127,11 +128,53 @@ const docTemplate = `{
                 "tags": [
                     "Achievements"
                 ],
-                "summary": "Delete an achievement",
+                "summary": "List achievements unlocked by the current user",
+                "responses": {
+                    "200": {
+                        "description": "Unlocked achievements retrieved successfully",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.UserAchievement"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/achievements/unlocked/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Achievements"
+                ],
+                "summary": "List achievements unlocked by a specific user (by path ID)",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Achievement ID",
+                        "description": "User ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -139,9 +182,12 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Achievement deleted successfully",
+                        "description": "Unlocked achievements retrieved successfully",
                         "schema": {
-                            "$ref": "#/definitions/model.BasicResponse"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.UserAchievement"
+                            }
                         }
                     },
                     "400": {
@@ -152,12 +198,6 @@ const docTemplate = `{
                     },
                     "401": {
                         "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/model.BasicResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Achievement not found",
                         "schema": {
                             "$ref": "#/definitions/model.BasicResponse"
                         }
@@ -1686,17 +1726,11 @@ const docTemplate = `{
                 "description": {
                     "type": "string"
                 },
-                "earnedAt": {
-                    "type": "string"
-                },
                 "id": {
                     "type": "integer"
                 },
                 "title": {
                     "type": "string"
-                },
-                "userId": {
-                    "type": "integer"
                 }
             }
         },
@@ -1776,17 +1810,8 @@ const docTemplate = `{
         "model.CreateAchievementRequest": {
             "type": "object",
             "properties": {
-                "badgeIcon": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "earnedAt": {
-                    "type": "string"
-                },
-                "title": {
-                    "type": "string"
+                "achievementId": {
+                    "type": "integer"
                 },
                 "userId": {
                     "type": "integer"
@@ -2270,6 +2295,29 @@ const docTemplate = `{
                 },
                 "weightMetric": {
                     "type": "string"
+                }
+            }
+        },
+        "model.UserAchievement": {
+            "type": "object",
+            "properties": {
+                "badgeIcon": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "earnedAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "integer"
                 }
             }
         }

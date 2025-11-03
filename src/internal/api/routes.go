@@ -135,9 +135,10 @@ func Routes(r chi.Router, appDep dependency.AppDependencies, secret []byte) http
 
 	// Achievements
 	r.With(authMiddleware).Route("/achievements", func(r chi.Router) {
-		r.Get("/", achievementHandler.ReadAchievements)
+		r.Get("/", achievementHandler.ReadAllAchievements)
 		r.Post("/", achievementHandler.CreateAchievement)
-		r.With(idMiddleware).Delete("/{id}", achievementHandler.DeleteAchievement)
+		r.Get("/unlocked", achievementHandler.ReadUnlockedAchievements)
+		r.With(idMiddleware).Get("/unlocked/{id}", achievementHandler.ReadUnlockedAchievementsByUserID)
 	})
 
 	return r

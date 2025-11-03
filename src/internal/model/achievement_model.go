@@ -2,6 +2,13 @@ package model
 
 type Achievement struct {
 	ID          int64  `json:"id"`
+	Title       string `json:"title"`
+	BadgeIcon   string `json:"badgeIcon"`
+	Description string `json:"description"`
+}
+
+type UserAchievement struct {
+	ID          int64  `json:"id"`
 	UserID      int64  `json:"userId"`
 	Title       string `json:"title"`
 	BadgeIcon   string `json:"badgeIcon"`
@@ -10,9 +17,6 @@ type Achievement struct {
 }
 
 type CreateAchievementRequest struct {
-	UserID      int64  `json:"userId"`
-	Title       string `json:"title"`
-	BadgeIcon   string `json:"badgeIcon"`
-	Description string `json:"description"`
-	EarnedAt    string `json:"earnedAt"`
+	UserID        int64 `json:"userId"`
+	AchievementID int64 `json:"achievementId"`
 }

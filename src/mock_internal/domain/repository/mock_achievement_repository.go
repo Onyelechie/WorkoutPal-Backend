@@ -35,10 +35,10 @@ func (m *MockAchievementRepository) EXPECT() *MockAchievementRepositoryMockRecor
 }
 
 // CreateAchievement mocks base method.
-func (m *MockAchievementRepository) CreateAchievement(arg0 model.CreateAchievementRequest) (*model.Achievement, error) {
+func (m *MockAchievementRepository) CreateAchievement(arg0 model.CreateAchievementRequest) (*model.UserAchievement, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateAchievement", arg0)
-	ret0, _ := ret[0].(*model.Achievement)
+	ret0, _ := ret[0].(*model.UserAchievement)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -49,31 +49,47 @@ func (mr *MockAchievementRepositoryMockRecorder) CreateAchievement(arg0 interfac
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateAchievement", reflect.TypeOf((*MockAchievementRepository)(nil).CreateAchievement), arg0)
 }
 
-// DeleteAchievement mocks base method.
-func (m *MockAchievementRepository) DeleteAchievement(arg0 int64) error {
+// ReadAllAchievements mocks base method.
+func (m *MockAchievementRepository) ReadAllAchievements() ([]*model.Achievement, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeleteAchievement", arg0)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// DeleteAchievement indicates an expected call of DeleteAchievement.
-func (mr *MockAchievementRepositoryMockRecorder) DeleteAchievement(arg0 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteAchievement", reflect.TypeOf((*MockAchievementRepository)(nil).DeleteAchievement), arg0)
-}
-
-// ReadAchievements mocks base method.
-func (m *MockAchievementRepository) ReadAchievements(arg0 int64) ([]*model.Achievement, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ReadAchievements", arg0)
+	ret := m.ctrl.Call(m, "ReadAllAchievements")
 	ret0, _ := ret[0].([]*model.Achievement)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// ReadAchievements indicates an expected call of ReadAchievements.
-func (mr *MockAchievementRepositoryMockRecorder) ReadAchievements(arg0 interface{}) *gomock.Call {
+// ReadAllAchievements indicates an expected call of ReadAllAchievements.
+func (mr *MockAchievementRepositoryMockRecorder) ReadAllAchievements() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReadAchievements", reflect.TypeOf((*MockAchievementRepository)(nil).ReadAchievements), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReadAllAchievements", reflect.TypeOf((*MockAchievementRepository)(nil).ReadAllAchievements))
+}
+
+// ReadUnlockedAchievementByAchievementID mocks base method.
+func (m *MockAchievementRepository) ReadUnlockedAchievementByAchievementID(arg0 int64) (*model.UserAchievement, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ReadUnlockedAchievementByAchievementID", arg0)
+	ret0, _ := ret[0].(*model.UserAchievement)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ReadUnlockedAchievementByAchievementID indicates an expected call of ReadUnlockedAchievementByAchievementID.
+func (mr *MockAchievementRepositoryMockRecorder) ReadUnlockedAchievementByAchievementID(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReadUnlockedAchievementByAchievementID", reflect.TypeOf((*MockAchievementRepository)(nil).ReadUnlockedAchievementByAchievementID), arg0)
+}
+
+// ReadUnlockedAchievements mocks base method.
+func (m *MockAchievementRepository) ReadUnlockedAchievements(arg0 int64) ([]*model.UserAchievement, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ReadUnlockedAchievements", arg0)
+	ret0, _ := ret[0].([]*model.UserAchievement)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ReadUnlockedAchievements indicates an expected call of ReadUnlockedAchievements.
+func (mr *MockAchievementRepositoryMockRecorder) ReadUnlockedAchievements(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReadUnlockedAchievements", reflect.TypeOf((*MockAchievementRepository)(nil).ReadUnlockedAchievements), arg0)
 }

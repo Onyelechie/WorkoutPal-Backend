@@ -1494,4 +1494,6 @@ CREATE TABLE IF NOT EXISTS schedule_routine (
 
 ALTER TABLE achievements ADD COLUMN badge_icon VARCHAR(250);
 ALTER TABLE achievements ADD COLUMN title VARCHAR(250);
-ALTER TABLE achievements ADD COLUMN user_id INT REFERENCES users(id);
+
+insert into achievements (id, name, description, created_at, badge_icon, title)
+values (1,'Achievement_1','Description Example',now(),'X','Title');
