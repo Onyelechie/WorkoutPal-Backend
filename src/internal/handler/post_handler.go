@@ -45,6 +45,30 @@ func (p *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewEncoder(w).Encode(post)
 }
 
+// ReadPostByUserID godoc
+// @Summary List posts by a specific user
+// @Tags Posts
+// @Accept json
+// @Produce json
+// @Success 200 {array} model.Post "Posts retrieved successfully"
+// @Failure 400 {object} model.BasicResponse "Validation error"
+// @Failure 401 {object} model.BasicResponse "Unauthorized"
+// @Failure 500 {object} model.BasicResponse "Internal server error"
+// @Security BearerAuth
+// @Router /posts/{id{ [get]
+func (p *PostHandler) ReadPostByUserID(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value(constants.ID_KEY).(int64)
+
+	posts, err := p.svc.ReadPostsByUserId(userID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	_ = json.NewEncoder(w).Encode(posts)
+}
+
 // ReadPosts godoc
 // @Summary List posts
 // @Tags Posts

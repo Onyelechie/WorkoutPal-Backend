@@ -14,6 +14,29 @@ func NewPostRepository(db *sql.DB) repository.PostRepository {
 	return &PostRepository{db: db}
 }
 
+func (p *PostRepository) ReadPostsByUserId(userID int64) ([]*model.Post, error) {
+	rows, err := p.db.Query(`
+		SELECT p.id,p.title,p.body,p.caption,p.status,p.created_at,u.username 
+		FROM posts p 
+		JOIN users u ON u.id = p.user_id
+		WHERE u.id = $1`, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var result []*model.Post = make([]*model.Post, 0)
+	for rows.Next() {
+		var post model.Post
+		err := rows.Scan(&post.ID, &post.Title, &post.Body, &post.Caption, &post.Status, &post.Date, &post.PostedBy)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, &post)
+	}
+	return result, nil
+}
+
 func (p *PostRepository) ReadPosts() ([]*model.Post, error) {
 	rows, err := p.db.Query(`
 		SELECT p.id,p.title,p.body,p.caption,p.status,p.created_at,u.username 

@@ -3,6 +3,7 @@ package service
 import "workoutpal/src/internal/model"
 
 type PostService interface {
+	ReadPostsByUserId(userID int64) ([]*model.Post, error)
 	ReadPosts() ([]*model.Post, error)
 	CreatePost(req model.CreatePostRequest) (*model.Post, error)
 	UpdatePost(req model.UpdatePostRequest) (*model.Post, error)

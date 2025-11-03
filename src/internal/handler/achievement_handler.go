@@ -46,6 +46,28 @@ func (h *AchievementHandler) CreateAchievement(w http.ResponseWriter, r *http.Re
 	_ = json.NewEncoder(w).Encode(ach)
 }
 
+// ReadAchievementByUserId godoc
+// @Summary List achievements
+// @Tags Achievements
+// @Accept json
+// @Produce json
+// @Success 200 {array} model.Achievement "Achievements retrieved successfully"
+// @Failure 401 {object} model.BasicResponse "Unauthorized"
+// @Failure 500 {object} model.BasicResponse "Internal server error"
+// @Security BearerAuth
+// @Router /achievements/{id} [get]
+func (h *AchievementHandler) ReadAchievementByUserId(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value(constants.ID_KEY).(int64)
+
+	list, err := h.svc.ReadAchievements(userID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	_ = json.NewEncoder(w).Encode(list)
+}
+
 // ReadAchievements godoc
 // @Summary List achievements
 // @Tags Achievements
