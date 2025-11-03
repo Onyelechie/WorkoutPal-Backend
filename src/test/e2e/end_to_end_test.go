@@ -192,7 +192,7 @@ func TestEndToEnd(t *testing.T) {
 	t.Run("Posts_Delete", testEndToEnd_Posts_Delete)
 
 	// Achievement Tests
-	t.Run("Achievements_Create", testEndToEnd_Achievements_Create)
-	t.Run("Achievements_List", testEndToEnd_Achievements_List)
-	t.Run("Achievements_Delete", testEndToEnd_Achievements_Delete)
+	t.Run("Achievements_CreateUnlock", testEndToEnd_Achievements_CreateUnlock)
+	t.Run("Achievements_ListCatalog", testEndToEnd_Achievements_ListCatalog)
+	t.Run("Achievements_ReadUnlockedByUserID", testEndToEnd_Achievements_ReadUnlockedByUserID)
 }
