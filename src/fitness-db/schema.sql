@@ -1496,4 +1496,4 @@ ALTER TABLE achievements ADD COLUMN badge_icon VARCHAR(250);
 ALTER TABLE achievements ADD COLUMN title VARCHAR(250);
 
 insert into achievements (id, name, description, created_at, badge_icon, title)
-values (1,'Achievement_1','Description Example',now(),'X','Title');
+values (1,'First_Login','Log in for the first time',now(),'😄','Welcome, Pal!');
