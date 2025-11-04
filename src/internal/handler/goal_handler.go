@@ -7,6 +7,7 @@ import (
 	"workoutpal/src/internal/domain/handler"
 	"workoutpal/src/internal/domain/service"
 	"workoutpal/src/internal/model"
+	"workoutpal/src/util"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
@@ -37,22 +38,22 @@ func (g *goalHandler) CreateUserGoal(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil {
-		render.Status(r, http.StatusBadRequest)
-		render.JSON(w, r, model.BasicResponse{Message: "Invalid user ID"})
+		responseErr := util.Error(err, r.URL.Path)
+		util.ErrorResponse(w, r, responseErr)
 		return
 	}
 
 	var req model.CreateGoalRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		render.Status(r, http.StatusBadRequest)
-		render.JSON(w, r, model.BasicResponse{Message: "Invalid request body"})
+		responseErr := util.Error(err, r.URL.Path)
+		util.ErrorResponse(w, r, responseErr)
 		return
 	}
 
 	goal, err := g.goalService.CreateGoal(id, req)
 	if err != nil {
-		render.Status(r, http.StatusBadRequest)
-		render.JSON(w, r, model.BasicResponse{Message: err.Error()})
+		responseErr := util.Error(err, r.URL.Path)
+		util.ErrorResponse(w, r, responseErr)
 		return
 	}
 
@@ -73,15 +74,15 @@ func (g *goalHandler) GetUserGoals(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil {
-		render.Status(r, http.StatusBadRequest)
-		render.JSON(w, r, model.BasicResponse{Message: "Invalid user ID"})
+		responseErr := util.Error(err, r.URL.Path)
+		util.ErrorResponse(w, r, responseErr)
 		return
 	}
 
 	goals, err := g.goalService.ReadUserGoals(id)
 	if err != nil {
-		render.Status(r, http.StatusNotFound)
-		render.JSON(w, r, model.BasicResponse{Message: err.Error()})
+		responseErr := util.Error(err, r.URL.Path)
+		util.ErrorResponse(w, r, responseErr)
 		return
 	}
 

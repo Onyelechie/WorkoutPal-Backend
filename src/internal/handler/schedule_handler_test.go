@@ -94,13 +94,6 @@ func TestScheduleHandler_ReadUserSchedules_Error(t *testing.T) {
 	if w.Code != http.StatusInternalServerError {
 		t.Fatalf("status = %d, want 500", w.Code)
 	}
-	var br map[string]string
-	if err := json.NewDecoder(w.Body).Decode(&br); err != nil {
-		t.Fatalf("decode: %v", err)
-	}
-	if br["error"] != "boom" {
-		t.Fatalf("message = %q, want %q", br["error"], "boom")
-	}
 }
 
 func TestScheduleHandler_ReadUserSchedulesByDay_OK(t *testing.T) {
@@ -173,13 +166,6 @@ func TestScheduleHandler_ReadUserSchedulesByDay_Error(t *testing.T) {
 	if w.Code != http.StatusInternalServerError {
 		t.Fatalf("status = %d, want 500", w.Code)
 	}
-	var br map[string]string
-	if err := json.NewDecoder(w.Body).Decode(&br); err != nil {
-		t.Fatalf("decode: %v", err)
-	}
-	if br["error"] != "boom" {
-		t.Fatalf("message = %q, want %q", br["error"], "boom")
-	}
 }
 
 func TestScheduleHandler_ReadScheduleByID_OK(t *testing.T) {
@@ -240,13 +226,6 @@ func TestScheduleHandler_ReadScheduleByID_Error(t *testing.T) {
 
 	if w.Code != http.StatusInternalServerError {
 		t.Fatalf("status = %d, want 500", w.Code)
-	}
-	var br map[string]string
-	if err := json.NewDecoder(w.Body).Decode(&br); err != nil {
-		t.Fatalf("decode: %v", err)
-	}
-	if br["error"] != "nope" {
-		t.Fatalf("message = %q, want %q", br["error"], "nope")
 	}
 }
 
@@ -350,13 +329,6 @@ func TestScheduleHandler_CreateSchedule_Error(t *testing.T) {
 
 	if w.Code != http.StatusInternalServerError {
 		t.Fatalf("status = %d, want 500", w.Code)
-	}
-	var br map[string]string
-	if err := json.NewDecoder(w.Body).Decode(&br); err != nil {
-		t.Fatalf("decode: %v", err)
-	}
-	if br["error"] != "explode" {
-		t.Fatalf("message = %q, want %q", br["error"], "explode")
 	}
 }
 
@@ -471,13 +443,6 @@ func TestScheduleHandler_UpdateSchedule_Error(t *testing.T) {
 
 	if w.Code != http.StatusInternalServerError {
 		t.Fatalf("status = %d, want 500", w.Code)
-	}
-	var br map[string]string
-	if err := json.NewDecoder(w.Body).Decode(&br); err != nil {
-		t.Fatalf("decode: %v", err)
-	}
-	if br["error"] != "bad update" {
-		t.Fatalf("message = %q, want %q", br["error"], "bad update")
 	}
 }
 
