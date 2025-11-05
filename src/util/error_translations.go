@@ -126,7 +126,7 @@ func fromPqError(e *pq.Error) (constants.UserMessage, int) {
 func fromPgCode(code string) (constants.UserMessage, int) {
 	switch code {
 	case "23505":
-		return constants.DUPLICATE, http.StatusConflict
+		return constants.DUPLICATE, http.StatusBadRequest
 	case "23502":
 		return constants.MISSING_FIELD, http.StatusUnprocessableEntity
 	case "23514":
