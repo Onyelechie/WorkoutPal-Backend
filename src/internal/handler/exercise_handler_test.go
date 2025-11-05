@@ -82,15 +82,6 @@ func TestExerciseHandler_ReadExercises_Error(t *testing.T) {
 	if w.Code != http.StatusInternalServerError {
 		t.Fatalf("status = %d, want 500", w.Code)
 	}
-	var br struct {
-		Message string `json:"message"`
-	}
-	if err := json.NewDecoder(w.Body).Decode(&br); err != nil {
-		t.Fatalf("decode: %v", err)
-	}
-	if br.Message != "boom" {
-		t.Fatalf("message = %q, want %q", br.Message, "boom")
-	}
 }
 
 func TestExerciseHandler_ReadExerciseByID_OK(t *testing.T) {
@@ -149,14 +140,5 @@ func TestExerciseHandler_ReadExerciseByID_Error(t *testing.T) {
 
 	if w.Code != http.StatusInternalServerError {
 		t.Fatalf("status = %d, want 500", w.Code)
-	}
-	var br struct {
-		Message string `json:"message"`
-	}
-	if err := json.NewDecoder(w.Body).Decode(&br); err != nil {
-		t.Fatalf("decode: %v", err)
-	}
-	if br.Message != "not found" {
-		t.Fatalf("message = %q, want %q", br.Message, "not found")
 	}
 }

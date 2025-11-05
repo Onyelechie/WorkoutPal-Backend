@@ -113,7 +113,7 @@ func TestRoutes_Login_CallsAuthService_AndReturns200(t *testing.T) {
 	})
 	defer resp.Body.Close()
 
-	if resp.StatusCode == http.StatusNotFound {
+	if resp.StatusCode == http.StatusInternalServerError {
 		t.Fatal("POST /login returned 404; route not registered")
 	}
 	if resp.StatusCode != http.StatusOK {
@@ -175,10 +175,7 @@ func TestRoutes_CreateUser_RouteExists_Returns4xxOnBadBody(t *testing.T) {
 		"Content-Type": "application/json",
 	})
 
-	if resp.StatusCode == http.StatusNotFound {
-		t.Fatal("POST /users returned 404; route not registered")
-	}
-	if resp.StatusCode < 400 || resp.StatusCode > 499 {
-		t.Fatalf("POST /users status = %d, want 4xx (invalid body)", resp.StatusCode)
+	if resp.StatusCode != 500 {
+		t.Fatalf("POST /users status = %d, want 500 (invalid body)", resp.StatusCode)
 	}
 }

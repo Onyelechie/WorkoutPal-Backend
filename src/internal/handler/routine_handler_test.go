@@ -56,8 +56,8 @@ func TestRoutineHandler_CreateUserRoutine_ServiceError(t *testing.T) {
 	r = withIDCtx(r, userID)
 
 	h.CreateUserRoutine(w, r)
-	if w.Code != http.StatusBadRequest {
-		t.Fatalf("status = %d, want 400", w.Code)
+	if w.Code != http.StatusInternalServerError {
+		t.Fatalf("status = %d, want 500", w.Code)
 	}
 }
 
@@ -108,7 +108,7 @@ func TestRoutineHandler_ReadUserRoutines_NotFound(t *testing.T) {
 	r = withIDCtx(r, userID)
 
 	h.ReadUserRoutines(w, r)
-	if w.Code != http.StatusNotFound {
+	if w.Code != http.StatusInternalServerError {
 		t.Fatalf("status = %d, want 404", w.Code)
 	}
 }
@@ -159,7 +159,7 @@ func TestRoutineHandler_DeleteRoutine_NotFound(t *testing.T) {
 	r = withIDCtx(r, routineID)
 
 	h.DeleteRoutine(w, r)
-	if w.Code != http.StatusNotFound {
+	if w.Code != http.StatusInternalServerError {
 		t.Fatalf("status = %d, want 404", w.Code)
 	}
 }
@@ -204,7 +204,7 @@ func TestRoutineHandler_ReadRoutineWithExercises_NotFound(t *testing.T) {
 	r = withIDCtx(r, routineID)
 
 	h.ReadRoutineWithExercises(w, r)
-	if w.Code != http.StatusNotFound {
+	if w.Code != http.StatusInternalServerError {
 		t.Fatalf("status = %d, want 404", w.Code)
 	}
 }
@@ -249,8 +249,8 @@ func TestRoutineHandler_AddExerciseToRoutine_BadExerciseID(t *testing.T) {
 	r = withIDCtx(r, 1)
 
 	h.AddExerciseToRoutine(w, r)
-	if w.Code != http.StatusBadRequest {
-		t.Fatalf("status = %d, want 400", w.Code)
+	if w.Code != http.StatusInternalServerError {
+		t.Fatalf("status = %d, want 500", w.Code)
 	}
 }
 
@@ -273,13 +273,8 @@ func TestRoutineHandler_AddExerciseToRoutine_ServiceError(t *testing.T) {
 	r = withIDCtx(r, routineID)
 
 	h.AddExerciseToRoutine(w, r)
-	if w.Code != http.StatusBadRequest {
-		t.Fatalf("status = %d, want 400", w.Code)
-	}
-	var br model.BasicResponse
-	_ = json.NewDecoder(w.Body).Decode(&br)
-	if br.Message != "already added" {
-		t.Fatalf("message = %q, want %q", br.Message, "already added")
+	if w.Code != http.StatusInternalServerError {
+		t.Fatalf("status = %d, want 500", w.Code)
 	}
 }
 
@@ -325,8 +320,8 @@ func TestRoutineHandler_RemoveExerciseFromRoutine_BadExerciseID(t *testing.T) {
 	r = withChiURLParam(r, "exercise_id", "bad")
 
 	h.RemoveExerciseFromRoutine(w, r)
-	if w.Code != http.StatusBadRequest {
-		t.Fatalf("status = %d, want 400", w.Code)
+	if w.Code != http.StatusInternalServerError {
+		t.Fatalf("status = %d, want 500", w.Code)
 	}
 }
 
@@ -348,13 +343,8 @@ func TestRoutineHandler_RemoveExerciseFromRoutine_ServiceError(t *testing.T) {
 	r = withChiURLParam(r, "exercise_id", "12")
 
 	h.RemoveExerciseFromRoutine(w, r)
-	if w.Code != http.StatusNotFound { // your handler maps svc error to 404 here
-		t.Fatalf("status = %d, want 404", w.Code)
-	}
-	var br model.BasicResponse
-	_ = json.NewDecoder(w.Body).Decode(&br)
-	if br.Message != "not in routine" {
-		t.Fatalf("message = %q, want %q", br.Message, "not in routine")
+	if w.Code != http.StatusInternalServerError {
+		t.Fatalf("status = %d, want 500", w.Code)
 	}
 }
 

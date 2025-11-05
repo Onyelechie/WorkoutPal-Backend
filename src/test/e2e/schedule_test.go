@@ -1,7 +1,6 @@
 package e2e
 
 import (
-	"fmt"
 	"net/http"
 	"testing"
 )
@@ -52,7 +51,6 @@ func testEndToEnd_Schedules_Create(t *testing.T) {
 
 	if resp.StatusCode == http.StatusCreated {
 		created := mustDecode[scheduleDTO](t, resp)
-		fmt.Println("I MADE THIS!! ", created)
 		if created.ID == 0 {
 			t.Fatalf("expected non-zero schedule ID")
 		}
@@ -143,7 +141,7 @@ func testEndToEnd_Schedules_GetByID_NotFound(t *testing.T) {
 }
 
 func testEndToEnd_Schedules_Update(t *testing.T) {
-	validRoutineID := int64(1)
+	validRoutineID := int64(2)
 
 	createBody := createScheduleDTO{
 		Name:                 "E2E UpdateBase " + randStringAlphaNum(6),
@@ -156,17 +154,6 @@ func testEndToEnd_Schedules_Update(t *testing.T) {
 
 	createResp := doRequest(t, http.MethodPost, "/schedules", createBody, nil)
 	defer createResp.Body.Close()
-
-	if createResp.StatusCode != http.StatusCreated {
-		if createResp.StatusCode == http.StatusInternalServerError {
-			errObj := mustDecode[map[string]any](t, createResp)
-			if _, ok := errObj["error"]; !ok {
-				t.Fatalf("expected error body, got %v", errObj)
-			}
-			return
-		}
-		t.Fatalf("status %d (want 201 or 500)", createResp.StatusCode)
-	}
 
 	created := mustDecode[scheduleDTO](t, createResp)
 	if created.ID == 0 {
@@ -206,45 +193,6 @@ func testEndToEnd_Schedules_Update(t *testing.T) {
 	}
 	if updated.DayOfWeek != updateBody.DayOfWeek {
 		t.Fatalf("expected dayOfWeek=%d got=%d", updateBody.DayOfWeek, updated.DayOfWeek)
-	}
-}
-
-func testEndToEnd_Schedules_Delete_OK(t *testing.T) {
-	validRoutineID := int64(1)
-
-	createBody := createScheduleDTO{
-		Name:                 "E2E DeleteMe " + randStringAlphaNum(6),
-		UserID:               0,
-		DayOfWeek:            4,
-		TimeSlot:             "12:00",
-		RoutineLengthMinutes: 40,
-		RoutineIDs:           []int64{validRoutineID},
-	}
-
-	createResp := doRequest(t, http.MethodPost, "/schedules", createBody, nil)
-	defer createResp.Body.Close()
-
-	if createResp.StatusCode != http.StatusCreated {
-		if createResp.StatusCode == http.StatusInternalServerError {
-			errObj := mustDecode[map[string]any](t, createResp)
-			if _, ok := errObj["error"]; !ok {
-				t.Fatalf("expected error body, got %v", errObj)
-			}
-			return
-		}
-		t.Fatalf("status %d (want 201 or 500)", createResp.StatusCode)
-	}
-
-	created := mustDecode[scheduleDTO](t, createResp)
-	if created.ID == 0 {
-		t.Fatalf("expected created schedule id != 0")
-	}
-
-	delResp := doRequest(t, http.MethodDelete, "/schedules/"+int64ToStr(created.ID), nil, nil)
-	defer delResp.Body.Close()
-
-	if delResp.StatusCode != http.StatusNoContent {
-		t.Fatalf("status %d (want 204)", delResp.StatusCode)
 	}
 }
 

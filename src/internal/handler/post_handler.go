@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"workoutpal/src/internal/domain/service"
 	"workoutpal/src/internal/model"
+	"workoutpal/src/util"
 	"workoutpal/src/util/constants"
 )
 
@@ -31,13 +32,15 @@ func NewPostHandler(svc service.PostService) *PostHandler {
 func (p *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 	var req model.CreatePostRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		responseErr := util.Error(err, r.URL.Path)
+		util.ErrorResponse(w, r, responseErr)
 		return
 	}
 
 	post, err := p.svc.CreatePost(req)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		responseErr := util.Error(err, r.URL.Path)
+		util.ErrorResponse(w, r, responseErr)
 		return
 	}
 
@@ -60,7 +63,8 @@ func (p *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 func (p *PostHandler) ReadPosts(w http.ResponseWriter, r *http.Request) {
 	posts, err := p.svc.ReadPosts()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		responseErr := util.Error(err, r.URL.Path)
+		util.ErrorResponse(w, r, responseErr)
 		return
 	}
 
@@ -83,12 +87,14 @@ func (p *PostHandler) ReadPosts(w http.ResponseWriter, r *http.Request) {
 func (p *PostHandler) CommentOnPost(w http.ResponseWriter, r *http.Request) {
 	var req model.CommentOnPostRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		responseErr := util.Error(err, r.URL.Path)
+		util.ErrorResponse(w, r, responseErr)
 		return
 	}
 
 	if err := p.svc.CommentOnPost(req); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		responseErr := util.Error(err, r.URL.Path)
+		util.ErrorResponse(w, r, responseErr)
 		return
 	}
 
@@ -112,12 +118,14 @@ func (p *PostHandler) CommentOnPost(w http.ResponseWriter, r *http.Request) {
 func (p *PostHandler) CommentOnComment(w http.ResponseWriter, r *http.Request) {
 	var req model.CommentOnCommentRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		responseErr := util.Error(err, r.URL.Path)
+		util.ErrorResponse(w, r, responseErr)
 		return
 	}
 
 	if err := p.svc.CommentOnComment(req); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		responseErr := util.Error(err, r.URL.Path)
+		util.ErrorResponse(w, r, responseErr)
 		return
 	}
 
@@ -143,7 +151,8 @@ func (p *PostHandler) DeletePost(w http.ResponseWriter, r *http.Request) {
 	id := r.Context().Value(constants.ID_KEY).(int64)
 
 	if err := p.svc.DeletePost(id); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		responseErr := util.Error(err, r.URL.Path)
+		util.ErrorResponse(w, r, responseErr)
 		return
 	}
 

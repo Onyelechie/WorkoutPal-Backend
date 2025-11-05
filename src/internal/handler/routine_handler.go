@@ -7,6 +7,7 @@ import (
 	"workoutpal/src/internal/domain/handler"
 	"workoutpal/src/internal/domain/service"
 	"workoutpal/src/internal/model"
+	"workoutpal/src/util"
 	"workoutpal/src/util/constants"
 
 	"github.com/go-chi/chi/v5"
@@ -39,15 +40,15 @@ func (h *workoutHandler) CreateUserRoutine(w http.ResponseWriter, r *http.Reques
 
 	var req model.CreateRoutineRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		render.Status(r, http.StatusBadRequest)
-		render.JSON(w, r, model.BasicResponse{Message: "Invalid request body"})
+		responseErr := util.Error(err, r.URL.Path)
+		util.ErrorResponse(w, r, responseErr)
 		return
 	}
 
 	routine, err := h.routineService.CreateRoutine(id, req)
 	if err != nil {
-		render.Status(r, http.StatusBadRequest)
-		render.JSON(w, r, model.BasicResponse{Message: err.Error()})
+		responseErr := util.Error(err, r.URL.Path)
+		util.ErrorResponse(w, r, responseErr)
 		return
 	}
 
@@ -69,8 +70,8 @@ func (h *workoutHandler) ReadUserRoutines(w http.ResponseWriter, r *http.Request
 
 	routines, err := h.routineService.ReadUserRoutines(id)
 	if err != nil {
-		render.Status(r, http.StatusNotFound)
-		render.JSON(w, r, model.BasicResponse{Message: err.Error()})
+		responseErr := util.Error(err, r.URL.Path)
+		util.ErrorResponse(w, r, responseErr)
 		return
 	}
 
@@ -91,8 +92,8 @@ func (h *workoutHandler) DeleteRoutine(w http.ResponseWriter, r *http.Request) {
 
 	err := h.routineService.DeleteRoutine(id)
 	if err != nil {
-		render.Status(r, http.StatusNotFound)
-		render.JSON(w, r, model.BasicResponse{Message: err.Error()})
+		responseErr := util.Error(err, r.URL.Path)
+		util.ErrorResponse(w, r, responseErr)
 		return
 	}
 
@@ -113,8 +114,8 @@ func (h *workoutHandler) ReadRoutineWithExercises(w http.ResponseWriter, r *http
 
 	routine, err := h.routineService.ReadRoutineWithExercises(id)
 	if err != nil {
-		render.Status(r, http.StatusNotFound)
-		render.JSON(w, r, model.BasicResponse{Message: err.Error()})
+		responseErr := util.Error(err, r.URL.Path)
+		util.ErrorResponse(w, r, responseErr)
 		return
 	}
 
@@ -137,15 +138,15 @@ func (h *workoutHandler) AddExerciseToRoutine(w http.ResponseWriter, r *http.Req
 	exerciseIDStr := r.URL.Query().Get("exercise_id")
 	exerciseID, err := strconv.ParseInt(exerciseIDStr, 10, 64)
 	if err != nil {
-		render.Status(r, http.StatusBadRequest)
-		render.JSON(w, r, model.BasicResponse{Message: "Invalid exercise ID"})
+		responseErr := util.Error(err, r.URL.Path)
+		util.ErrorResponse(w, r, responseErr)
 		return
 	}
 
 	err = h.routineService.AddExerciseToRoutine(id, exerciseID)
 	if err != nil {
-		render.Status(r, http.StatusBadRequest)
-		render.JSON(w, r, model.BasicResponse{Message: err.Error()})
+		responseErr := util.Error(err, r.URL.Path)
+		util.ErrorResponse(w, r, responseErr)
 		return
 	}
 
@@ -167,15 +168,15 @@ func (h *workoutHandler) RemoveExerciseFromRoutine(w http.ResponseWriter, r *htt
 	exerciseIDStr := chi.URLParam(r, "exercise_id")
 	exerciseID, err := strconv.ParseInt(exerciseIDStr, 10, 64)
 	if err != nil {
-		render.Status(r, http.StatusBadRequest)
-		render.JSON(w, r, model.BasicResponse{Message: "Invalid exercise ID"})
+		responseErr := util.Error(err, r.URL.Path)
+		util.ErrorResponse(w, r, responseErr)
 		return
 	}
 
 	err = h.routineService.RemoveExerciseFromRoutine(id, exerciseID)
 	if err != nil {
-		render.Status(r, http.StatusNotFound)
-		render.JSON(w, r, model.BasicResponse{Message: err.Error()})
+		responseErr := util.Error(err, r.URL.Path)
+		util.ErrorResponse(w, r, responseErr)
 		return
 	}
 
@@ -197,8 +198,8 @@ func (h *workoutHandler) DeleteUserRoutine(w http.ResponseWriter, r *http.Reques
 
 	err := h.routineService.DeleteRoutine(id)
 	if err != nil {
-		render.Status(r, http.StatusNotFound)
-		render.JSON(w, r, model.BasicResponse{Message: err.Error()})
+		responseErr := util.Error(err, r.URL.Path)
+		util.ErrorResponse(w, r, responseErr)
 		return
 	}
 
