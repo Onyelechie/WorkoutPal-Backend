@@ -51,6 +51,28 @@ func (h *AchievementHandler) CreateAchievement(w http.ResponseWriter, r *http.Re
 	_ = json.NewEncoder(w).Encode(ach)
 }
 
+// ReadAchievementsFeed godoc
+// @Summary List all unlocked achievements by all users
+// @Tags Achievements
+// @Accept json
+// @Produce json
+// @Success 200 {array} model.Achievement "Achievements retrieved successfully"
+// @Failure 401 {object} model.BasicResponse "Unauthorized"
+// @Failure 500 {object} model.BasicResponse "Internal server error"
+// @Security BearerAuth
+// @Router /achievements/feed [get]
+func (h *AchievementHandler) ReadAchievementsFeed(w http.ResponseWriter, r *http.Request) {
+	list, err := h.svc.ReadAchievementsFeed()
+	if err != nil {
+		responseErr := util.Error(err, r.URL.Path)
+		util.ErrorResponse(w, r, responseErr)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	_ = json.NewEncoder(w).Encode(list)
+}
+
 // ReadAllAchievements godoc
 // @Summary List all achievements (catalog)
 // @Tags Achievements

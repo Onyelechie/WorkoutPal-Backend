@@ -49,6 +49,21 @@ func (mr *MockAchievementRepositoryMockRecorder) CreateAchievement(arg0 interfac
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateAchievement", reflect.TypeOf((*MockAchievementRepository)(nil).CreateAchievement), arg0)
 }
 
+// ReadAchievementsFeed mocks base method.
+func (m *MockAchievementRepository) ReadAchievementsFeed() ([]*model.UserAchievement, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ReadAchievementsFeed")
+	ret0, _ := ret[0].([]*model.UserAchievement)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ReadAchievementsFeed indicates an expected call of ReadAchievementsFeed.
+func (mr *MockAchievementRepositoryMockRecorder) ReadAchievementsFeed() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReadAchievementsFeed", reflect.TypeOf((*MockAchievementRepository)(nil).ReadAchievementsFeed))
+}
+
 // ReadAllAchievements mocks base method.
 func (m *MockAchievementRepository) ReadAllAchievements() ([]*model.Achievement, error) {
 	m.ctrl.T.Helper()

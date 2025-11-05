@@ -10,6 +10,7 @@ type Achievement struct {
 type UserAchievement struct {
 	ID          int64  `json:"id"`
 	UserID      int64  `json:"userId"`
+	Username    string `json:"username"`
 	Title       string `json:"title"`
 	BadgeIcon   string `json:"badgeIcon"`
 	Description string `json:"description"`

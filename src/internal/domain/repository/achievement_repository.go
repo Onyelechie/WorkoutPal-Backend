@@ -3,6 +3,7 @@ package repository
 import "workoutpal/src/internal/model"
 
 type AchievementRepository interface {
+	ReadAchievementsFeed() ([]*model.UserAchievement, error)
 	ReadAllAchievements() ([]*model.Achievement, error)
 
 	ReadUnlockedAchievementByAchievementID(id int64) (*model.UserAchievement, error)

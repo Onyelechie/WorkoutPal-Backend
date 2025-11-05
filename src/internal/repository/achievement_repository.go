@@ -14,6 +14,29 @@ func NewAchievementRepository(db *sql.DB) domainrepo.AchievementRepository {
 	return &achievementRepository{db: db}
 }
 
+func (r *achievementRepository) ReadAchievementsFeed() ([]*model.UserAchievement, error) {
+	rows, err := r.db.Query(`
+    SELECT a.id, u.username, ua.user_id, a.title, a.badge_icon, a.description, ua.earned_at
+    FROM achievements a
+    JOIN user_achievements ua ON ua.achievement_id = a.id
+    JOIN users u ON u.id = ua.user_id
+    ORDER BY ua.earned_at DESC`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var result []*model.UserAchievement = make([]*model.UserAchievement, 0)
+	for rows.Next() {
+		var a model.UserAchievement
+		if err := rows.Scan(&a.ID, &a.Username, &a.UserID, &a.Title, &a.BadgeIcon, &a.Description, &a.EarnedAt); err != nil {
+			return nil, err
+		}
+		result = append(result, &a)
+	}
+	return result, nil
+}
+
 func (r *achievementRepository) ReadAllAchievements() ([]*model.Achievement, error) {
 	rows, err := r.db.Query(`
     SELECT a.id, a.title, a.badge_icon, a.description
