@@ -43,8 +43,8 @@ func TestRelationshipHandler_ReadFollowers_BadID(t *testing.T) {
 	r = withChiURLParam(r, "id", "abc")
 
 	h.ReadFollowers(w, r)
-	if w.Code != http.StatusInternalServerError {
-		t.Fatalf("status = %d, want 500", w.Code)
+	if w.Code != http.StatusBadRequest {
+		t.Fatalf("status = %d, want 400", w.Code)
 	}
 }
 
@@ -63,8 +63,11 @@ func TestRelationshipHandler_ReadFollowers_ServiceError(t *testing.T) {
 	r = withChiURLParam(r, "id", "1")
 
 	h.ReadFollowers(w, r)
-	if w.Code != http.StatusInternalServerError {
-		t.Fatalf("status = %d, want 500", w.Code)
+	if w.Code != http.StatusNotFound {
+		t.Fatalf("status = %d, want 404", w.Code)
+	}
+	if msg := decodeMessage(t, w); msg != "user not found" {
+		t.Fatalf("message = %q, want %q", msg, "user not found")
 	}
 }
 
@@ -112,8 +115,8 @@ func TestRelationshipHandler_ReadFollowings_BadID(t *testing.T) {
 	r = withChiURLParam(r, "id", "zzz")
 
 	h.ReadFollowings(w, r)
-	if w.Code != http.StatusInternalServerError {
-		t.Fatalf("status = %d, want 500", w.Code)
+	if w.Code != http.StatusBadRequest {
+		t.Fatalf("status = %d, want 400", w.Code)
 	}
 }
 
@@ -132,8 +135,11 @@ func TestRelationshipHandler_ReadFollowings_ServiceError(t *testing.T) {
 	r = withChiURLParam(r, "id", "3")
 
 	h.ReadFollowings(w, r)
-	if w.Code != http.StatusInternalServerError {
-		t.Fatalf("status = %d, want 500", w.Code)
+	if w.Code != http.StatusNotFound {
+		t.Fatalf("status = %d, want 404", w.Code)
+	}
+	if msg := decodeMessage(t, w); msg != "user not found" {
+		t.Fatalf("message = %q, want %q", msg, "user not found")
 	}
 }
 
@@ -180,8 +186,8 @@ func TestRelationshipHandler_FollowUser_BadFolloweeID(t *testing.T) {
 	r = withChiURLParam(r, "id", "abc")
 
 	h.FollowUser(w, r)
-	if w.Code != http.StatusInternalServerError {
-		t.Fatalf("status = %d, want 500", w.Code)
+	if w.Code != http.StatusBadRequest {
+		t.Fatalf("status = %d, want 400", w.Code)
 	}
 }
 
@@ -197,8 +203,11 @@ func TestRelationshipHandler_FollowUser_BadFollowerID(t *testing.T) {
 	r = withChiURLParam(r, "id", "2")
 
 	h.FollowUser(w, r)
-	if w.Code != http.StatusInternalServerError {
-		t.Fatalf("status = %d, want 500", w.Code)
+	if w.Code != http.StatusBadRequest {
+		t.Fatalf("status = %d, want 400", w.Code)
+	}
+	if msg := decodeMessage(t, w); msg != "Invalid follower ID" {
+		t.Fatalf("message = %q, want %q", msg, "Invalid follower ID")
 	}
 }
 
@@ -218,8 +227,11 @@ func TestRelationshipHandler_FollowUser_ServiceError(t *testing.T) {
 	mockSvc.EXPECT().FollowUser(int64(1), int64(2)).Return(errors.New("already following"))
 
 	h.FollowUser(w, r)
-	if w.Code != http.StatusInternalServerError {
-		t.Fatalf("status = %d, want 500", w.Code)
+	if w.Code != http.StatusBadRequest {
+		t.Fatalf("status = %d, want 400", w.Code)
+	}
+	if msg := decodeMessage(t, w); msg != "already following" {
+		t.Fatalf("message = %q, want %q", msg, "already following")
 	}
 }
 
@@ -263,8 +275,8 @@ func TestRelationshipHandler_UnfollowUser_BadFolloweeID(t *testing.T) {
 	r = withChiURLParam(r, "id", "abc")
 
 	h.UnfollowUser(w, r)
-	if w.Code != http.StatusInternalServerError {
-		t.Fatalf("status = %d, want 500", w.Code)
+	if w.Code != http.StatusBadRequest {
+		t.Fatalf("status = %d, want 400", w.Code)
 	}
 }
 
@@ -280,8 +292,11 @@ func TestRelationshipHandler_UnfollowUser_BadFollowerID(t *testing.T) {
 	r = withChiURLParam(r, "id", "2")
 
 	h.UnfollowUser(w, r)
-	if w.Code != http.StatusInternalServerError {
-		t.Fatalf("status = %d, want 500", w.Code)
+	if w.Code != http.StatusBadRequest {
+		t.Fatalf("status = %d, want 400", w.Code)
+	}
+	if msg := decodeMessage(t, w); msg != "Invalid follower ID" {
+		t.Fatalf("message = %q, want %q", msg, "Invalid follower ID")
 	}
 }
 
@@ -301,8 +316,11 @@ func TestRelationshipHandler_UnfollowUser_ServiceError(t *testing.T) {
 	mockSvc.EXPECT().UnfollowUser(int64(8), int64(9)).Return(errors.New("not following"))
 
 	h.UnfollowUser(w, r)
-	if w.Code != http.StatusInternalServerError {
-		t.Fatalf("status = %d, want 500", w.Code)
+	if w.Code != http.StatusBadRequest {
+		t.Fatalf("status = %d, want 400", w.Code)
+	}
+	if msg := decodeMessage(t, w); msg != "not following" {
+		t.Fatalf("message = %q, want %q", msg, "not following")
 	}
 }
 

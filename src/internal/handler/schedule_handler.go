@@ -3,7 +3,6 @@ package handler
 import (
 	"net/http"
 	"strconv"
-	"workoutpal/src/util"
 	"workoutpal/src/util/constants"
 
 	"github.com/go-chi/chi/v5"
@@ -26,14 +25,14 @@ func NewScheduleHandler(s service.ScheduleService) handler.ScheduleHandler {
 // @Summary Read all schedules for the authenticated user
 // @Tags schedules
 // @Success 200 {array} model.Schedule
-// @Router /schedules [get]
+// @Router /me/schedules [get]
 func (h *scheduleHandler) ReadUserSchedules(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value(constants.USER_ID_KEY).(int64)
 
 	schedules, err := h.service.ReadUserSchedules(userID)
 	if err != nil {
-		responseErr := util.Error(err, r.URL.Path)
-		util.ErrorResponse(w, r, responseErr)
+		render.Status(r, http.StatusInternalServerError)
+		render.JSON(w, r, map[string]string{"error": err.Error()})
 		return
 	}
 
@@ -45,15 +44,15 @@ func (h *scheduleHandler) ReadUserSchedules(w http.ResponseWriter, r *http.Reque
 // @Tags schedules
 // @Param dayOfWeek path int true "Day of week (0-6)"
 // @Success 200 {array} model.Schedule
-// @Router /schedules/{dayOfWeek} [get]
+// @Router /me/schedules/{dayOfWeek} [get]
 func (h *scheduleHandler) ReadUserSchedulesByDay(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value(constants.USER_ID_KEY).(int64)
 	dayOfWeek, _ := strconv.ParseInt(chi.URLParam(r, constants.DAY_OF_WEEK_KEY), 10, 64)
 
 	schedules, err := h.service.ReadUserSchedulesByDay(userID, dayOfWeek)
 	if err != nil {
-		responseErr := util.Error(err, r.URL.Path)
-		util.ErrorResponse(w, r, responseErr)
+		render.Status(r, http.StatusInternalServerError)
+		render.JSON(w, r, map[string]string{"error": err.Error()})
 		return
 	}
 
@@ -71,8 +70,8 @@ func (h *scheduleHandler) ReadScheduleByID(w http.ResponseWriter, r *http.Reques
 
 	schedule, err := h.service.ReadScheduleByID(id)
 	if err != nil {
-		responseErr := util.Error(err, r.URL.Path)
-		util.ErrorResponse(w, r, responseErr)
+		render.Status(r, http.StatusInternalServerError)
+		render.JSON(w, r, map[string]string{"error": err.Error()})
 		return
 	}
 
@@ -96,8 +95,8 @@ func (h *scheduleHandler) CreateSchedule(w http.ResponseWriter, r *http.Request)
 
 	schedule, err := h.service.CreateSchedule(req)
 	if err != nil {
-		responseErr := util.Error(err, r.URL.Path)
-		util.ErrorResponse(w, r, responseErr)
+		render.Status(r, http.StatusInternalServerError)
+		render.JSON(w, r, map[string]string{"error": err.Error()})
 		return
 	}
 
@@ -125,8 +124,8 @@ func (h *scheduleHandler) UpdateSchedule(w http.ResponseWriter, r *http.Request)
 
 	schedule, err := h.service.UpdateSchedule(req)
 	if err != nil {
-		responseErr := util.Error(err, r.URL.Path)
-		util.ErrorResponse(w, r, responseErr)
+		render.Status(r, http.StatusInternalServerError)
+		render.JSON(w, r, map[string]string{"error": err.Error()})
 		return
 	}
 

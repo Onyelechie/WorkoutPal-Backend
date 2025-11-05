@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"workoutpal/src/internal/domain/handler"
 	"workoutpal/src/internal/domain/service"
-	"workoutpal/src/util"
+	"workoutpal/src/internal/model"
 	"workoutpal/src/util/constants"
 
 	"github.com/go-chi/render"
@@ -37,8 +37,8 @@ func NewExerciseHandler(es service.ExerciseService) handler.ExerciseHandler {
 func (h *exerciseHandler) ReadExercises(w http.ResponseWriter, r *http.Request) {
 	exercises, err := h.exerciseService.ReadAllExercises()
 	if err != nil {
-		responseErr := util.Error(err, r.URL.Path)
-		util.ErrorResponse(w, r, responseErr)
+		render.Status(r, http.StatusInternalServerError)
+		render.JSON(w, r, model.BasicResponse{Message: err.Error()})
 		return
 	}
 	render.JSON(w, r, exercises)
@@ -59,8 +59,8 @@ func (h *exerciseHandler) ReadExerciseByID(w http.ResponseWriter, r *http.Reques
 	id := r.Context().Value(constants.ID_KEY).(int64)
 	exercise, err := h.exerciseService.ReadExerciseByID(id)
 	if err != nil {
-		responseErr := util.Error(err, r.URL.Path)
-		util.ErrorResponse(w, r, responseErr)
+		render.Status(r, http.StatusInternalServerError)
+		render.JSON(w, r, model.BasicResponse{Message: err.Error()})
 		return
 	}
 	render.JSON(w, r, exercise)

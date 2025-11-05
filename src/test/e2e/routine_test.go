@@ -200,8 +200,8 @@ func testEndToEnd_Routines_DeleteRoutine(t *testing.T) {
 	checkResp := doRequest(t, http.MethodGet, "/routines/"+int64ToStr(created.ID), nil, nil)
 	defer checkResp.Body.Close()
 
-	if checkResp.StatusCode != http.StatusInternalServerError {
-		t.Fatalf("expected 500 after delete, got %d", checkResp.StatusCode)
+	if checkResp.StatusCode != http.StatusNotFound {
+		t.Fatalf("expected 404 after delete, got %d", checkResp.StatusCode)
 	}
 }
 

@@ -2,7 +2,6 @@ package handler
 
 import (
 	"encoding/json"
-	"errors"
 	"net/http"
 	"os"
 	"strings"
@@ -11,7 +10,6 @@ import (
 	"workoutpal/src/internal/domain/service"
 	"workoutpal/src/internal/middleware"
 	"workoutpal/src/internal/model"
-	"workoutpal/src/util"
 
 	"github.com/go-chi/render"
 	"github.com/golang-jwt/jwt/v5"
@@ -43,8 +41,7 @@ func NewAuthHandler(us service.UserService, as service.AuthService, secret []byt
 func (h *authHandler) Login(w http.ResponseWriter, r *http.Request) {
 	var req model.LoginRequest
 	if err := render.DecodeJSON(r.Body, &req); err != nil {
-		responseErr := util.Error(err, r.URL.Path)
-		util.ErrorResponse(w, r, responseErr)
+		http.Error(w, "invalid input", http.StatusBadRequest)
 		return
 	}
 
@@ -52,8 +49,7 @@ func (h *authHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 	user, err := h.authService.Authenticate(r.Context(), req)
 	if err != nil {
-		responseErr := util.Error(err, r.URL.Path)
-		util.ErrorResponseWithStatus(w, r, responseErr, http.StatusUnauthorized)
+		http.Error(w, err.Error(), http.StatusUnauthorized)
 		return
 	}
 
@@ -67,8 +63,7 @@ func (h *authHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 	token, err := tokenWithClaims.SignedString(h.secret)
 	if err != nil {
-		responseErr := util.Error(err, r.URL.Path)
-		util.ErrorResponse(w, r, responseErr)
+		http.Error(w, "failed to create token", http.StatusInternalServerError)
 		return
 	}
 
@@ -99,22 +94,19 @@ func (h *authHandler) Login(w http.ResponseWriter, r *http.Request) {
 func (h *authHandler) Me(w http.ResponseWriter, r *http.Request) {
 	claims, ok := middleware.ClaimsFromContext(r.Context())
 	if !ok {
-		responseErr := util.Error(errors.New("unauthorized request"), r.URL.Path)
-		util.ErrorResponseWithStatus(w, r, responseErr, http.StatusUnauthorized)
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
 	}
 
 	userEmail, ok := claims["email"].(string)
 	if !ok {
-		responseErr := util.Error(errors.New("invalid token"), r.URL.Path)
-		util.ErrorResponseWithStatus(w, r, responseErr, http.StatusUnauthorized)
+		http.Error(w, "invalid token data", http.StatusUnauthorized)
 		return
 	}
 
 	user, err := h.userService.ReadUserByEmail(userEmail)
 	if err != nil {
-		responseErr := util.Error(err, r.URL.Path)
-		util.ErrorResponse(w, r, responseErr)
+		http.Error(w, "user not found", http.StatusNotFound)
 		return
 	}
 

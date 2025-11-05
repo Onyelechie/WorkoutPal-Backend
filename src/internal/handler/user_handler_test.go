@@ -61,8 +61,15 @@ func TestUserHandler_CreateNewUser_ServiceError(t *testing.T) {
 	r.Header.Set("Content-Type", "application/json")
 
 	h.CreateNewUser(w, r)
-	if w.Code != http.StatusInternalServerError {
-		t.Fatalf("status = %d, want 500", w.Code)
+	if w.Code != http.StatusBadRequest {
+		t.Fatalf("status = %d, want 400", w.Code)
+	}
+	var br struct {
+		Message string `json:"message"`
+	}
+	_ = json.NewDecoder(w.Body).Decode(&br)
+	if br.Message != "username taken" {
+		t.Fatalf("message = %q, want %q", br.Message, "username taken")
 	}
 }
 
@@ -164,7 +171,7 @@ func TestUserHandler_ReadUserByID_NotFound(t *testing.T) {
 	r = withIDCtx(r, id)
 
 	h.ReadUserByID(w, r)
-	if w.Code != http.StatusInternalServerError {
+	if w.Code != http.StatusNotFound {
 		t.Fatalf("status = %d, want 404", w.Code)
 	}
 }
@@ -234,8 +241,8 @@ func TestUserHandler_UpdateUser_ServiceError(t *testing.T) {
 	r.Header.Set("Content-Type", "application/json")
 
 	h.UpdateUser(w, r)
-	if w.Code != http.StatusInternalServerError {
-		t.Fatalf("status = %d, want 500", w.Code)
+	if w.Code != http.StatusBadRequest {
+		t.Fatalf("status = %d, want 400", w.Code)
 	}
 }
 
@@ -292,7 +299,7 @@ func TestUserHandler_DeleteUser_NotFound(t *testing.T) {
 	r = withIDCtx(r, id)
 
 	h.DeleteUser(w, r)
-	if w.Code != http.StatusInternalServerError {
+	if w.Code != http.StatusNotFound {
 		t.Fatalf("status = %d, want 404", w.Code)
 	}
 }

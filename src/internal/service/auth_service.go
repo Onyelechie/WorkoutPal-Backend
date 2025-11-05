@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"fmt"
 	"workoutpal/src/internal/domain/repository"
 	"workoutpal/src/internal/domain/service"
 	"workoutpal/src/internal/model"
@@ -26,6 +27,7 @@ func (a *authService) Authenticate(ctx context.Context, request model.LoginReque
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(request.Password)); err != nil {
+		fmt.Println(user.Password)
 		return nil, errors.New("invalid password")
 	}
 

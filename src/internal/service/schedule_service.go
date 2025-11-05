@@ -27,11 +27,7 @@ func (s *scheduleService) ReadScheduleByID(id int64) (*model.Schedule, error) {
 }
 
 func (s *scheduleService) CreateSchedule(request model.CreateScheduleRequest) (*model.Schedule, error) {
-	schedule, err := s.repository.CreateSchedule(request)
-	if err != nil {
-		return nil, err
-	}
-	return schedule, nil
+	return s.repository.CreateSchedule(request)
 }
 
 func (s *scheduleService) UpdateSchedule(request model.UpdateScheduleRequest) (*model.Schedule, error) {

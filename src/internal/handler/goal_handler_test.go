@@ -39,8 +39,8 @@ func TestGoalHandler_CreateUserGoal_BadID(t *testing.T) {
 	r = setChiURLParam(r, "id", "abc")
 
 	h.CreateUserGoal(w, r)
-	if w.Code != http.StatusInternalServerError {
-		t.Fatalf("status = %d, want 500", w.Code)
+	if w.Code != http.StatusBadRequest {
+		t.Fatalf("status = %d, want 400", w.Code)
 	}
 }
 
@@ -83,8 +83,17 @@ func TestGoalHandler_CreateUserGoal_ServiceError(t *testing.T) {
 	r = setChiURLParam(r, "id", "1")
 
 	h.CreateUserGoal(w, r)
-	if w.Code != http.StatusInternalServerError {
-		t.Fatalf("status = %d, want 500", w.Code)
+	if w.Code != http.StatusBadRequest {
+		t.Fatalf("status = %d, want 400", w.Code)
+	}
+	var br struct {
+		Message string `json:"message"`
+	}
+	if err := json.NewDecoder(w.Body).Decode(&br); err != nil {
+		t.Fatalf("decode: %v", err)
+	}
+	if br.Message != "validation failed" {
+		t.Fatalf("message = %q, want %q", br.Message, "validation failed")
 	}
 }
 
@@ -135,8 +144,8 @@ func TestGoalHandler_GetUserGoals_BadID(t *testing.T) {
 	r = setChiURLParam(r, "id", "xyz")
 
 	h.GetUserGoals(w, r)
-	if w.Code != http.StatusInternalServerError {
-		t.Fatalf("status = %d, want 500", w.Code)
+	if w.Code != http.StatusBadRequest {
+		t.Fatalf("status = %d, want 400", w.Code)
 	}
 }
 
@@ -158,8 +167,17 @@ func TestGoalHandler_GetUserGoals_ServiceError(t *testing.T) {
 	r = setChiURLParam(r, "id", "3")
 
 	h.GetUserGoals(w, r)
-	if w.Code != http.StatusInternalServerError {
-		t.Fatalf("status = %d, want 500", w.Code)
+	if w.Code != http.StatusNotFound {
+		t.Fatalf("status = %d, want 404", w.Code)
+	}
+	var br struct {
+		Message string `json:"message"`
+	}
+	if err := json.NewDecoder(w.Body).Decode(&br); err != nil {
+		t.Fatalf("decode: %v", err)
+	}
+	if br.Message != "user not found" {
+		t.Fatalf("message = %q, want %q", br.Message, "user not found")
 	}
 }
 

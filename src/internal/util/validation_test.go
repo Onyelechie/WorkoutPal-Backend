@@ -1,8 +1,6 @@
 package util
 
-import (
-	"testing"
-)
+import "testing"
 
 func TestValidateEmail(t *testing.T) {
 	tests := []struct {

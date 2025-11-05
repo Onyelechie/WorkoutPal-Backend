@@ -6,7 +6,6 @@ import (
 	"workoutpal/src/internal/domain/handler"
 	"workoutpal/src/internal/domain/service"
 	"workoutpal/src/internal/model"
-	"workoutpal/src/util"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
@@ -35,15 +34,15 @@ func (h *relationshipHandler) ReadFollowers(w http.ResponseWriter, r *http.Reque
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil {
-		responseErr := util.Error(err, r.URL.Path)
-		util.ErrorResponse(w, r, responseErr)
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, model.BasicResponse{Message: "Invalid user ID"})
 		return
 	}
 
 	followers, err := h.relationshipService.ReadUserFollowers(id)
 	if err != nil {
-		responseErr := util.Error(err, r.URL.Path)
-		util.ErrorResponse(w, r, responseErr)
+		render.Status(r, http.StatusNotFound)
+		render.JSON(w, r, model.BasicResponse{Message: err.Error()})
 		return
 	}
 
@@ -63,15 +62,15 @@ func (h *relationshipHandler) ReadFollowings(w http.ResponseWriter, r *http.Requ
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil {
-		responseErr := util.Error(err, r.URL.Path)
-		util.ErrorResponse(w, r, responseErr)
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, model.BasicResponse{Message: "Invalid user ID"})
 		return
 	}
 
 	following, err := h.relationshipService.ReadUserFollowing(id)
 	if err != nil {
-		responseErr := util.Error(err, r.URL.Path)
-		util.ErrorResponse(w, r, responseErr)
+		render.Status(r, http.StatusNotFound)
+		render.JSON(w, r, model.BasicResponse{Message: err.Error()})
 		return
 	}
 
@@ -91,23 +90,23 @@ func (h *relationshipHandler) FollowUser(w http.ResponseWriter, r *http.Request)
 	followeeIDStr := chi.URLParam(r, "id")
 	followeeID, err := strconv.ParseInt(followeeIDStr, 10, 64)
 	if err != nil {
-		responseErr := util.Error(err, r.URL.Path)
-		util.ErrorResponse(w, r, responseErr)
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, model.BasicResponse{Message: "Invalid user ID"})
 		return
 	}
 
 	followerIDStr := r.URL.Query().Get("follower_id")
 	followerID, err := strconv.ParseInt(followerIDStr, 10, 64)
 	if err != nil {
-		responseErr := util.Error(err, r.URL.Path)
-		util.ErrorResponse(w, r, responseErr)
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, model.BasicResponse{Message: "Invalid follower ID"})
 		return
 	}
 
 	err = h.relationshipService.FollowUser(followerID, followeeID)
 	if err != nil {
-		responseErr := util.Error(err, r.URL.Path)
-		util.ErrorResponse(w, r, responseErr)
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, model.BasicResponse{Message: err.Error()})
 		return
 	}
 
@@ -127,23 +126,23 @@ func (h *relationshipHandler) UnfollowUser(w http.ResponseWriter, r *http.Reques
 	followeeIDStr := chi.URLParam(r, "id")
 	followeeID, err := strconv.ParseInt(followeeIDStr, 10, 64)
 	if err != nil {
-		responseErr := util.Error(err, r.URL.Path)
-		util.ErrorResponse(w, r, responseErr)
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, model.BasicResponse{Message: "Invalid user ID"})
 		return
 	}
 
 	followerIDStr := r.URL.Query().Get("follower_id")
 	followerID, err := strconv.ParseInt(followerIDStr, 10, 64)
 	if err != nil {
-		responseErr := util.Error(err, r.URL.Path)
-		util.ErrorResponse(w, r, responseErr)
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, model.BasicResponse{Message: "Invalid follower ID"})
 		return
 	}
 
 	err = h.relationshipService.UnfollowUser(followerID, followeeID)
 	if err != nil {
-		responseErr := util.Error(err, r.URL.Path)
-		util.ErrorResponse(w, r, responseErr)
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, model.BasicResponse{Message: err.Error()})
 		return
 	}
 

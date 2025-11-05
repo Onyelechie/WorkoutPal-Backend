@@ -189,11 +189,11 @@ func testEndToEnd_Users_Create_Invalid(t *testing.T) {
 		"weightMetric": "kg",
 	}
 	resp := doRequest(t, http.MethodPost, "/users", body, nil)
-	if resp.StatusCode != http.StatusInternalServerError {
+	if resp.StatusCode != http.StatusBadRequest {
 		var m map[string]any
 		_ = json.NewDecoder(resp.Body).Decode(&m)
 		_ = resp.Body.Close()
-		t.Fatalf("expected 500, got=%d body=%v", resp.StatusCode, m)
+		t.Fatalf("expected 400, got=%d body=%v", resp.StatusCode, m)
 	}
 	_ = resp.Body.Close()
 }
@@ -209,11 +209,11 @@ func testEndToEnd_Users_Create_Duplicate(t *testing.T) {
 	_ = resp1.Body.Close()
 
 	resp2 := doRequest(t, http.MethodPost, "/users", body, nil)
-	if resp2.StatusCode != http.StatusInternalServerError {
+	if resp2.StatusCode != http.StatusBadRequest {
 		var m map[string]any
 		_ = json.NewDecoder(resp2.Body).Decode(&m)
 		_ = resp2.Body.Close()
-		t.Fatalf("expected 500 on duplicate, got=%d body=%v", resp2.StatusCode, m)
+		t.Fatalf("expected 400 on duplicate, got=%d body=%v", resp2.StatusCode, m)
 	}
 	_ = resp2.Body.Close()
 }
@@ -226,22 +226,22 @@ func testEndToEnd_Users_Delete_Success(t *testing.T) {
 	_ = delResp.Body.Close()
 
 	getResp := doRequest(t, http.MethodGet, "/users/"+int64ToStr(created.ID), nil, nil)
-	if getResp.StatusCode != http.StatusInternalServerError {
+	if getResp.StatusCode != http.StatusNotFound {
 		var m map[string]any
 		_ = json.NewDecoder(getResp.Body).Decode(&m)
 		_ = getResp.Body.Close()
-		t.Fatalf("expected 500 after delete, got=%d body=%v", getResp.StatusCode, m)
+		t.Fatalf("expected 404 after delete, got=%d body=%v", getResp.StatusCode, m)
 	}
 	_ = getResp.Body.Close()
 }
 
 func testEndToEnd_Users_GetByID_NotFound(t *testing.T) {
 	resp := doRequest(t, http.MethodGet, "/users/99999999", nil, nil)
-	if resp.StatusCode != http.StatusInternalServerError {
+	if resp.StatusCode != http.StatusNotFound {
 		var m map[string]any
 		_ = json.NewDecoder(resp.Body).Decode(&m)
 		_ = resp.Body.Close()
-		t.Fatalf("expected 500, got=%d body=%v", resp.StatusCode, m)
+		t.Fatalf("expected 404, got=%d body=%v", resp.StatusCode, m)
 	}
 	_ = resp.Body.Close()
 }

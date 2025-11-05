@@ -6,7 +6,7 @@ import (
 	"workoutpal/src/internal/domain/handler"
 	"workoutpal/src/internal/domain/service"
 	"workoutpal/src/internal/model"
-	"workoutpal/src/util"
+	"workoutpal/src/internal/util"
 	"workoutpal/src/util/constants"
 
 	"github.com/go-chi/render"
@@ -37,37 +37,37 @@ func NewUserHandler(us service.UserService) handler.UserHandler {
 func (u *userHandler) CreateNewUser(w http.ResponseWriter, r *http.Request) {
 	var req model.CreateUserRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		responseErr := util.Error(err, r.URL.Path)
-		util.ErrorResponse(w, r, responseErr)
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, model.BasicResponse{Message: "Invalid request body"})
 		return
 	}
 
 	// Validate input
 	if err := util.ValidateUsername(req.Username); err != nil {
-		responseErr := util.Error(err, r.URL.Path)
-		util.ErrorResponse(w, r, responseErr)
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, model.BasicResponse{Message: err.Error()})
 		return
 	}
 	if err := util.ValidateEmail(req.Email); err != nil {
-		responseErr := util.Error(err, r.URL.Path)
-		util.ErrorResponse(w, r, responseErr)
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, model.BasicResponse{Message: err.Error()})
 		return
 	}
 	if err := util.ValidateName(req.Name); err != nil {
-		responseErr := util.Error(err, r.URL.Path)
-		util.ErrorResponse(w, r, responseErr)
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, model.BasicResponse{Message: err.Error()})
 		return
 	}
 	if err := util.ValidatePassword(req.Password); err != nil {
-		responseErr := util.Error(err, r.URL.Path)
-		util.ErrorResponse(w, r, responseErr)
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, model.BasicResponse{Message: err.Error()})
 		return
 	}
 
 	user, err := u.userService.CreateUser(req)
 	if err != nil {
-		responseErr := util.Error(err, r.URL.Path)
-		util.ErrorResponse(w, r, responseErr)
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, model.BasicResponse{Message: err.Error()})
 		return
 	}
 
@@ -85,8 +85,8 @@ func (u *userHandler) CreateNewUser(w http.ResponseWriter, r *http.Request) {
 func (u *userHandler) ReadAllUsers(w http.ResponseWriter, r *http.Request) {
 	users, err := u.userService.ReadUsers()
 	if err != nil {
-		responseErr := util.Error(err, r.URL.Path)
-		util.ErrorResponse(w, r, responseErr)
+		render.Status(r, http.StatusInternalServerError)
+		render.JSON(w, r, model.BasicResponse{Message: err.Error()})
 		return
 	}
 	render.JSON(w, r, users)
@@ -105,8 +105,8 @@ func (u *userHandler) ReadUserByID(w http.ResponseWriter, r *http.Request) {
 	id := r.Context().Value(constants.ID_KEY).(int64)
 	user, err := u.userService.ReadUserByID(id)
 	if err != nil {
-		responseErr := util.Error(err, r.URL.Path)
-		util.ErrorResponse(w, r, responseErr)
+		render.Status(r, http.StatusNotFound)
+		render.JSON(w, r, model.BasicResponse{Message: err.Error()})
 		return
 	}
 
@@ -129,16 +129,16 @@ func (u *userHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 	var req model.UpdateUserRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		responseErr := util.Error(err, r.URL.Path)
-		util.ErrorResponse(w, r, responseErr)
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, model.BasicResponse{Message: "Invalid request body"})
 		return
 	}
 
 	req.ID = id
 	user, err := u.userService.UpdateUser(req)
 	if err != nil {
-		responseErr := util.Error(err, r.URL.Path)
-		util.ErrorResponse(w, r, responseErr)
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, model.BasicResponse{Message: err.Error()})
 		return
 	}
 
@@ -159,8 +159,8 @@ func (u *userHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 
 	err := u.userService.DeleteUser(model.DeleteUserRequest{ID: id})
 	if err != nil {
-		responseErr := util.Error(err, r.URL.Path)
-		util.ErrorResponse(w, r, responseErr)
+		render.Status(r, http.StatusNotFound)
+		render.JSON(w, r, model.BasicResponse{Message: err.Error()})
 		return
 	}
 

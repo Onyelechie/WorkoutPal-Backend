@@ -3,7 +3,6 @@ package handler
 import (
 	"encoding/json"
 	"net/http"
-	"workoutpal/src/util"
 
 	"workoutpal/src/internal/domain/service"
 	"workoutpal/src/internal/model"
@@ -34,15 +33,13 @@ func NewAchievementHandler(svc service.AchievementService) *AchievementHandler {
 func (h *AchievementHandler) CreateAchievement(w http.ResponseWriter, r *http.Request) {
 	var req model.CreateAchievementRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		responseErr := util.Error(err, r.URL.Path)
-		util.ErrorResponse(w, r, responseErr)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	ach, err := h.svc.CreateAchievement(req)
 	if err != nil {
-		responseErr := util.Error(err, r.URL.Path)
-		util.ErrorResponse(w, r, responseErr)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -64,8 +61,7 @@ func (h *AchievementHandler) CreateAchievement(w http.ResponseWriter, r *http.Re
 func (h *AchievementHandler) ReadAllAchievements(w http.ResponseWriter, r *http.Request) {
 	list, err := h.svc.ReadAllAchievements()
 	if err != nil {
-		responseErr := util.Error(err, r.URL.Path)
-		util.ErrorResponse(w, r, responseErr)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
@@ -88,8 +84,7 @@ func (h *AchievementHandler) ReadUnlockedAchievements(w http.ResponseWriter, r *
 
 	list, err := h.svc.ReadUnlockedAchievements(userID)
 	if err != nil {
-		responseErr := util.Error(err, r.URL.Path)
-		util.ErrorResponse(w, r, responseErr)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
@@ -114,8 +109,7 @@ func (h *AchievementHandler) ReadUnlockedAchievementsByUserID(w http.ResponseWri
 
 	list, err := h.svc.ReadUnlockedAchievements(userID)
 	if err != nil {
-		responseErr := util.Error(err, r.URL.Path)
-		util.ErrorResponse(w, r, responseErr)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
