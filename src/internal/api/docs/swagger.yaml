@@ -393,6 +393,8 @@ definitions:
         type: string
       userId:
         type: integer
+      username:
+        type: string
     type: object
 info:
   contact: {}
@@ -457,6 +459,32 @@ paths:
       security:
       - BearerAuth: []
       summary: Unlock an achievement for a user
+      tags:
+      - Achievements
+  /achievements/feed:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Achievements retrieved successfully
+          schema:
+            items:
+              $ref: '#/definitions/model.Achievement'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+      security:
+      - BearerAuth: []
+      summary: List all unlocked achievements by all users
       tags:
       - Achievements
   /achievements/unlocked:

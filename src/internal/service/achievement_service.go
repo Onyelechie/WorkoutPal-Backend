@@ -14,6 +14,10 @@ func NewAchievementService(repo repository.AchievementRepository) service.Achiev
 	return &AchievementService{repo: repo}
 }
 
+func (s *AchievementService) ReadAchievementsFeed() ([]*model.UserAchievement, error) {
+	return s.repo.ReadAchievementsFeed()
+}
+
 func (s *AchievementService) ReadAllAchievements() ([]*model.Achievement, error) {
 	return s.repo.ReadAllAchievements()
 }
