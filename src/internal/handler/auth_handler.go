@@ -44,7 +44,7 @@ func (h *authHandler) Login(w http.ResponseWriter, r *http.Request) {
 	var req model.LoginRequest
 	if err := render.DecodeJSON(r.Body, &req); err != nil {
 		responseErr := util.Error(err, r.URL.Path)
-		util.ErrorResponse(w, r, responseErr)
+		util.ErrorResponseWithStatus(w, r, responseErr, 400)
 		return
 	}
 

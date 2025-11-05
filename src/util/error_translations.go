@@ -49,6 +49,10 @@ func msgAndStatus(err error) (constants.UserMessage, int) {
 		return fromPqError(pqErr)
 	}
 
+	if strings.EqualFold(err.Error(), "invalid email") || strings.EqualFold(err.Error(), "invalid password") {
+		return constants.AUTH, http.StatusUnauthorized
+	}
+
 	var typeErr *json.UnmarshalTypeError
 	if errors.As(err, &typeErr) {
 		field := typeErr.Field

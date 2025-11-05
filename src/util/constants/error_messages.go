@@ -27,4 +27,6 @@ const (
 	TIMEOUT     UserMessage = "The request took too long to complete. Please try again."
 	UNAVAILABLE UserMessage = "The system is temporarily unavailable. Please try again later."
 	CONFLICT    UserMessage = "The resource is currently locked or being modified."
+
+	AUTH UserMessage = "Invalid username or password."
 )
