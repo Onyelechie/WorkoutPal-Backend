@@ -83,6 +83,11 @@ func msgAndStatus(err error) (constants.UserMessage, int) {
 		return constants.INVALID_FORMAT, http.StatusUnprocessableEntity
 	}
 
+	// Check for specific error messages from repository layer
+	if strings.Contains(err.Error(), "user already exists") {
+		return constants.DUPLICATE, http.StatusBadRequest
+	}
+
 	switch {
 	case errors.Is(err, sql.ErrNoRows):
 		return constants.NOT_FOUND, http.StatusInternalServerError
