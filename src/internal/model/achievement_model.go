@@ -13,7 +13,7 @@ type UserAchievement struct {
 	Title       string `json:"title"`
 	BadgeIcon   string `json:"badgeIcon"`
 	Description string `json:"description"`
-	EarnedAt    string `json:"earnedAt"`
+	EarnedAt    string `json:"date"`
 }
 
 type CreateAchievementRequest struct {
