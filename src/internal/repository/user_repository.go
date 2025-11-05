@@ -87,6 +87,12 @@ func (u *userRepository) CreateUser(request model.CreateUserRequest) (*model.Use
 		&user.Height, &user.HeightMetric, &user.Weight, &user.WeightMetric, &user.Avatar)
 
 	if err != nil {
+		var pqErr *pq.Error
+		if errors.As(err, &pqErr) {
+			if pqErr.Code == "23505" {
+				return nil, errors.New("user already exists")
+			}
+		}
 		return nil, err
 	}
 	return &user, nil
