@@ -209,11 +209,11 @@ func testEndToEnd_Users_Create_Duplicate(t *testing.T) {
 	_ = resp1.Body.Close()
 
 	resp2 := doRequest(t, http.MethodPost, "/users", body, nil)
-	if resp2.StatusCode != http.StatusInternalServerError {
+	if resp2.StatusCode != http.StatusBadRequest {
 		var m map[string]any
 		_ = json.NewDecoder(resp2.Body).Decode(&m)
 		_ = resp2.Body.Close()
-		t.Fatalf("expected 500 on duplicate, got=%d body=%v", resp2.StatusCode, m)
+		t.Fatalf("expected 400 on duplicate, got=%d body=%v", resp2.StatusCode, m)
 	}
 	_ = resp2.Body.Close()
 }
