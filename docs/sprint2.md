@@ -133,8 +133,6 @@ No, we plan to keep up to date with our tests and run full regression for every 
 
 **Updated System Diagram:**
 
-**Backend (Application Tier):**
-
 | Layer | Component | Testing Level | Coverage (%) |
 |-------|-----------|---------------|---------------|
 | **Entry Point** | main.go | Not tested | 0% |
