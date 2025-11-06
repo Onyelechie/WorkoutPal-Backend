@@ -133,24 +133,57 @@ No, we plan to keep up to date with our tests and run full regression for every 
 
 **Updated System Diagram:**
 
-| Layer | Component | Testing Level | Coverage (%) |
-|-------|-----------|---------------|---------------|
-| **Entry Point** | main.go | Not tested | 0% |
-| **API Layer** | Route Registration | Fully tested | 100% |
-| **API Layer** | Middleware | Mostly tested | 24-33% |
-| **API Layer** | Swagger Docs | Fully tested | 100% |
-| **Presentation Layer** | HTTP Handlers | Fully tested | 67-100% |
-| **Business Layer** | Service Logic | Fully tested | 100% |
-| **Data Access Layer** | PostgreSQL Repository | Fully tested | 73-100% |
-| **Data Access Layer** | In-Memory Repository | Not tested | 0% |
-| **Domain Layer** | Models/Entities | Not tested | N/A |
-| **Utility Layer** | Validators | Fully tested | 100% |
-| **Configuration** | Config Loading | Fully tested | 100% |
-| **UI Layer** | React Components | Mostly tested | ~30% |
-| **UI Layer** | Pages/Routes | Not tested | 0% |
-| **Application Layer** | API Services | Fully tested | 100% |
-| **Application Layer** | Utils/Helpers | Fully tested | 100% |
-| **Application Layer** | Custom Hooks | Somewhat tested | ~15% |
+```mermaid
+graph TB
+    subgraph PT["PRESENTATION TIER"]
+        FE["Frontend<br/>(React + Vite)<br/>━━━━━━━━━━━━━━━<br/>• UI Components<br/>• Custom Hooks<br/>• API Services<br/>• Utils/Helpers"]
+    end
+    
+    subgraph AT["APPLICATION TIER"]
+        BE["Backend API<br/>(Go + Chi Router)"]
+        
+        subgraph Layers[" "]
+            API["API Layer<br/>Routes, Middleware, Swagger"]
+            PRES["Presentation Layer<br/>HTTP Handlers"]
+            BUS["Business Layer<br/>Services"]
+            DATA["Data Access Layer<br/>Repositories"]
+            DOM["Domain Layer<br/>Models/Entities"]
+        end
+    end
+    
+    subgraph DT["DATA TIER"]
+        DB["PostgreSQL Database<br/>━━━━━━━━━━━━━━━<br/>• users, goals, follows<br/>• workout_routine, exercises<br/>• posts, comments, achievements"]
+    end
+    
+    FE -->|HTTP/REST| API
+    API --> PRES
+    PRES --> BUS
+    BUS --> DATA
+    DATA --> DOM
+    DATA -->|SQL| DB
+    
+```
+
+**Testing Coverage by Layer:**
+
+| Tier | Layer | Component | Testing Level | Coverage (%) |
+|------|-------|-----------|---------------|---------------|
+| **Application** | Entry Point | main.go | Not tested | 0% |
+| **Application** | API Layer | Route Registration | Fully tested | 100% |
+| **Application** | API Layer | Middleware | Mostly tested | 24-33% |
+| **Application** | API Layer | Swagger Docs | Fully tested | 100% |
+| **Application** | Presentation Layer | HTTP Handlers | Fully tested | 67-100% |
+| **Application** | Business Layer | Service Logic | Fully tested | 100% |
+| **Application** | Data Access Layer | PostgreSQL Repository | Fully tested | 73-100% |
+| **Application** | Data Access Layer | In-Memory Repository | Not tested | 0% |
+| **Application** | Domain Layer | Models/Entities | Not tested | N/A |
+| **Application** | Utility Layer | Validators | Fully tested | 100% |
+| **Application** | Configuration | Config Loading | Fully tested | 100% |
+| **Presentation** | UI Layer | React Components | Mostly tested | ~30% |
+| **Presentation** | UI Layer | Pages/Routes | Not tested | 0% |
+| **Presentation** | Application Layer | API Services | Fully tested | 100% |
+| **Presentation** | Application Layer | Utils/Helpers | Fully tested | 100% |
+| **Presentation** | Application Layer | Custom Hooks | Somewhat tested | ~15% |
 
 **Coverage Reports:**
 
@@ -168,7 +201,8 @@ Frontend coverage report: [coverage screenshot](https://github.com/Onyelechie/Wo
 ## 5. Last Dash
 
 **Issues Foreseen in Final Sprint:**
-
+- We may struggle with creating a modern UI for our app, since we will be focussing on the last few features. 
+- The minimal remaining time may cause problems while trying to get the last few features and preparing for presentations.
 
 ---
 
