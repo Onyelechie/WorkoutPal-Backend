@@ -136,45 +136,7 @@ go tool cover -html=coverage.out
 ---
 
 ## API Endpoints
-
-### Users
-- `GET /users` - Get all users
-- `GET /users/{id}` - Get user by ID
-- `POST /users` - Create new user
-- `PATCH /users/{id}` - Update user
-- `DELETE /users/{id}` - Delete user
-
-### Goals
-- `POST /users/{id}/goals` - Create user goal
-- `GET /users/{id}/goals` - Get user goals
-
-### Authentication
-- `POST /login` - User login
-- `POST /logout` - User logout  
-- `GET /me` - Get current authenticated user
-
-### Social/Relationships
-- `POST /users/{id}/follow` - Follow user
-- `POST /users/{id}/unfollow` - Unfollow user
-- `GET /users/{id}/followers` - Get user followers
-- `GET /users/{id}/following` - Get users being followed
-
-### User Routines
-- `POST /users/{id}/routines` - Create workout routine
-- `GET /users/{id}/routines` - Get user routines
-- `DELETE /users/{id}/routines/{routine_id}` - Delete user's routine
-
-### Exercises
-- `GET /exercises` - Get all exercises
-
-### Routines (Direct Access)
-- `GET /routines/{id}` - Get routine with exercises
-- `DELETE /routines/{id}` - Delete routine
-- `POST /routines/{id}/exercises?exercise_id={exercise_id}` - Add exercise to routine
-- `DELETE /routines/{id}/exercises/{exercise_id}` - Remove exercise from routine
-
-### Authentication
-- `POST /auth/google` - Google OAuth authentication
+[API Endpoints](./support_files/API-Endpoints.md)
 
 ## Database Schema
 
@@ -202,6 +164,8 @@ Database connection: `host=localhost port=5432 user=user password=password dbnam
 📋 **[Sprint 0 Documentation](./docs/sprint0.md)** - Complete project overview, features, architecture, and planning details
 
 📋 **[Sprint 1 Documentation](./docs/sprint1.md)** - Testing coverage, test importance, and environment reproducibility.
+
+📋 **[Sprint 2 Documentation](./docs/sprint2.md)** - Regression testing, profiling, test plan and Group 4's best work
 
 📋 **[API Documentation](./support_files/Endpoint%20Documentation.md)** - Detailed endpoint documentation
 
