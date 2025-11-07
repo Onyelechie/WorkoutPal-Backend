@@ -1,0 +1,56 @@
+go run benchmark.go
+Benchmarking endpoints (10 requests each)...
+
+Results (sorted by avg response time):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+GET /exercises                              9.8 ms
+GET /me                                     1.5 ms
+GET /users/1                                1.4 ms
+GET /exercises/1                            1.4 ms
+GET /achievements/unlocked                  1.4 ms
+GET /users/1/routines                       1.4 ms
+GET /schedules                              1.4 ms
+GET /users/1/followers                      1.3 ms
+GET /achievements                           1.3 ms
+GET /schedules/1                            1.3 ms
+GET /users/1/following                      1.3 ms
+GET /users/1/goals                          1.3 ms
+GET /achievements/feed                      0.9 ms
+GET /posts                                  0.8 ms
+GET /users                                  0.8 ms
+
+
+go run profile.go
+Starting CPU profile for 15 seconds...
+Running 2 concurrent workers...
+Saved CPU profile: pprof-all-endpoints.pb.gz
+Sent ~14048 requests
+
+File: main.exe
+Build ID: C:\Users\taren\AppData\Local\go-build\a6\a6fe1b521684e1e7f2b6e0e34befe619c779c5257a80d3244b2b7fe52629f36e-d\main.exe2025-11-06 17:37:07.0864274 -0600 CST
+go tool pprof -top -cum pprof-all-endpoints.pb.gz | findstr /C:"workoutpal" /C:"exercise"
+         0     0%  0.32%      4.52s 72.67%  workoutpal/src/internal/api.RegisterRoutes.(*Cors).Handler.func4
+         0     0%   0.8%      3.06s 49.20%  workoutpal/src/internal/middleware.AuthMiddleware.func2.1
+         0     0% 41.00%      1.80s 28.94%  workoutpal/src/internal/handler.(*exerciseHandler).ReadExercises
+     0.02s  0.32% 43.09%      0.84s 13.50%  workoutpal/src/internal/repository.(*exerciseRepository).ReadAllExercises
+         0     0% 43.09%      0.84s 13.50%  workoutpal/src/internal/service.(*exerciseService).ReadAllExercises
+         0     0% 44.86%      0.54s  8.68%  workoutpal/src/internal/api.Routes.IdMiddleware.func7.1
+         0     0% 73.95%      0.05s   0.8%  workoutpal/src/internal/handler.(*workoutHandler).CreateUserRoutine
+     0.01s  0.16% 74.12%      0.05s   0.8%  workoutpal/src/internal/service.(*routineService).DeleteRoutine
+         0     0% 76.37%      0.04s  0.64%  workoutpal/src/internal/handler.(*AchievementHandler).CreateAchievement
+         0     0% 76.37%      0.04s  0.64%  workoutpal/src/internal/handler.(*AchievementHandler).ReadAchievementsFeed
+         0     0% 76.37%      0.04s  0.64%  workoutpal/src/internal/handler.(*PostHandler).CreatePost
+         0     0% 76.37%      0.04s  0.64%  workoutpal/src/internal/handler.(*goalHandler).CreateUserGoal
+         0     0% 76.37%      0.04s  0.64%  workoutpal/src/internal/handler.(*scheduleHandler).CreateSchedule
+         0     0% 76.37%      0.04s  0.64%  workoutpal/src/internal/repository.(*achievementRepository).ReadUnlockedAchievements
+         0     0% 76.37%      0.04s  0.64%  workoutpal/src/internal/repository.(*goalRepository).CreateGoal
+         0     0% 76.37%      0.04s  0.64%  workoutpal/src/internal/repository.(*routineRepository).CreateRoutine
+         0     0% 76.37%      0.04s  0.64%  workoutpal/src/internal/repository.(*routineRepository).DeleteRoutine
+         0     0% 76.37%      0.04s  0.64%  workoutpal/src/internal/repository.(*scheduleRepository).CreateSchedule
+         0     0% 76.37%      0.04s  0.64%  workoutpal/src/internal/service.(*AchievementService).ReadUnlockedAchievements
+         0     0% 76.37%      0.04s  0.64%  workoutpal/src/internal/service.(*goalService).CreateGoal
+         0     0% 76.37%      0.04s  0.64%  workoutpal/src/internal/service.(*routineService).CreateRoutine
+         0     0% 76.37%      0.04s  0.64%  workoutpal/src/internal/service.(*scheduleService).CreateSchedule
+         0     0% 76.37%      0.04s  0.64%  workoutpal/src/util.Error
+         0     0% 76.37%      0.04s  0.64%  workoutpal/src/util.ErrorResponse
+         0     0% 76.37%      0.04s  0.64%  workoutpal/src/util.msgAndStatus
