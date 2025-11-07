@@ -20,6 +20,13 @@
 - `GET /users/{id}/followers` - Get user followers
 - `GET /users/{id}/following` - Get users being followed
 
+### Posts
+- `GET /posts` - List posts
+- `POST /posts` - Create a new post
+- `POST /posts/comment` - Comment on a post
+- `POST /posts/comment/reply` - Comment on another comment
+- `DELETE /posts/{id}` - Delete a post
+
 ### User Routines
 - `POST /users/{id}/routines` - Create workout routine
 - `GET /users/{id}/routines` - Get user routines
@@ -33,6 +40,14 @@
 - `DELETE /routines/{id}` - Delete routine
 - `POST /routines/{id}/exercises?exercise_id={exercise_id}` - Add exercise to routine
 - `DELETE /routines/{id}/exercises/{exercise_id}` - Remove exercise from routine
+
+### Schedules
+`GET /schedules` - Read all schedules for the authenticated user
+`GET /schedules/{dayOfWeek}` - Read schedules for the authenticated user on a specific day
+`GET /schedules/{id}` - Read a schedule by ID
+`POST /schedules` - Create a schedule
+`PUT /schedules/{id}` - Update a schedule
+`DELETE /schedules/{id}` - Delete a schedule
 
 ### Authentication
 - `POST /auth/google` - Google OAuth authentication
