@@ -137,6 +137,13 @@ go tool cover -html=coverage.out
 
 ## API Endpoints
 
+### Achievements
+- `GET /achievements` - List all achievements (catalog)
+- `POST /achievements` - Unlock an achievement for a user
+- `GET /achievements/feed` - List all unlocked achievements by all users
+- `GET /achievements/unlocked` - List achievements unlocked by the current user
+- `GET /achievements/unlocked/{id}` - List achievements unlocked by a specific user (by path ID)
+
 ### Users
 - `GET /users` - Get all users
 - `GET /users/{id}` - Get user by ID
@@ -166,6 +173,8 @@ go tool cover -html=coverage.out
 
 ### Exercises
 - `GET /exercises` - Get all exercises
+- `POST /exercises` - Create a new exercise
+- `GET /exercises/{id}` - Return the exercise with the corresponding ID
 
 ### Routines (Direct Access)
 - `GET /routines/{id}` - Get routine with exercises
