@@ -95,6 +95,8 @@ Total Unit: 46 tests passed in ~ 6s
 
 Overall: 63 tests passed in 1:28m
 ```
+Frontend coverage output can be found [here.](https://github.com/Onyelechie/WorkoutPal-Frontend/blob/main/documentation/tests/sprint_2_test_coverage.txt)
+
 
 **Notes:**
 while coverage looks low for the backend, this is just because of how we organised our codebase. not every folder contains code that needs to be tested.
@@ -189,13 +191,11 @@ graph TB
 
 Backend coverage report: [coverage.txt](../coverage.txt)
 
-Frontend coverage report: [coverage screenshot](https://github.com/Onyelechie/WorkoutPal-Frontend/blob/main/documentation/tests/sprint_2_test_coverage.txt)
+Frontend coverage report: [coverage.txt](https://github.com/Onyelechie/WorkoutPal-Frontend/blob/main/documentation/tests/sprint_2_test_coverage.txt)
 
 ---
 
 ## 4. Profiler
-
-profiler output: [profiler output](./misc/profilerOut.txt)
 
 The slowest endpoint is GET /exercises. This is because we have preloaded ~1300 exercises into the database and currently query them all at once. This could be improved by reducing the load on the database through pagination and indexing.
 
@@ -218,7 +218,8 @@ Each team member highlights their best work (must be individually committed):
 | Team Member | Area of Work | Description |
 |--------------|---------------|--------------|
 |Taren|Cloud/CD|set up CD and deployments to azure static web app (frontend), azure app service (backend), and Azure Database for PostgreSQL flexible server (DB)|
-|Christian|UI/UX: [Alert Dialog](https://github.com/Onyelechie/WorkoutPal-Frontend/commit/2aee5591cb13422df20b5044d008555723e19ddf) and [Confirm Dialog](https://github.com/Onyelechie/WorkoutPal-Frontend/pull/79) implementation| Created a reusable dialog component that is used by multiple pages. Examples include (showing achievements unlocked, error alerts and delete confirmation). 
+|Christian|[Alert Dialog](https://github.com/Onyelechie/WorkoutPal-Frontend/commit/2aee5591cb13422df20b5044d008555723e19ddf) and [Confirm Dialog](https://github.com/Onyelechie/WorkoutPal-Frontend/pull/79) implementation| Created a reusable dialog component that is used by multiple pages. Examples include (showing achievements unlocked, error alerts and delete confirmation).|
+|Kurt|Frontend|Built the routine scheduler and created backend domain interfaces for Max to finish. This is so that we can work simultaneously where I set up the frontend's routine scheduler for API endpoints that don't exist yet, increasing efficiency.| 
 
 ---
 
