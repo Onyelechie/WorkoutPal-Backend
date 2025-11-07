@@ -217,7 +217,7 @@ Each team member highlights their best work (must be individually committed):
 
 | Team Member | Area of Work | Description |
 |--------------|---------------|--------------|
-|Taren|Cloud/CD|set up CD and deployments to azure static web app (frontend), azure app service (backend), and Azure Database for PostgreSQL flexible server (DB)|
+|Taren|Cloud/CD [Fro](https://github.com/Onyelechie/WorkoutPal-Frontend/pull/69)-[nt](https://github.com/Onyelechie/WorkoutPal-Frontend/pull/72)-[end](https://github.com/Onyelechie/WorkoutPal-Frontend/pull/75) [Backend](https://app.crowdmark.com/score/1f6df2d5-836e-437f-abea-652f3f167961)|set up CD and deployments to azure static web app [frontend](https://brave-coast-0eeb4d10f.3.azurestaticapps.net/), azure app service (backend), and Azure Database for PostgreSQL flexible server (DB)|
 |Christian|UI/UX: [Alert Dialog](https://github.com/Onyelechie/WorkoutPal-Frontend/commit/2aee5591cb13422df20b5044d008555723e19ddf) & [Confirm Dialog](https://github.com/Onyelechie/WorkoutPal-Frontend/pull/79) implementation| Created a reusable dialog component that is used by multiple pages. Examples include (showing achievements unlocked, error alerts and delete confirmation).|
 |Kurt|Frontend|Built the routine scheduler and created backend domain interfaces for Max to finish. This is so that we can work simultaneously where I set up the frontend's routine scheduler for API endpoints that don't exist yet, increasing efficiency.| 
 |Max|Backend / API|Wrote request handlers, service logic, SQL query and DB executions for a variety of CRUD endpoints including posts and achievements alongside unit tests for each layer. Added a new error response object which provides a more detailed account of what went wrong.|
