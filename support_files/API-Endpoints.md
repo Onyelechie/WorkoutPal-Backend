@@ -42,12 +42,12 @@
 - `DELETE /routines/{id}/exercises/{exercise_id}` - Remove exercise from routine
 
 ### Schedules
-`GET /schedules` - Read all schedules for the authenticated user
-`GET /schedules/{dayOfWeek}` - Read schedules for the authenticated user on a specific day
-`GET /schedules/{id}` - Read a schedule by ID
-`POST /schedules` - Create a schedule
-`PUT /schedules/{id}` - Update a schedule
-`DELETE /schedules/{id}` - Delete a schedule
+- `GET /schedules` - Read all schedules for the authenticated user
+- `GET /schedules/{dayOfWeek}` - Read schedules for the authenticated user on a specific day
+- `GET /schedules/{id}` - Read a schedule by ID
+- `POST /schedules` - Create a schedule
+- `PUT /schedules/{id}` - Update a schedule
+- `DELETE /schedules/{id}` - Delete a schedule
 
 ### Authentication
 - `POST /auth/google` - Google OAuth authentication
