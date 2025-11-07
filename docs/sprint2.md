@@ -195,6 +195,11 @@ Frontend coverage report: [coverage screenshot](https://github.com/Onyelechie/Wo
 
 ## 4. Profiler
 
+profiler output: [profiler output](./misc/profilerOut.txt)
+
+The slowest endpoint is GET /exercises. This is because we have preloaded ~1300 exercises into the database and currently query them all at once. This could be improved by reducing the load on the database through pagination and indexing.
+
+profiler output: [profiler output](./misc/profilerOut.txt)
 
 ---
 
