@@ -57,7 +57,7 @@ npm run regression
 
 **Latest execution results:**
 
-**Backend (January 6, 2025):**
+**Backend (November 6, 2025):**
 ```
 ✅ 259 tests passed
 Execution time: ~7.6s
@@ -74,7 +74,7 @@ Package Coverage:
 Overall: 35.0% of statements covered
 ```
 
-**Frontend (January 6, 2025):**
+**Frontend (November 6, 2025):**
 ```
 ✅ 63 tests passed
 
