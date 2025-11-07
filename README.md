@@ -136,7 +136,8 @@ go tool cover -html=coverage.out
 ---
 
 ## API Endpoints
-[API Endpoints](./support_files/API-Endpoints.md)
+- [API Endpoints](./support_files/API-Endpoints.md)
+- Follow [Swagger Documentation](#swagger-documentation) instructions for updated API documentation
 
 ## Database Schema
 
