@@ -222,7 +222,7 @@ Each team member highlights their best work (must be individually committed):
 |Kurt|Frontend|Built the routine scheduler and created backend domain interfaces for Max to finish. This is so that we can work simultaneously where I set up the frontend's routine scheduler for API endpoints that don't exist yet, increasing efficiency.| 
 |Max|Backend / API|Wrote request handlers, service logic, SQL query and DB executions for a variety of CRUD endpoints including posts and achievements alongside unit tests for each layer. Added a new error response object which provides a more detailed account of what went wrong.|
 |Ebere|[User Search Feature](https://github.com/Onyelechie/WorkoutPal-Frontend/pull/82)|Implemented the comprehensive user search and discovery system that serves as the bridge of relationships in WorkoutPal. This feature enables users to find and connect with workout partners, creating the social foundation of the entire application. It includes real-time search functionality, seamless profile navigation, integration with the follow/unfollow system, and clickable follower/following lists. The search feature transforms WorkoutPal from a personal fitness tracker into a connected fitness community.|
-|Ivory|Frontend|Added the activity feed page which fetches user activities from the backend including posts and unlocked achievements and maps them to corresponding card views, sorted by date|
+|Ivory|Frontend|https://github.com/Onyelechie/WorkoutPal-Frontend/commit/784df3ff71220b6f5ed9d343f62a43d006181317 Added the activity feed page which fetches user activities from the backend including posts and unlocked achievements and maps them to corresponding card views, sorted by date|
 
 ---
 
