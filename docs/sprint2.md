@@ -57,7 +57,7 @@ npm run regression
 
 **Latest execution results:**
 
-**Backend (January 6, 2025):**
+**Backend (November 6, 2025):**
 ```
 ✅ 259 tests passed
 Execution time: ~7.6s
@@ -74,7 +74,7 @@ Package Coverage:
 Overall: 35.0% of statements covered
 ```
 
-**Frontend (January 6, 2025):**
+**Frontend (November 6, 2025):**
 ```
 ✅ 63 tests passed
 
@@ -218,7 +218,7 @@ Each team member highlights their best work (must be individually committed):
 | Team Member | Area of Work | Description |
 |--------------|---------------|--------------|
 |Taren|Cloud/CD|set up CD and deployments to azure static web app (frontend), azure app service (backend), and Azure Database for PostgreSQL flexible server (DB)|
-|Christian|[Alert Dialog](https://github.com/Onyelechie/WorkoutPal-Frontend/commit/2aee5591cb13422df20b5044d008555723e19ddf) and [Confirm Dialog](https://github.com/Onyelechie/WorkoutPal-Frontend/pull/79) implementation| Created a reusable dialog component that is used by multiple pages. Examples include (showing achievements unlocked, error alerts and delete confirmation). 
+|Christian|UI/UX: [Alert Dialog](https://github.com/Onyelechie/WorkoutPal-Frontend/commit/2aee5591cb13422df20b5044d008555723e19ddf) and [Confirm Dialog](https://github.com/Onyelechie/WorkoutPal-Frontend/pull/79) implementation| Created a reusable dialog component that is used by multiple pages. Examples include (showing achievements unlocked, error alerts and delete confirmation). 
 
 ---
 
