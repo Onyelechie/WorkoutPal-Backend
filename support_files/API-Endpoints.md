@@ -34,6 +34,8 @@
 
 ### Exercises
 - `GET /exercises` - Get all exercises
+- `POST /exercises` - Create a new exercise
+- `GET /exercises/{id}` - Returns the exercise with corresponding ID
 
 ### Routines (Direct Access)
 - `GET /routines/{id}` - Get routine with exercises
