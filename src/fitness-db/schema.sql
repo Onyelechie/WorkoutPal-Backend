@@ -11,6 +11,8 @@ CREATE TABLE users (
     height_metric VARCHAR,
     weight NUMERIC,
     weight_metric VARCHAR,
+    is_private BOOLEAN NOT NULL DEFAULT FALSE,
+    show_metrics_to_followers BOOLEAN NOT NULL DEFAULT FALSE,
     bio TEXT,
     avatar_url VARCHAR,
     birthday DATE,

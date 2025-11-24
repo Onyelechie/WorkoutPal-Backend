@@ -1,0 +1,4 @@
+-- Add privacy fields to users
+ALTER TABLE users
+  ADD COLUMN IF NOT EXISTS is_private BOOLEAN NOT NULL DEFAULT FALSE,
+  ADD COLUMN IF NOT EXISTS show_metrics_to_followers BOOLEAN NOT NULL DEFAULT FALSE;

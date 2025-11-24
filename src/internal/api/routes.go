@@ -54,7 +54,7 @@ func RegisterRoutes(cfg *config.Config, db *sql.DB) http.Handler {
 
 func Routes(r chi.Router, appDep dependency.AppDependencies, secret []byte) http.Handler {
 	// --- Init Handlers ---
-	userHandler := handler.NewUserHandler(appDep.UserService)
+	userHandler := handler.NewUserHandler(appDep.UserService, appDep.RelationshipService)
 	goalHandler := handler.NewGoalHandler(appDep.GoalService)
 	relationshipHandler := handler.NewRelationshipHandler(appDep.RelationshipService)
 	routineHandler := handler.NewRoutineHandler(appDep.RoutineService)
