@@ -15,6 +15,8 @@ type User struct {
 	GoogleID     string            `json:"googleId,omitempty"`
 	Provider     string            `json:"provider,omitempty"`
 	IsVerified   bool              `json:"isVerified"`
+	IsPrivate    bool              `json:"isPrivate"`
+	ShowMetricsToFollowers bool    `json:"showMetricsToFollowers"`
 	Posts        []Post            `json:"posts,omitempty"`
 	Followers    []int64           `json:"followers,omitempty"`
 	Following    []int64           `json:"following,omitempty"`
@@ -54,6 +56,8 @@ type CreateUserRequest struct {
 	HeightMetric string  `json:"heightMetric"`
 	Weight       float64 `json:"weight"`
 	WeightMetric string  `json:"weightMetric"`
+	IsPrivate    bool    `json:"isPrivate"`
+	ShowMetricsToFollowers bool `json:"showMetricsToFollowers"`
 }
 
 type UpdateUserRequest struct {
@@ -68,6 +72,8 @@ type UpdateUserRequest struct {
 	HeightMetric string  `json:"heightMetric"`
 	Weight       float64 `json:"weight"`
 	WeightMetric string  `json:"weightMetric"`
+	IsPrivate    bool    `json:"isPrivate"`
+	ShowMetricsToFollowers bool `json:"showMetricsToFollowers"`
 }
 
 type DeleteUserRequest struct {

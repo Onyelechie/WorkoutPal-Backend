@@ -57,3 +57,52 @@ func (u *relationshipService) ReadUserFollowing(userID int64) ([]model.User, err
 	}
 	return following, nil
 }
+
+// Follow request methods
+
+func (u *relationshipService) SendFollowRequest(requesterID, requestedID int64) error {
+	return u.relationshipRepository.CreateFollowRequest(requesterID, requestedID)
+}
+
+func (u *relationshipService) GetFollowRequest(requesterID, requestedID int64) (*model.FollowRequestModel, error) {
+	return u.relationshipRepository.GetFollowRequest(requesterID, requestedID)
+}
+
+func (u *relationshipService) GetPendingFollowRequests(userID int64) ([]*model.FollowRequestWithUser, error) {
+	return u.relationshipRepository.GetPendingFollowRequests(userID)
+}
+
+func (u *relationshipService) AcceptFollowRequest(requestID int64) error {
+	// Get the request details
+	req, err := u.relationshipRepository.GetFollowRequestByID(requestID)
+	if err != nil {
+		return err
+	}
+	if req == nil {
+		return nil // Request not found
+	}
+	
+	// Create the follow relationship
+	err = u.relationshipRepository.FollowUser(req.RequesterID, req.RequestedID)
+	if err != nil {
+		return err
+	}
+	
+	// Update status to accepted
+	return u.relationshipRepository.UpdateFollowRequestStatus(requestID, "accepted")
+}
+
+func (u *relationshipService) RejectFollowRequest(requestID int64) error {
+	return u.relationshipRepository.UpdateFollowRequestStatus(requestID, "rejected")
+}
+
+func (u *relationshipService) CancelFollowRequest(requesterID, requestedID int64) error {
+	req, err := u.relationshipRepository.GetFollowRequest(requesterID, requestedID)
+	if err != nil {
+		return err
+	}
+	if req == nil {
+		return nil // No request to cancel
+	}
+	return u.relationshipRepository.DeleteFollowRequest(req.ID)
+}

@@ -194,9 +194,15 @@ func (h *workoutHandler) RemoveExerciseFromRoutine(w http.ResponseWriter, r *htt
 // @Failure 404 {object} model.BasicResponse "Routine not found"
 // @Router /users/{id}/routines/{routine_id} [delete]
 func (h *workoutHandler) DeleteUserRoutine(w http.ResponseWriter, r *http.Request) {
-	id := r.Context().Value(constants.ID_KEY).(int64)
+	routineIDStr := chi.URLParam(r, "routine_id")
+	routineID, err := strconv.ParseInt(routineIDStr, 10, 64)
+	if err != nil {
+		responseErr := util.Error(err, r.URL.Path)
+		util.ErrorResponse(w, r, responseErr)
+		return
+	}
 
-	err := h.routineService.DeleteRoutine(id)
+	err = h.routineService.DeleteRoutine(routineID)
 	if err != nil {
 		responseErr := util.Error(err, r.URL.Path)
 		util.ErrorResponse(w, r, responseErr)

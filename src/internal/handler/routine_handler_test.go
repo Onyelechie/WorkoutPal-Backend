@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -10,6 +11,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/golang/mock/gomock"
 
 	"workoutpal/src/internal/model"
@@ -383,12 +385,15 @@ func TestRoutineHandler_DeleteUserRoutine_UsesContextID(t *testing.T) {
 	svc := mock_service.NewMockRoutineService(ctrl)
 	h := &workoutHandler{routineService: svc}
 
-	const ctxID int64 = 77
-	svc.EXPECT().DeleteRoutine(ctxID).Return(nil)
+	const routineID int64 = 77
+	svc.EXPECT().DeleteRoutine(routineID).Return(nil)
 
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest(http.MethodDelete, "/users/1/routines/77", nil)
-	r = withIDCtx(r, ctxID)
+	// Add routine_id to chi URL params
+	rctx := chi.NewRouteContext()
+	rctx.URLParams.Add("routine_id", "77")
+	r = r.WithContext(context.WithValue(r.Context(), chi.RouteCtxKey, rctx))
 
 	h.DeleteUserRoutine(w, r)
 	if w.Code != http.StatusOK {

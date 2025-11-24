@@ -54,7 +54,7 @@ func RegisterRoutes(cfg *config.Config, db *sql.DB) http.Handler {
 
 func Routes(r chi.Router, appDep dependency.AppDependencies, secret []byte) http.Handler {
 	// --- Init Handlers ---
-	userHandler := handler.NewUserHandler(appDep.UserService)
+	userHandler := handler.NewUserHandler(appDep.UserService, appDep.RelationshipService)
 	goalHandler := handler.NewGoalHandler(appDep.GoalService)
 	relationshipHandler := handler.NewRelationshipHandler(appDep.RelationshipService)
 	routineHandler := handler.NewRoutineHandler(appDep.RoutineService)
@@ -93,11 +93,21 @@ func Routes(r chi.Router, appDep dependency.AppDependencies, secret []byte) http
 			r.With(idMiddleware).Post("/{id}/unfollow", relationshipHandler.UnfollowUser)
 			r.With(idMiddleware).Get("/{id}/followers", relationshipHandler.ReadFollowers)
 			r.With(idMiddleware).Get("/{id}/following", relationshipHandler.ReadFollowings)
+			// Follow Requests
+			r.With(idMiddleware).Post("/{id}/follow-request", relationshipHandler.SendFollowRequest)
+			r.With(idMiddleware).Delete("/{id}/follow-request", relationshipHandler.CancelFollowRequest)
+			r.With(idMiddleware).Get("/{id}/follow-request/status", relationshipHandler.GetFollowRequestStatus)
 			// User Routines
 			r.With(idMiddleware).Post("/{id}/routines", routineHandler.CreateUserRoutine)
 			r.With(idMiddleware).Get("/{id}/routines", routineHandler.ReadUserRoutines)
 			r.With(idMiddleware).Delete("/{id}/routines/{routine_id}", routineHandler.DeleteUserRoutine)
 		})
+	})
+
+	// Follow Requests (top-level route for user's own requests)
+	r.With(authMiddleware).Route("/follow-requests", func(r chi.Router) {
+		r.Get("/", relationshipHandler.GetPendingFollowRequests)
+		r.Post("/respond", relationshipHandler.RespondToFollowRequest)
 	})
 
 	// Exercises

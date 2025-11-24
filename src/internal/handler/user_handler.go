@@ -13,12 +13,14 @@ import (
 )
 
 type userHandler struct {
-	userService service.UserService
+	userService         service.UserService
+	relationshipService service.RelationshipService
 }
 
-func NewUserHandler(us service.UserService) handler.UserHandler {
+func NewUserHandler(us service.UserService, rs service.RelationshipService) handler.UserHandler {
 	return &userHandler{
-		userService: us,
+		userService:         us,
+		relationshipService: rs,
 	}
 }
 
@@ -103,11 +105,64 @@ func (u *userHandler) ReadAllUsers(w http.ResponseWriter, r *http.Request) {
 // @Router /users/{id} [get]
 func (u *userHandler) ReadUserByID(w http.ResponseWriter, r *http.Request) {
 	id := r.Context().Value(constants.ID_KEY).(int64)
+	viewerID, _ := r.Context().Value(constants.USER_ID_KEY).(int64)
 	user, err := u.userService.ReadUserByID(id)
 	if err != nil {
 		responseErr := util.Error(err, r.URL.Path)
 		util.ErrorResponse(w, r, responseErr)
 		return
+	}
+	// Privacy enforcement: only followers or owner can view private profiles
+	if user.IsPrivate && viewerID != 0 && viewerID != id {
+		// check if viewer is a follower
+		followers, ferr := u.relationshipService.ReadUserFollowers(id)
+		if ferr == nil {
+			isFollower := false
+			for _, f := range followers {
+				if f.ID == viewerID {
+					isFollower = true
+					break
+				}
+			}
+			if !isFollower {
+				// Return basic user info even for private profiles
+				privateProfileResponse := map[string]interface{}{
+					"message":  "This profile is private",
+					"isPrivate": true,
+					"user": map[string]interface{}{
+						"id":       user.ID,
+						"name":     user.Name,
+						"username": user.Username,
+						"avatar":   user.Avatar,
+					},
+				}
+				render.Status(r, http.StatusForbidden)
+				render.JSON(w, r, privateProfileResponse)
+				return
+			}
+		}
+	}
+	// Metrics visibility: only owner or followers (when enabled) can see metrics
+	if viewerID != id {
+		canSeeMetrics := false
+		if user.ShowMetricsToFollowers {
+			// Need to be follower
+			followers, ferr := u.relationshipService.ReadUserFollowers(id)
+			if ferr == nil {
+				for _, f := range followers {
+					if f.ID == viewerID {
+						canSeeMetrics = true
+						break
+					}
+				}
+			}
+		}
+		if !canSeeMetrics {
+			// mask metrics for non-authorized viewers
+			user.Age = 0
+			user.Height = 0
+			user.Weight = 0
+		}
 	}
 
 	render.JSON(w, r, user)
