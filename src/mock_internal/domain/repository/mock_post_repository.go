@@ -91,6 +91,21 @@ func (mr *MockPostRepositoryMockRecorder) DeletePost(arg0 interface{}) *gomock.C
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeletePost", reflect.TypeOf((*MockPostRepository)(nil).DeletePost), arg0)
 }
 
+// LikePost mocks base method.
+func (m *MockPostRepository) LikePost(arg0 model.LikePostRequest) (*model.Post, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "LikePost", arg0)
+	ret0, _ := ret[0].(*model.Post)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// LikePost indicates an expected call of LikePost.
+func (mr *MockPostRepositoryMockRecorder) LikePost(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LikePost", reflect.TypeOf((*MockPostRepository)(nil).LikePost), arg0)
+}
+
 // ReadCommentsByComment mocks base method.
 func (m *MockPostRepository) ReadCommentsByComment(arg0 int64) ([]*model.Comment, error) {
 	m.ctrl.T.Helper()
@@ -122,33 +137,48 @@ func (mr *MockPostRepositoryMockRecorder) ReadCommentsByPost(arg0 interface{}) *
 }
 
 // ReadPost mocks base method.
-func (m *MockPostRepository) ReadPost(arg0 int64) (*model.Post, error) {
+func (m *MockPostRepository) ReadPost(arg0, arg1 int64) (*model.Post, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ReadPost", arg0)
+	ret := m.ctrl.Call(m, "ReadPost", arg0, arg1)
 	ret0, _ := ret[0].(*model.Post)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ReadPost indicates an expected call of ReadPost.
-func (mr *MockPostRepositoryMockRecorder) ReadPost(arg0 interface{}) *gomock.Call {
+func (mr *MockPostRepositoryMockRecorder) ReadPost(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReadPost", reflect.TypeOf((*MockPostRepository)(nil).ReadPost), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReadPost", reflect.TypeOf((*MockPostRepository)(nil).ReadPost), arg0, arg1)
 }
 
 // ReadPosts mocks base method.
-func (m *MockPostRepository) ReadPosts() ([]*model.Post, error) {
+func (m *MockPostRepository) ReadPosts(arg0 int64) ([]*model.Post, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ReadPosts")
+	ret := m.ctrl.Call(m, "ReadPosts", arg0)
 	ret0, _ := ret[0].([]*model.Post)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ReadPosts indicates an expected call of ReadPosts.
-func (mr *MockPostRepositoryMockRecorder) ReadPosts() *gomock.Call {
+func (mr *MockPostRepositoryMockRecorder) ReadPosts(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReadPosts", reflect.TypeOf((*MockPostRepository)(nil).ReadPosts))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReadPosts", reflect.TypeOf((*MockPostRepository)(nil).ReadPosts), arg0)
+}
+
+// UnlikePost mocks base method.
+func (m *MockPostRepository) UnlikePost(arg0 model.UnikePostRequest) (*model.Post, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UnlikePost", arg0)
+	ret0, _ := ret[0].(*model.Post)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UnlikePost indicates an expected call of UnlikePost.
+func (mr *MockPostRepositoryMockRecorder) UnlikePost(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UnlikePost", reflect.TypeOf((*MockPostRepository)(nil).UnlikePost), arg0)
 }
 
 // UpdatePost mocks base method.

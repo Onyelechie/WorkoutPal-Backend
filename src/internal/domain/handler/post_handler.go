@@ -7,4 +7,5 @@ type PostHandler interface {
 	CreatePost(w http.ResponseWriter, r *http.Request)
 	CommentOnPost(w http.ResponseWriter, r *http.Request)
 	LikePost(w http.ResponseWriter, r *http.Request)
+	UnlikePost(w http.ResponseWriter, r *http.Request)
 }
