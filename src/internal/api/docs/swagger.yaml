@@ -237,6 +237,13 @@ definitions:
       idToken:
         type: string
     type: object
+  model.LikePostRequest:
+    properties:
+      postId:
+        type: integer
+      userId:
+        type: integer
+    type: object
   model.LoginRequest:
     properties:
       email:
@@ -258,6 +265,8 @@ definitions:
         type: string
       id:
         type: integer
+      isLiked:
+        type: boolean
       likes:
         type: integer
       postedBy:
@@ -283,6 +292,13 @@ definitions:
         type: integer
       timeSlot:
         type: string
+      userId:
+        type: integer
+    type: object
+  model.UnikePostRequest:
+    properties:
+      postId:
+        type: integer
       userId:
         type: integer
     type: object
@@ -904,6 +920,76 @@ paths:
       security:
       - BearerAuth: []
       summary: Comment on another comment
+      tags:
+      - Posts
+  /posts/like:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Like post body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.LikePostRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+      security:
+      - BearerAuth: []
+      summary: Likes a post
+      tags:
+      - Posts
+  /posts/unlike:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Unlike post body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.UnikePostRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+      security:
+      - BearerAuth: []
+      summary: Unlikes a post
       tags:
       - Posts
   /routines/{id}:

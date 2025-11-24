@@ -129,6 +129,10 @@ func Routes(r chi.Router, appDep dependency.AppDependencies, secret []byte) http
 		r.Get("/", postHandler.ReadPosts)
 		r.Post("/", postHandler.CreatePost)
 		r.With(idMiddleware).Delete("/{id}", postHandler.DeletePost)
+
+		r.Post("/like", postHandler.LikePost)
+		r.Post("/unlike", postHandler.UnlikePost)
+
 		r.Post("/comment", postHandler.CommentOnPost)
 		r.Post("/comment/reply", postHandler.CommentOnComment)
 	})

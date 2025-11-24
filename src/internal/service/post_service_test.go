@@ -58,12 +58,14 @@ func TestPostService_ReadPosts_OK(t *testing.T) {
 	repo := mock_repository.NewMockPostRepository(ctrl)
 	svc := NewPostService(repo)
 
+	userID := int64(42)
 	want := []*model.Post{{ID: 1}, {ID: 2}}
-	repo.EXPECT().ReadPosts().Return(want, nil)
+
+	repo.EXPECT().ReadPosts(userID).Return(want, nil)
 	repo.EXPECT().ReadCommentsByPost(int64(1)).Return(nil, nil)
 	repo.EXPECT().ReadCommentsByPost(int64(2)).Return(nil, nil)
 
-	got, err := svc.ReadPosts()
+	got, err := svc.ReadPosts(userID)
 	if err != nil {
 		t.Fatalf("unexpected err: %v", err)
 	}
@@ -79,8 +81,10 @@ func TestPostService_ReadPosts_Error(t *testing.T) {
 	repo := mock_repository.NewMockPostRepository(ctrl)
 	svc := NewPostService(repo)
 
-	repo.EXPECT().ReadPosts().Return(nil, errors.New("failed"))
-	got, err := svc.ReadPosts()
+	userID := int64(42)
+
+	repo.EXPECT().ReadPosts(userID).Return(nil, errors.New("failed"))
+	got, err := svc.ReadPosts(userID)
 	if got != nil {
 		t.Fatalf("expected nil, got %#v", got)
 	}
@@ -215,5 +219,87 @@ func TestPostService_CommentOnComment_Error(t *testing.T) {
 
 	if err := svc.CommentOnComment(req); err == nil || err.Error() != "bad" {
 		t.Fatalf("expected bad, got %v", err)
+	}
+}
+
+// ===== Like / Unlike tests =====
+
+func TestPostService_LikePost_OK(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	t.Cleanup(ctrl.Finish)
+
+	repo := mock_repository.NewMockPostRepository(ctrl)
+	svc := NewPostService(repo)
+
+	req := model.LikePostRequest{UserID: 2, PostID: 1}
+	want := &model.Post{ID: 1, IsLiked: true}
+
+	repo.EXPECT().LikePost(req).Return(want, nil)
+
+	got, err := svc.LikePost(req)
+	if err != nil {
+		t.Fatalf("unexpected err: %v", err)
+	}
+	if got == nil || got.ID != want.ID || !got.IsLiked {
+		t.Fatalf("unexpected post: %#v", got)
+	}
+}
+
+func TestPostService_LikePost_Error(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	t.Cleanup(ctrl.Finish)
+
+	repo := mock_repository.NewMockPostRepository(ctrl)
+	svc := NewPostService(repo)
+
+	req := model.LikePostRequest{UserID: 2, PostID: 1}
+	repo.EXPECT().LikePost(req).Return((*model.Post)(nil), errors.New("like fail"))
+
+	got, err := svc.LikePost(req)
+	if got != nil {
+		t.Fatalf("expected nil, got %#v", got)
+	}
+	if err == nil || err.Error() != "like fail" {
+		t.Fatalf("expected like fail, got %v", err)
+	}
+}
+
+func TestPostService_UnlikePost_OK(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	t.Cleanup(ctrl.Finish)
+
+	repo := mock_repository.NewMockPostRepository(ctrl)
+	svc := NewPostService(repo)
+
+	req := model.UnikePostRequest{UserID: 2, PostID: 1}
+	want := &model.Post{ID: 1, IsLiked: false}
+
+	repo.EXPECT().UnlikePost(req).Return(want, nil)
+
+	got, err := svc.UnlikePost(req)
+	if err != nil {
+		t.Fatalf("unexpected err: %v", err)
+	}
+	if got == nil || got.ID != want.ID || got.IsLiked {
+		t.Fatalf("unexpected post: %#v", got)
+	}
+}
+
+func TestPostService_UnlikePost_Error(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	t.Cleanup(ctrl.Finish)
+
+	repo := mock_repository.NewMockPostRepository(ctrl)
+	svc := NewPostService(repo)
+
+	req := model.UnikePostRequest{UserID: 2, PostID: 1}
+	repo.EXPECT().UnlikePost(req).Return((*model.Post)(nil), errors.New("unlike fail"))
+
+	got, err := svc.UnlikePost(req)
+	if got != nil {
+		t.Fatalf("expected nil, got %#v", got)
+	}
+	if err == nil || err.Error() != "unlike fail" {
+		t.Fatalf("expected unlike fail, got %v", err)
 	}
 }

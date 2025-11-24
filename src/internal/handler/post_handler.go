@@ -30,12 +30,17 @@ func NewPostHandler(svc service.PostService) *PostHandler {
 // @Security BearerAuth
 // @Router /posts [post]
 func (p *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value(constants.USER_ID_KEY).(int64)
+
 	var req model.CreatePostRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		responseErr := util.Error(err, r.URL.Path)
 		util.ErrorResponse(w, r, responseErr)
 		return
 	}
+
+	// Never trust client for user identity
+	req.PostedBy = userID
 
 	post, err := p.svc.CreatePost(req)
 	if err != nil {
@@ -61,7 +66,9 @@ func (p *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 // @Security BearerAuth
 // @Router /posts [get]
 func (p *PostHandler) ReadPosts(w http.ResponseWriter, r *http.Request) {
-	posts, err := p.svc.ReadPosts()
+	userID := r.Context().Value(constants.USER_ID_KEY).(int64)
+
+	posts, err := p.svc.ReadPosts(userID)
 	if err != nil {
 		responseErr := util.Error(err, r.URL.Path)
 		util.ErrorResponse(w, r, responseErr)
@@ -85,6 +92,8 @@ func (p *PostHandler) ReadPosts(w http.ResponseWriter, r *http.Request) {
 // @Security BearerAuth
 // @Router /posts/comment [post]
 func (p *PostHandler) CommentOnPost(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value(constants.USER_ID_KEY).(int64)
+
 	var req model.CommentOnPostRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		responseErr := util.Error(err, r.URL.Path)
@@ -92,7 +101,79 @@ func (p *PostHandler) CommentOnPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	req.UserID = userID
+
 	if err := p.svc.CommentOnPost(req); err != nil {
+		responseErr := util.Error(err, r.URL.Path)
+		util.ErrorResponse(w, r, responseErr)
+		return
+	}
+
+	resp := model.BasicResponse{Message: "Success"}
+	w.WriteHeader(http.StatusOK)
+	_ = json.NewEncoder(w).Encode(resp)
+}
+
+// LikePost godoc
+// @Summary Likes a post
+// @Tags Posts
+// @Accept json
+// @Produce json
+// @Param request body model.LikePostRequest true "Like post body"
+// @Success 200 {object} model.BasicResponse ""
+// @Failure 400 {object} model.BasicResponse "Validation error"
+// @Failure 401 {object} model.BasicResponse "Unauthorized"
+// @Failure 500 {object} model.BasicResponse "Internal server error"
+// @Security BearerAuth
+// @Router /posts/like [post]
+func (p *PostHandler) LikePost(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value(constants.USER_ID_KEY).(int64)
+
+	var req model.LikePostRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		responseErr := util.Error(err, r.URL.Path)
+		util.ErrorResponse(w, r, responseErr)
+		return
+	}
+
+	req.UserID = userID
+
+	if _, err := p.svc.LikePost(req); err != nil {
+		responseErr := util.Error(err, r.URL.Path)
+		util.ErrorResponse(w, r, responseErr)
+		return
+	}
+
+	resp := model.BasicResponse{Message: "Success"}
+	w.WriteHeader(http.StatusOK)
+	_ = json.NewEncoder(w).Encode(resp)
+}
+
+// UnlikePost godoc
+// @Summary Unlikes a post
+// @Tags Posts
+// @Accept json
+// @Produce json
+// @Param request body model.UnikePostRequest true "Unlike post body"
+// @Success 200 {object} model.BasicResponse ""
+// @Failure 400 {object} model.BasicResponse "Validation error"
+// @Failure 401 {object} model.BasicResponse "Unauthorized"
+// @Failure 500 {object} model.BasicResponse "Internal server error"
+// @Security BearerAuth
+// @Router /posts/unlike [post]
+func (p *PostHandler) UnlikePost(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value(constants.USER_ID_KEY).(int64)
+
+	var req model.UnikePostRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		responseErr := util.Error(err, r.URL.Path)
+		util.ErrorResponse(w, r, responseErr)
+		return
+	}
+
+	req.UserID = userID
+
+	if _, err := p.svc.UnlikePost(req); err != nil {
 		responseErr := util.Error(err, r.URL.Path)
 		util.ErrorResponse(w, r, responseErr)
 		return
@@ -116,12 +197,16 @@ func (p *PostHandler) CommentOnPost(w http.ResponseWriter, r *http.Request) {
 // @Security BearerAuth
 // @Router /posts/comment/reply [post]
 func (p *PostHandler) CommentOnComment(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value(constants.USER_ID_KEY).(int64)
+
 	var req model.CommentOnCommentRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		responseErr := util.Error(err, r.URL.Path)
 		util.ErrorResponse(w, r, responseErr)
 		return
 	}
+
+	req.UserID = userID
 
 	if err := p.svc.CommentOnComment(req); err != nil {
 		responseErr := util.Error(err, r.URL.Path)

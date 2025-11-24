@@ -10,6 +10,7 @@ type Post struct {
 	Date     string     `json:"date"`
 	Likes    int        `json:"likes"`
 	Comments []*Comment `json:"comments"`
+	IsLiked  bool       `json:"isLiked"`
 }
 
 type Comment struct {
@@ -59,5 +60,11 @@ type CommentOnCommentRequest struct {
 }
 
 type LikePostRequest struct {
-	PostID int `json:"postID"`
+	PostID int64 `json:"postId"`
+	UserID int64 `json:"userId"`
+}
+
+type UnikePostRequest struct {
+	PostID int64 `json:"postId"`
+	UserID int64 `json:"userId"`
 }

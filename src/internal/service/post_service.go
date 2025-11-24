@@ -2,6 +2,7 @@ package service
 
 import (
 	"workoutpal/src/internal/domain/repository"
+	"workoutpal/src/internal/domain/service"
 	"workoutpal/src/internal/model"
 )
 
@@ -9,7 +10,7 @@ type PostService struct {
 	repo repository.PostRepository
 }
 
-func NewPostService(repo repository.PostRepository) *PostService {
+func NewPostService(repo repository.PostRepository) service.PostService {
 	return &PostService{repo: repo}
 }
 
@@ -27,8 +28,8 @@ func (s *PostService) CreatePost(req model.CreatePostRequest) (*model.Post, erro
 	return post, nil
 }
 
-func (s *PostService) ReadPosts() ([]*model.Post, error) {
-	posts, err := s.repo.ReadPosts()
+func (s *PostService) ReadPosts(userID int64) ([]*model.Post, error) {
+	posts, err := s.repo.ReadPosts(userID)
 	if err != nil {
 		return nil, err
 	}
@@ -67,4 +68,12 @@ func (s *PostService) CommentOnPost(req model.CommentOnPostRequest) error {
 
 func (s *PostService) CommentOnComment(req model.CommentOnCommentRequest) error {
 	return s.repo.CommentOnComment(req)
+}
+
+func (s *PostService) LikePost(req model.LikePostRequest) (*model.Post, error) {
+	return s.repo.LikePost(req)
+}
+
+func (s *PostService) UnlikePost(req model.UnikePostRequest) (*model.Post, error) {
+	return s.repo.UnlikePost(req)
 }
