@@ -6,6 +6,7 @@ package mock_repository
 
 import (
 	reflect "reflect"
+	model "workoutpal/src/internal/model"
 
 	gomock "github.com/golang/mock/gomock"
 )
@@ -89,4 +90,91 @@ func (m *MockRelationshipRepository) UnfollowUser(arg0, arg1 int64) error {
 func (mr *MockRelationshipRepositoryMockRecorder) UnfollowUser(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UnfollowUser", reflect.TypeOf((*MockRelationshipRepository)(nil).UnfollowUser), arg0, arg1)
+}
+
+// CreateFollowRequest mocks base method.
+func (m *MockRelationshipRepository) CreateFollowRequest(arg0, arg1 int64) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateFollowRequest", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreateFollowRequest indicates an expected call of CreateFollowRequest.
+func (mr *MockRelationshipRepositoryMockRecorder) CreateFollowRequest(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateFollowRequest", reflect.TypeOf((*MockRelationshipRepository)(nil).CreateFollowRequest), arg0, arg1)
+}
+
+// GetFollowRequest mocks base method.
+func (m *MockRelationshipRepository) GetFollowRequest(arg0, arg1 int64) (*model.FollowRequestModel, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetFollowRequest", arg0, arg1)
+	ret0, _ := ret[0].(*model.FollowRequestModel)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetFollowRequest indicates an expected call of GetFollowRequest.
+func (mr *MockRelationshipRepositoryMockRecorder) GetFollowRequest(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFollowRequest", reflect.TypeOf((*MockRelationshipRepository)(nil).GetFollowRequest), arg0, arg1)
+}
+
+// GetFollowRequestByID mocks base method.
+func (m *MockRelationshipRepository) GetFollowRequestByID(arg0 int64) (*model.FollowRequestModel, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetFollowRequestByID", arg0)
+	ret0, _ := ret[0].(*model.FollowRequestModel)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetFollowRequestByID indicates an expected call of GetFollowRequestByID.
+func (mr *MockRelationshipRepositoryMockRecorder) GetFollowRequestByID(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFollowRequestByID", reflect.TypeOf((*MockRelationshipRepository)(nil).GetFollowRequestByID), arg0)
+}
+
+// GetPendingFollowRequests mocks base method.
+func (m *MockRelationshipRepository) GetPendingFollowRequests(arg0 int64) ([]*model.FollowRequestWithUser, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPendingFollowRequests", arg0)
+	ret0, _ := ret[0].([]*model.FollowRequestWithUser)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetPendingFollowRequests indicates an expected call of GetPendingFollowRequests.
+func (mr *MockRelationshipRepositoryMockRecorder) GetPendingFollowRequests(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPendingFollowRequests", reflect.TypeOf((*MockRelationshipRepository)(nil).GetPendingFollowRequests), arg0)
+}
+
+// UpdateFollowRequestStatus mocks base method.
+func (m *MockRelationshipRepository) UpdateFollowRequestStatus(arg0 int64, arg1 string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateFollowRequestStatus", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateFollowRequestStatus indicates an expected call of UpdateFollowRequestStatus.
+func (mr *MockRelationshipRepositoryMockRecorder) UpdateFollowRequestStatus(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateFollowRequestStatus", reflect.TypeOf((*MockRelationshipRepository)(nil).UpdateFollowRequestStatus), arg0, arg1)
+}
+
+// DeleteFollowRequest mocks base method.
+func (m *MockRelationshipRepository) DeleteFollowRequest(arg0 int64) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteFollowRequest", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteFollowRequest indicates an expected call of DeleteFollowRequest.
+func (mr *MockRelationshipRepositoryMockRecorder) DeleteFollowRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteFollowRequest", reflect.TypeOf((*MockRelationshipRepository)(nil).DeleteFollowRequest), arg0)
 }

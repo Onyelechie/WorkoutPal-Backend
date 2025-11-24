@@ -91,3 +91,89 @@ func (mr *MockRelationshipServiceMockRecorder) UnfollowUser(arg0, arg1 interface
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UnfollowUser", reflect.TypeOf((*MockRelationshipService)(nil).UnfollowUser), arg0, arg1)
 }
+
+// SendFollowRequest mocks base method.
+func (m *MockRelationshipService) SendFollowRequest(arg0, arg1 int64) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SendFollowRequest", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SendFollowRequest indicates an expected call of SendFollowRequest.
+func (mr *MockRelationshipServiceMockRecorder) SendFollowRequest(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendFollowRequest", reflect.TypeOf((*MockRelationshipService)(nil).SendFollowRequest), arg0, arg1)
+}
+
+// GetFollowRequest mocks base method.
+func (m *MockRelationshipService) GetFollowRequest(arg0, arg1 int64) (*model.FollowRequestModel, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetFollowRequest", arg0, arg1)
+	ret0, _ := ret[0].(*model.FollowRequestModel)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetFollowRequest indicates an expected call of GetFollowRequest.
+func (mr *MockRelationshipServiceMockRecorder) GetFollowRequest(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFollowRequest", reflect.TypeOf((*MockRelationshipService)(nil).GetFollowRequest), arg0, arg1)
+}
+
+// GetPendingFollowRequests mocks base method.
+func (m *MockRelationshipService) GetPendingFollowRequests(arg0 int64) ([]*model.FollowRequestWithUser, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPendingFollowRequests", arg0)
+	ret0, _ := ret[0].([]*model.FollowRequestWithUser)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetPendingFollowRequests indicates an expected call of GetPendingFollowRequests.
+func (mr *MockRelationshipServiceMockRecorder) GetPendingFollowRequests(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPendingFollowRequests", reflect.TypeOf((*MockRelationshipService)(nil).GetPendingFollowRequests), arg0)
+}
+
+// AcceptFollowRequest mocks base method.
+func (m *MockRelationshipService) AcceptFollowRequest(arg0 int64) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AcceptFollowRequest", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AcceptFollowRequest indicates an expected call of AcceptFollowRequest.
+func (mr *MockRelationshipServiceMockRecorder) AcceptFollowRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AcceptFollowRequest", reflect.TypeOf((*MockRelationshipService)(nil).AcceptFollowRequest), arg0)
+}
+
+// RejectFollowRequest mocks base method.
+func (m *MockRelationshipService) RejectFollowRequest(arg0 int64) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RejectFollowRequest", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// RejectFollowRequest indicates an expected call of RejectFollowRequest.
+func (mr *MockRelationshipServiceMockRecorder) RejectFollowRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RejectFollowRequest", reflect.TypeOf((*MockRelationshipService)(nil).RejectFollowRequest), arg0)
+}
+
+// CancelFollowRequest mocks base method.
+func (m *MockRelationshipService) CancelFollowRequest(arg0, arg1 int64) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CancelFollowRequest", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CancelFollowRequest indicates an expected call of CancelFollowRequest.
+func (mr *MockRelationshipServiceMockRecorder) CancelFollowRequest(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CancelFollowRequest", reflect.TypeOf((*MockRelationshipService)(nil).CancelFollowRequest), arg0, arg1)
+}

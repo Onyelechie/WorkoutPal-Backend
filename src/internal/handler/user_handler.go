@@ -125,8 +125,19 @@ func (u *userHandler) ReadUserByID(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 			if !isFollower {
+				// Return basic user info even for private profiles
+				privateProfileResponse := map[string]interface{}{
+					"message":  "This profile is private",
+					"isPrivate": true,
+					"user": map[string]interface{}{
+						"id":       user.ID,
+						"name":     user.Name,
+						"username": user.Username,
+						"avatar":   user.Avatar,
+					},
+				}
 				render.Status(r, http.StatusForbidden)
-				render.JSON(w, r, model.BasicResponse{Message: "This profile is private"})
+				render.JSON(w, r, privateProfileResponse)
 				return
 			}
 		}
