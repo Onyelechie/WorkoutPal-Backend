@@ -10,21 +10,89 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 )
 
+func TestPostRepository_ReadPostsByUserID_OK(t *testing.T) {
+	db, mock, _ := sqlmock.New()
+	defer db.Close()
+	repo := NewPostRepository(db)
+
+	targetUserID := int64(100)
+	userID := int64(42)
+
+	rows := sqlmock.NewRows([]string{
+		"id", "title", "body", "caption", "status", "created_at", "username", "likes", "is_liked",
+	}).
+		AddRow(1, "A", "B", "C", "active", "now", "user1", 5, true).
+		AddRow(2, "X", "Y", "Z", "inactive", "now", "user2", 0, false)
+
+	// In the repo, Query is called with (userID, targetUserID) in that order.
+	mock.ExpectQuery("SELECT p.id").
+		WithArgs(userID, targetUserID).
+		WillReturnRows(rows)
+
+	got, err := repo.ReadPostsByUserID(targetUserID, userID)
+	if err != nil {
+		t.Fatalf("unexpected err: %v", err)
+	}
+	if len(got) != 2 {
+		t.Fatalf("expected 2 posts, got %d", len(got))
+	}
+	if !got[0].IsLiked {
+		t.Fatalf("expected first post to be liked, got IsLiked=%v", got[0].IsLiked)
+	}
+	if got[1].IsLiked {
+		t.Fatalf("expected second post to be not liked, got IsLiked=%v", got[1].IsLiked)
+	}
+}
+
+func TestPostRepository_ReadPostsByUserID_Error(t *testing.T) {
+	db, mock, _ := sqlmock.New()
+	defer db.Close()
+	repo := NewPostRepository(db)
+
+	targetUserID := int64(100)
+	userID := int64(42)
+
+	mock.ExpectQuery("SELECT p.id").
+		WithArgs(userID, targetUserID).
+		WillReturnError(errors.New("fail"))
+
+	_, err := repo.ReadPostsByUserID(targetUserID, userID)
+	if err == nil || err.Error() != "fail" {
+		t.Fatalf("expected fail, got %v", err)
+	}
+}
+
 func TestPostRepository_CreatePost_OK(t *testing.T) {
 	db, mock, _ := sqlmock.New()
 	defer db.Close()
 	repo := NewPostRepository(db)
 
-	req := model.CreatePostRequest{Title: "T", Body: "B", Caption: "C", Status: "active", PostedBy: 1}
-	rows := sqlmock.NewRows([]string{"id", "title", "body", "caption", "status", "created_at"}).
-		AddRow(1, "T", "B", "C", "active", "now")
+	req := model.CreatePostRequest{
+		Title:    "T",
+		Body:     "B",
+		Caption:  "C",
+		Status:   "active",
+		PostedBy: 1,
+	}
+
+	insertRows := sqlmock.NewRows([]string{"id"}).AddRow(int64(1))
 
 	mock.ExpectQuery(regexp.QuoteMeta(`
 		INSERT INTO posts (title, body, caption, status, user_id)
 		VALUES ($1,$2,$3,$4,$5)
-		RETURNING id, title, body, caption, status, created_at`)).
+		RETURNING id`)).
 		WithArgs(req.Title, req.Body, req.Caption, req.Status, req.PostedBy).
-		WillReturnRows(rows)
+		WillReturnRows(insertRows)
+
+	selectRows := sqlmock.NewRows([]string{
+		"id", "title", "body", "caption", "status", "created_at", "username", "likes", "is_liked",
+	}).AddRow(
+		int64(1), "T", "B", "C", "active", "now", "user1", 0, false,
+	)
+
+	mock.ExpectQuery("SELECT p.id").
+		WithArgs(req.PostedBy, int64(1)).
+		WillReturnRows(selectRows)
 
 	got, err := repo.CreatePost(req)
 	if err != nil {
@@ -41,7 +109,9 @@ func TestPostRepository_CreatePost_Error(t *testing.T) {
 	repo := NewPostRepository(db)
 
 	req := model.CreatePostRequest{Title: "Fail"}
-	mock.ExpectQuery("INSERT INTO posts").WillReturnError(errors.New("insert fail"))
+
+	mock.ExpectQuery("INSERT INTO posts").
+		WillReturnError(errors.New("insert fail"))
 
 	_, err := repo.CreatePost(req)
 	if err == nil || err.Error() != "insert fail" {
@@ -150,21 +220,37 @@ func TestPostRepository_UpdatePost_OK(t *testing.T) {
 	defer db.Close()
 	repo := NewPostRepository(db)
 
-	req := model.UpdatePostRequest{ID: 1, Title: "T", Body: "B", Caption: "C", Status: "S"}
-	rows := sqlmock.NewRows([]string{"id", "title", "body", "caption", "status", "created_at"}).
-		AddRow(1, "T", "B", "C", "S", "now")
+	req := model.UpdatePostRequest{
+		ID:      1,
+		Title:   "T",
+		Body:    "B",
+		Caption: "C",
+		Status:  "S",
+	}
 
-	mock.ExpectQuery(regexp.QuoteMeta(`
+	mock.ExpectExec(regexp.QuoteMeta(`
 		UPDATE posts 
 		SET title=$1, body=$2, caption=$3, status=$4 
-		WHERE id=$5
-		RETURNING id, title, body, caption, status, created_at`)).
+		WHERE id=$5`)).
 		WithArgs(req.Title, req.Body, req.Caption, req.Status, req.ID).
-		WillReturnRows(rows)
+		WillReturnResult(sqlmock.NewResult(0, 1))
+
+	selectRows := sqlmock.NewRows([]string{
+		"id", "title", "body", "caption", "status", "created_at", "username", "likes", "is_liked",
+	}).AddRow(
+		int64(1), "T", "B", "C", "S", "now", "user1", 0, false,
+	)
+
+	mock.ExpectQuery("SELECT p.id").
+		WithArgs(int64(0), req.ID).
+		WillReturnRows(selectRows)
 
 	got, err := repo.UpdatePost(req)
-	if err != nil || got.ID != 1 {
-		t.Fatalf("unexpected: %#v err=%v", got, err)
+	if err != nil {
+		t.Fatalf("unexpected err: %v", err)
+	}
+	if got.ID != 1 || got.Title != "T" {
+		t.Fatalf("unexpected post: %#v", got)
 	}
 }
 
@@ -174,7 +260,10 @@ func TestPostRepository_UpdatePost_Error(t *testing.T) {
 	repo := NewPostRepository(db)
 
 	req := model.UpdatePostRequest{ID: 1}
-	mock.ExpectQuery("UPDATE posts").WillReturnError(errors.New("fail"))
+
+	mock.ExpectExec("UPDATE posts").
+		WithArgs(req.Title, req.Body, req.Caption, req.Status, req.ID).
+		WillReturnError(errors.New("fail"))
 
 	_, err := repo.UpdatePost(req)
 	if err == nil || err.Error() != "fail" {

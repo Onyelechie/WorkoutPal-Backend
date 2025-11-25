@@ -14,6 +14,57 @@ func NewPostRepository(db *sql.DB) repository.PostRepository {
 	return &PostRepository{db: db}
 }
 
+func (p *PostRepository) ReadPostsByUserID(targetUserID int64, userID int64) ([]*model.Post, error) {
+	rows, err := p.db.Query(`
+    SELECT 
+        p.id,
+        p.title,
+        p.body,
+        p.caption,
+        p.status,
+        p.created_at,
+        u.username,
+        COUNT(DISTINCT pl_all.user_id) AS likes,
+        pl_user.post_id IS NOT NULL AS is_liked
+    FROM posts p 
+    LEFT JOIN post_likes pl_all ON p.id = pl_all.post_id
+    LEFT JOIN post_likes pl_user ON p.id = pl_user.post_id AND pl_user.user_id = $1
+    JOIN users u ON u.id = p.user_id
+    WHERE p.user_id = $2
+    GROUP BY p.id, u.username, pl_user.post_id`,
+		userID, targetUserID,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var result = make([]*model.Post, 0)
+	for rows.Next() {
+		var post model.Post
+		if err := rows.Scan(
+			&post.ID,
+			&post.Title,
+			&post.Body,
+			&post.Caption,
+			&post.Status,
+			&post.Date,
+			&post.PostedBy,
+			&post.Likes,
+			&post.IsLiked,
+		); err != nil {
+			return nil, err
+		}
+		result = append(result, &post)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
 func (p *PostRepository) ReadPosts(userID int64) ([]*model.Post, error) {
 	rows, err := p.db.Query(`
     SELECT 
@@ -107,34 +158,31 @@ func (p *PostRepository) ReadPost(id int64, userID int64) (*model.Post, error) {
 }
 
 func (p *PostRepository) CreatePost(req model.CreatePostRequest) (*model.Post, error) {
+	var id int64
 	row := p.db.QueryRow(`
 		INSERT INTO posts (title, body, caption, status, user_id)
 		VALUES ($1,$2,$3,$4,$5)
-		RETURNING id, title, body, caption, status, created_at`,
+		RETURNING id`,
 		req.Title, req.Body, req.Caption, req.Status, req.PostedBy)
 
-	var post model.Post
-	err := row.Scan(&post.ID, &post.Title, &post.Body, &post.Caption, &post.Status, &post.Date)
-	if err != nil {
+	if err := row.Scan(&id); err != nil {
 		return nil, err
 	}
-	return &post, nil
+
+	return p.ReadPost(id, req.PostedBy)
 }
 
 func (p *PostRepository) UpdatePost(req model.UpdatePostRequest) (*model.Post, error) {
-	row := p.db.QueryRow(`
+	_, err := p.db.Exec(`
 		UPDATE posts 
 		SET title=$1, body=$2, caption=$3, status=$4 
-		WHERE id=$5
-		RETURNING id, title, body, caption, status, created_at`,
+		WHERE id=$5`,
 		req.Title, req.Body, req.Caption, req.Status, req.ID)
-
-	var post model.Post
-	err := row.Scan(&post.ID, &post.Title, &post.Body, &post.Caption, &post.Status, &post.Date)
 	if err != nil {
 		return nil, err
 	}
-	return &post, nil
+
+	return p.ReadPost(req.ID, 0)
 }
 
 func (p *PostRepository) DeletePost(id int64) error {
@@ -154,7 +202,7 @@ func (p *PostRepository) ReadCommentsByPost(postID int64) ([]*model.Comment, err
 	}
 	defer rows.Close()
 
-	var result []*model.Comment = make([]*model.Comment, 0)
+	var result = make([]*model.Comment, 0)
 	for rows.Next() {
 		var c model.Comment
 		err := rows.Scan(&c.ID, &c.Comment, &c.Date, &c.Username)

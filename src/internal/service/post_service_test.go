@@ -20,8 +20,8 @@ func TestPostService_CreatePost_OK(t *testing.T) {
 	req := model.CreatePostRequest{Title: "Test", Body: "Body"}
 	want := &model.Post{ID: 1, Title: "Test", Body: "Body"}
 
+	// Service only calls CreatePost, nothing else.
 	repo.EXPECT().CreatePost(req).Return(want, nil)
-	repo.EXPECT().ReadCommentsByPost(int64(1)).Return(nil, nil)
 
 	got, err := svc.CreatePost(req)
 	if err != nil {
@@ -32,6 +32,27 @@ func TestPostService_CreatePost_OK(t *testing.T) {
 	}
 }
 
+func TestPostService_UpdatePost_OK(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	t.Cleanup(ctrl.Finish)
+
+	repo := mock_repository.NewMockPostRepository(ctrl)
+	svc := NewPostService(repo)
+
+	req := model.UpdatePostRequest{ID: 1, Title: "Updated"}
+	want := &model.Post{ID: 1, Title: "Updated"}
+
+	// Service only calls UpdatePost, nothing else.
+	repo.EXPECT().UpdatePost(req).Return(want, nil)
+
+	got, err := svc.UpdatePost(req)
+	if err != nil {
+		t.Fatalf("unexpected err: %v", err)
+	}
+	if got == nil || got.ID != want.ID {
+		t.Fatalf("unexpected post: %#v", got)
+	}
+}
 func TestPostService_CreatePost_Error(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	t.Cleanup(ctrl.Finish)
@@ -59,18 +80,60 @@ func TestPostService_ReadPosts_OK(t *testing.T) {
 	svc := NewPostService(repo)
 
 	userID := int64(42)
-	want := []*model.Post{{ID: 1}, {ID: 2}}
+	post1 := &model.Post{ID: 1}
+	post2 := &model.Post{ID: 2}
+	posts := []*model.Post{post1, post2}
 
-	repo.EXPECT().ReadPosts(userID).Return(want, nil)
-	repo.EXPECT().ReadCommentsByPost(int64(1)).Return(nil, nil)
-	repo.EXPECT().ReadCommentsByPost(int64(2)).Return(nil, nil)
+	repo.EXPECT().
+		ReadPosts(userID).
+		Return(posts, nil)
+
+	c1p1 := &model.Comment{ID: 10}
+	c2p1 := &model.Comment{ID: 11}
+	repo.EXPECT().
+		ReadCommentsByPost(int64(1)).
+		Return([]*model.Comment{c1p1, c2p1}, nil)
+
+	r1c1p1 := &model.Comment{ID: 100}
+	repo.EXPECT().
+		ReadCommentsByComment(int64(10)).
+		Return([]*model.Comment{r1c1p1}, nil)
+	repo.EXPECT().
+		ReadCommentsByComment(int64(11)).
+		Return([]*model.Comment{}, nil)
+
+	c1p2 := &model.Comment{ID: 20}
+	repo.EXPECT().
+		ReadCommentsByPost(int64(2)).
+		Return([]*model.Comment{c1p2}, nil)
+
+	repo.EXPECT().
+		ReadCommentsByComment(int64(20)).
+		Return([]*model.Comment{}, nil)
 
 	got, err := svc.ReadPosts(userID)
 	if err != nil {
 		t.Fatalf("unexpected err: %v", err)
 	}
-	if len(got) != len(want) {
-		t.Fatalf("unexpected posts: %#v", got)
+	if len(got) != 2 {
+		t.Fatalf("expected 2 posts, got %d", len(got))
+	}
+
+	if len(got[0].Comments) != 2 {
+		t.Fatalf("expected 2 comments on post 1, got %d", len(got[0].Comments))
+	}
+	if len(got[0].Comments[0].Replies) != 1 {
+		t.Fatalf("expected 1 reply on first comment of post 1, got %d", len(got[0].Comments[0].Replies))
+	}
+	if got[0].Comments[0].Replies[0].ID != 100 {
+		t.Fatalf("expected reply ID 100, got %d", got[0].Comments[0].Replies[0].ID)
+	}
+
+	if len(got[1].Comments) != 1 {
+		t.Fatalf("expected 1 comment on post 2, got %d", len(got[1].Comments))
+	}
+	if len(got[1].Comments[0].Replies) != 0 {
+		t.Fatalf("expected 0 replies on post 2 comment, got %d", len(got[1].Comments[0].Replies))
 	}
 }
 
@@ -93,25 +156,76 @@ func TestPostService_ReadPosts_Error(t *testing.T) {
 	}
 }
 
-func TestPostService_UpdatePost_OK(t *testing.T) {
+func TestPostService_ReadPostsByUserID_OK(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	t.Cleanup(ctrl.Finish)
 
 	repo := mock_repository.NewMockPostRepository(ctrl)
 	svc := NewPostService(repo)
 
-	req := model.UpdatePostRequest{ID: 1, Title: "Updated"}
-	want := &model.Post{ID: 1, Title: "Updated"}
+	targetUserID := int64(100)
+	userID := int64(42)
 
-	repo.EXPECT().UpdatePost(req).Return(want, nil)
-	repo.EXPECT().ReadCommentsByPost(int64(1)).Return(nil, nil)
+	post1 := &model.Post{ID: 1}
+	posts := []*model.Post{post1}
 
-	got, err := svc.UpdatePost(req)
+	repo.EXPECT().
+		ReadPostsByUserID(targetUserID, userID).
+		Return(posts, nil)
+
+	c1 := &model.Comment{ID: 10}
+	c2 := &model.Comment{ID: 11}
+	repo.EXPECT().
+		ReadCommentsByPost(int64(1)).
+		Return([]*model.Comment{c1, c2}, nil)
+
+	r1 := &model.Comment{ID: 100}
+	repo.EXPECT().
+		ReadCommentsByComment(int64(10)).
+		Return([]*model.Comment{r1}, nil)
+	repo.EXPECT().
+		ReadCommentsByComment(int64(11)).
+		Return([]*model.Comment{}, nil)
+
+	got, err := svc.ReadPostsByUserID(targetUserID, userID)
 	if err != nil {
 		t.Fatalf("unexpected err: %v", err)
 	}
-	if got == nil || got.ID != want.ID {
-		t.Fatalf("unexpected post: %#v", got)
+	if len(got) != 1 {
+		t.Fatalf("expected 1 post, got %d", len(got))
+	}
+
+	if len(got[0].Comments) != 2 {
+		t.Fatalf("expected 2 comments on post, got %d", len(got[0].Comments))
+	}
+	if len(got[0].Comments[0].Replies) != 1 {
+		t.Fatalf("expected 1 reply on first comment, got %d", len(got[0].Comments[0].Replies))
+	}
+	if got[0].Comments[0].Replies[0].ID != 100 {
+		t.Fatalf("expected reply ID 100, got %d", got[0].Comments[0].Replies[0].ID)
+	}
+}
+
+func TestPostService_ReadPostsByUserID_Error(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	t.Cleanup(ctrl.Finish)
+
+	repo := mock_repository.NewMockPostRepository(ctrl)
+	svc := NewPostService(repo)
+
+	targetUserID := int64(100)
+	userID := int64(42)
+
+	repo.EXPECT().
+		ReadPostsByUserID(targetUserID, userID).
+		Return(nil, errors.New("failed"))
+
+	got, err := svc.ReadPostsByUserID(targetUserID, userID)
+	if got != nil {
+		t.Fatalf("expected nil, got %#v", got)
+	}
+	if err == nil || err.Error() != "failed" {
+		t.Fatalf("expected failed, got %v", err)
 	}
 }
 

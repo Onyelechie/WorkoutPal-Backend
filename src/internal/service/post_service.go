@@ -14,18 +14,28 @@ func NewPostService(repo repository.PostRepository) service.PostService {
 	return &PostService{repo: repo}
 }
 
-func (s *PostService) CreatePost(req model.CreatePostRequest) (*model.Post, error) {
-	post, err := s.repo.CreatePost(req)
+func (s *PostService) ReadPostsByUserID(targetUserID int64, userID int64) ([]*model.Post, error) {
+	posts, err := s.repo.ReadPostsByUserID(targetUserID, userID)
 	if err != nil {
 		return nil, err
 	}
 
-	comments, err := s.repo.ReadCommentsByPost(post.ID)
-	if err != nil {
-		return nil, err
+	for _, post := range posts {
+		comments, err := s.repo.ReadCommentsByPost(post.ID)
+		if err != nil {
+			return nil, err
+		}
+		for _, c := range comments {
+			replies, err := s.repo.ReadCommentsByComment(c.ID)
+			if err != nil {
+				return nil, err
+			}
+			c.Replies = replies
+		}
+		post.Comments = comments
 	}
-	post.Comments = comments
-	return post, nil
+
+	return posts, nil
 }
 
 func (s *PostService) ReadPosts(userID int64) ([]*model.Post, error) {
@@ -39,9 +49,26 @@ func (s *PostService) ReadPosts(userID int64) ([]*model.Post, error) {
 		if err != nil {
 			return nil, err
 		}
+		for _, c := range comments {
+			replies, err := s.repo.ReadCommentsByComment(c.ID)
+			if err != nil {
+				return nil, err
+			}
+			c.Replies = replies
+		}
 		post.Comments = comments
 	}
+
 	return posts, nil
+}
+
+func (s *PostService) CreatePost(req model.CreatePostRequest) (*model.Post, error) {
+	post, err := s.repo.CreatePost(req)
+	if err != nil {
+		return nil, err
+	}
+
+	return post, nil
 }
 
 func (s *PostService) UpdatePost(req model.UpdatePostRequest) (*model.Post, error) {
@@ -50,11 +77,6 @@ func (s *PostService) UpdatePost(req model.UpdatePostRequest) (*model.Post, erro
 		return nil, err
 	}
 
-	comments, err := s.repo.ReadCommentsByPost(post.ID)
-	if err != nil {
-		return nil, err
-	}
-	post.Comments = comments
 	return post, nil
 }
 

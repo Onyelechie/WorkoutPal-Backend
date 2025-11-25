@@ -39,7 +39,6 @@ func (p *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Never trust client for user identity
 	req.PostedBy = userID
 
 	post, err := p.svc.CreatePost(req)
@@ -69,6 +68,33 @@ func (p *PostHandler) ReadPosts(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value(constants.USER_ID_KEY).(int64)
 
 	posts, err := p.svc.ReadPosts(userID)
+	if err != nil {
+		responseErr := util.Error(err, r.URL.Path)
+		util.ErrorResponse(w, r, responseErr)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	_ = json.NewEncoder(w).Encode(posts)
+}
+
+// ReadPostsByUserID godoc
+// @Summary List posts for a specific user
+// @Tags Posts
+// @Accept json
+// @Produce json
+// @Param id path int true "Target user ID"
+// @Success 200 {array} model.Post "Posts retrieved successfully"
+// @Failure 400 {object} model.BasicResponse "Validation error"
+// @Failure 401 {object} model.BasicResponse "Unauthorized"
+// @Failure 500 {object} model.BasicResponse "Internal server error"
+// @Security BearerAuth
+// @Router /posts/user/{id} [get]
+func (p *PostHandler) ReadPostsByUserID(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value(constants.USER_ID_KEY).(int64)
+	targetUserID := r.Context().Value(constants.ID_KEY).(int64)
+
+	posts, err := p.svc.ReadPostsByUserID(targetUserID, userID)
 	if err != nil {
 		responseErr := util.Error(err, r.URL.Path)
 		util.ErrorResponse(w, r, responseErr)

@@ -466,6 +466,73 @@ const docTemplate = `{
                 }
             }
         },
+        "/follow-requests": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Relationships"
+                ],
+                "summary": "Get all pending follow requests for the authenticated user",
+                "responses": {
+                    "200": {
+                        "description": "Pending follow requests retrieved successfully",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.FollowRequestWithUser"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/follow-requests/respond": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Relationships"
+                ],
+                "summary": "Accept or reject a follow request",
+                "parameters": [
+                    {
+                        "description": "Follow request response",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.FollowRequestResponse"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Follow request processed successfully",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/login": {
             "post": {
                 "description": "Authenticates a user and sets access_token as cookie",
@@ -846,6 +913,63 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/posts/user/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Posts"
+                ],
+                "summary": "List posts for a specific user",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Target user ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Posts retrieved successfully",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.Post"
+                            }
                         }
                     },
                     "400": {
@@ -1507,6 +1631,127 @@ const docTemplate = `{
                 }
             }
         },
+        "/users/{id}/follow-request": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Relationships"
+                ],
+                "summary": "Send a follow request to a private profile",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID to request to follow",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Requester user ID",
+                        "name": "requester_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Follow request sent successfully",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid user ID",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Relationships"
+                ],
+                "summary": "Cancel a pending follow request",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID whose request to cancel",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Requester user ID",
+                        "name": "requester_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Follow request cancelled successfully",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid user ID",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{id}/follow-request/status": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Relationships"
+                ],
+                "summary": "Get the status of a follow request",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Requester user ID",
+                        "name": "requester_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Follow request status",
+                        "schema": {
+                            "$ref": "#/definitions/model.FollowRequestModel"
+                        }
+                    },
+                    "404": {
+                        "description": "No follow request found",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/users/{id}/followers": {
             "get": {
                 "produces": [
@@ -2103,11 +2348,17 @@ const docTemplate = `{
                 "heightMetric": {
                     "type": "string"
                 },
+                "isPrivate": {
+                    "type": "boolean"
+                },
                 "name": {
                     "type": "string"
                 },
                 "password": {
                     "type": "string"
+                },
+                "showMetricsToFollowers": {
+                    "type": "boolean"
                 },
                 "username": {
                     "type": "string"
@@ -2196,6 +2447,70 @@ const docTemplate = `{
                 },
                 "userId": {
                     "type": "integer"
+                }
+            }
+        },
+        "model.FollowRequestModel": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "requestedID": {
+                    "type": "integer"
+                },
+                "requesterID": {
+                    "type": "integer"
+                },
+                "status": {
+                    "description": "pending, accepted, rejected",
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.FollowRequestResponse": {
+            "type": "object",
+            "properties": {
+                "action": {
+                    "description": "accept, reject",
+                    "type": "string"
+                },
+                "requestID": {
+                    "type": "integer"
+                }
+            }
+        },
+        "model.FollowRequestWithUser": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "requestedID": {
+                    "type": "integer"
+                },
+                "requesterID": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "user": {
+                    "description": "The user who sent the request",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/model.User"
+                        }
+                    ]
                 }
             }
         },
@@ -2384,11 +2699,17 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
+                "isPrivate": {
+                    "type": "boolean"
+                },
                 "name": {
                     "type": "string"
                 },
                 "password": {
                     "type": "string"
+                },
+                "showMetricsToFollowers": {
+                    "type": "boolean"
                 },
                 "username": {
                     "type": "string"
@@ -2443,6 +2764,9 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
+                "isPrivate": {
+                    "type": "boolean"
+                },
                 "isVerified": {
                     "type": "boolean"
                 },
@@ -2463,6 +2787,9 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/model.ExerciseRoutine"
                     }
+                },
+                "showMetricsToFollowers": {
+                    "type": "boolean"
                 },
                 "username": {
                     "type": "string"

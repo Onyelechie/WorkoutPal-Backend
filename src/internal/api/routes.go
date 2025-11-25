@@ -136,6 +136,7 @@ func Routes(r chi.Router, appDep dependency.AppDependencies, secret []byte) http
 
 	// Posts
 	r.With(authMiddleware).Route("/posts", func(r chi.Router) {
+		r.With(idMiddleware).Get("/user/{id}", postHandler.ReadPostsByUserID)
 		r.Get("/", postHandler.ReadPosts)
 		r.Post("/", postHandler.CreatePost)
 		r.With(idMiddleware).Delete("/{id}", postHandler.DeletePost)

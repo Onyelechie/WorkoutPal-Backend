@@ -186,6 +186,7 @@ func TestEndToEnd(t *testing.T) {
 	// Post Tests
 	t.Run("Posts_Create", testEndToEnd_Posts_Create)
 	t.Run("Posts_List", testEndToEnd_Posts_List)
+	t.Run("Post_ListByUser", testEndToEnd_Posts_ReadByUserID)
 	t.Run("Posts_CommentOnPost", testEndToEnd_Posts_CommentOnPost)
 	t.Run("Posts_CommentOnComment", testEndToEnd_Posts_CommentOnComment)
 	t.Run("Posts_Delete", testEndToEnd_Posts_Delete)
