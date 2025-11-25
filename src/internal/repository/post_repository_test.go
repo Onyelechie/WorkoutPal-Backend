@@ -57,10 +57,10 @@ func TestPostRepository_ReadPosts_OK(t *testing.T) {
 	userID := int64(42)
 
 	rows := sqlmock.NewRows([]string{
-		"id", "title", "body", "caption", "status", "created_at", "username", "is_liked",
+		"id", "title", "body", "caption", "status", "created_at", "username", "likes", "is_liked",
 	}).
-		AddRow(1, "A", "B", "C", "active", "now", "user1", true).
-		AddRow(2, "X", "Y", "Z", "inactive", "now", "user2", false)
+		AddRow(1, "A", "B", "C", "active", "now", "user1", 5, true).
+		AddRow(2, "X", "Y", "Z", "inactive", "now", "user2", 0, false)
 
 	mock.ExpectQuery("SELECT p.id").
 		WithArgs(userID).
@@ -107,9 +107,9 @@ func TestPostRepository_ReadPost_OK(t *testing.T) {
 	userID := int64(42)
 
 	rows := sqlmock.NewRows([]string{
-		"id", "title", "body", "caption", "status", "created_at", "username", "is_liked",
+		"id", "title", "body", "caption", "status", "created_at", "username", "likes", "is_liked",
 	}).
-		AddRow(postID, "T", "B", "C", "active", "now", "user", true)
+		AddRow(postID, "T", "B", "C", "active", "now", "user", 3, true)
 
 	mock.ExpectQuery("SELECT p.id").
 		WithArgs(userID, postID).
@@ -346,9 +346,9 @@ func TestPostRepository_LikePost_OK(t *testing.T) {
 		WillReturnResult(sqlmock.NewResult(0, 1))
 
 	rows := sqlmock.NewRows([]string{
-		"id", "title", "body", "caption", "status", "created_at", "username", "is_liked",
+		"id", "title", "body", "caption", "status", "created_at", "username", "likes", "is_liked",
 	}).
-		AddRow(1, "T", "B", "C", "active", "now", "user", true)
+		AddRow(1, "T", "B", "C", "active", "now", "user", 1, true)
 
 	mock.ExpectQuery("SELECT p.id").
 		WithArgs(req.UserID, req.PostID).
@@ -395,9 +395,9 @@ func TestPostRepository_UnlikePost_OK(t *testing.T) {
 		WillReturnResult(sqlmock.NewResult(0, 1))
 
 	rows := sqlmock.NewRows([]string{
-		"id", "title", "body", "caption", "status", "created_at", "username", "is_liked",
+		"id", "title", "body", "caption", "status", "created_at", "username", "likes", "is_liked",
 	}).
-		AddRow(1, "T", "B", "C", "active", "now", "user", false)
+		AddRow(1, "T", "B", "C", "active", "now", "user", 0, false)
 
 	mock.ExpectQuery("SELECT p.id").
 		WithArgs(req.UserID, req.PostID).
