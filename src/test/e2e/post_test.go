@@ -74,6 +74,55 @@ func testEndToEnd_Posts_Create(t *testing.T) {
 	}
 }
 
+func testEndToEnd_Posts_ReadByUserID(t *testing.T) {
+	createBody := createPostReq{
+		Title:   "E2E ReadByUser " + randStringAlphaNum(6),
+		Caption: "caption",
+		Body:    "body",
+		Status:  "active",
+	}
+
+	createResp := doRequest(t, http.MethodPost, "/posts", createBody, nil)
+	defer createResp.Body.Close()
+	mustStatus(t, createResp, http.StatusCreated)
+
+	created := mustDecode[post](t, createResp)
+	if created.ID == 0 {
+		t.Fatalf("expected created post id != 0")
+	}
+	if created.PostedBy == "" {
+		t.Fatalf("expected created post to have PostedBy username")
+	}
+
+	userIDStr := int64ToStr(1)
+
+	resp := doRequest(t, http.MethodGet, "/posts/user/"+userIDStr, nil, nil)
+	defer resp.Body.Close()
+	mustStatus(t, resp, http.StatusOK)
+
+	list := mustDecode[[]post](t, resp)
+	if len(list) == 0 {
+		t.Fatalf("expected at least one post for user %s", userIDStr)
+	}
+
+	var found bool
+	for _, p := range list {
+		if p.ID == created.ID {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Fatalf("expected created post %d to be present in /posts/user/%s results", created.ID, userIDStr)
+	}
+
+	for _, p := range list {
+		if p.PostedBy != created.PostedBy {
+			t.Fatalf("expected all posts to be by %q, got post %d by %q", created.PostedBy, p.ID, p.PostedBy)
+		}
+	}
+}
+
 func testEndToEnd_Posts_List(t *testing.T) {
 	resp := doRequest(t, http.MethodGet, "/posts", nil, nil)
 	defer resp.Body.Close()
@@ -149,8 +198,37 @@ func testEndToEnd_Posts_CommentOnComment(t *testing.T) {
 	defer commentResp.Body.Close()
 	mustStatus(t, commentResp, http.StatusOK)
 
+	_ = mustDecode[basicResponse](t, commentResp)
+
+	listResp := doRequest(t, http.MethodGet, "/posts", nil, nil)
+	defer listResp.Body.Close()
+	mustStatus(t, listResp, http.StatusOK)
+
+	list := mustDecode[[]post](t, listResp)
+
+	var parentCommentID int64
+	foundPost := false
+
+	for _, p := range list {
+		if p.ID == created.ID {
+			foundPost = true
+			if len(p.Comments) == 0 {
+				t.Fatalf("expected at least one comment on created post")
+			}
+			parentCommentID = p.Comments[0].ID
+			if parentCommentID == 0 {
+				t.Fatalf("expected non-zero comment id")
+			}
+			break
+		}
+	}
+
+	if !foundPost {
+		t.Fatalf("could not find created post in list")
+	}
+
 	replyBody := commentOnCommentReq{
-		CommentID: 1,
+		CommentID: parentCommentID,
 		PostID:    created.ID,
 		Comment:   "reply comment",
 	}
@@ -161,6 +239,32 @@ func testEndToEnd_Posts_CommentOnComment(t *testing.T) {
 	msg := mustDecode[basicResponse](t, replyResp)
 	if msg.Message == "" {
 		t.Fatalf("expected success message")
+	}
+
+	listResp2 := doRequest(t, http.MethodGet, "/posts", nil, nil)
+	defer listResp2.Body.Close()
+	mustStatus(t, listResp2, http.StatusOK)
+
+	list2 := mustDecode[[]post](t, listResp2)
+
+	var replies []*comment
+	for _, p := range list2 {
+		if p.ID != created.ID {
+			continue
+		}
+		for _, c := range p.Comments {
+			if c.ID == parentCommentID {
+				replies = c.Replies
+				break
+			}
+		}
+	}
+
+	if len(replies) == 0 {
+		t.Fatalf("expected at least one reply on comment %d", parentCommentID)
+	}
+	if replies[0].Comment == "" {
+		t.Fatalf("expected reply to have Comment text")
 	}
 }
 

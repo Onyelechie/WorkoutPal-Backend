@@ -151,10 +151,14 @@ definitions:
         type: number
       heightMetric:
         type: string
+      isPrivate:
+        type: boolean
       name:
         type: string
       password:
         type: string
+      showMetricsToFollowers:
+        type: boolean
       username:
         type: string
       weight:
@@ -213,6 +217,47 @@ definitions:
         type: string
       userId:
         type: integer
+    type: object
+  model.FollowRequestModel:
+    properties:
+      createdAt:
+        type: string
+      id:
+        type: integer
+      requestedID:
+        type: integer
+      requesterID:
+        type: integer
+      status:
+        description: pending, accepted, rejected
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  model.FollowRequestResponse:
+    properties:
+      action:
+        description: accept, reject
+        type: string
+      requestID:
+        type: integer
+    type: object
+  model.FollowRequestWithUser:
+    properties:
+      createdAt:
+        type: string
+      id:
+        type: integer
+      requestedID:
+        type: integer
+      requesterID:
+        type: integer
+      status:
+        type: string
+      user:
+        allOf:
+        - $ref: '#/definitions/model.User'
+        description: The user who sent the request
     type: object
   model.Goal:
     properties:
@@ -335,10 +380,14 @@ definitions:
         type: string
       id:
         type: integer
+      isPrivate:
+        type: boolean
       name:
         type: string
       password:
         type: string
+      showMetricsToFollowers:
+        type: boolean
       username:
         type: string
       weight:
@@ -374,6 +423,8 @@ definitions:
         type: string
       id:
         type: integer
+      isPrivate:
+        type: boolean
       isVerified:
         type: boolean
       name:
@@ -388,6 +439,8 @@ definitions:
         items:
           $ref: '#/definitions/model.ExerciseRoutine'
         type: array
+      showMetricsToFollowers:
+        type: boolean
       username:
         type: string
       weight:
@@ -701,6 +754,49 @@ paths:
       summary: Returns the exercise with the corresponding ID
       tags:
       - Exercises
+  /follow-requests:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Pending follow requests retrieved successfully
+          schema:
+            items:
+              $ref: '#/definitions/model.FollowRequestWithUser'
+            type: array
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+      summary: Get all pending follow requests for the authenticated user
+      tags:
+      - Relationships
+  /follow-requests/respond:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Follow request response
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.FollowRequestResponse'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Follow request processed successfully
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+      summary: Accept or reject a follow request
+      tags:
+      - Relationships
   /login:
     post:
       consumes:
@@ -990,6 +1086,42 @@ paths:
       security:
       - BearerAuth: []
       summary: Unlikes a post
+      tags:
+      - Posts
+  /posts/user/{id}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Target user ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Posts retrieved successfully
+          schema:
+            items:
+              $ref: '#/definitions/model.Post'
+            type: array
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+      security:
+      - BearerAuth: []
+      summary: List posts for a specific user
       tags:
       - Posts
   /routines/{id}:
@@ -1366,6 +1498,86 @@ paths:
           schema:
             $ref: '#/definitions/model.BasicResponse'
       summary: Follow a user
+      tags:
+      - Relationships
+  /users/{id}/follow-request:
+    delete:
+      parameters:
+      - description: User ID whose request to cancel
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Requester user ID
+        in: query
+        name: requester_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Follow request cancelled successfully
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "400":
+          description: Invalid user ID
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+      summary: Cancel a pending follow request
+      tags:
+      - Relationships
+    post:
+      parameters:
+      - description: User ID to request to follow
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Requester user ID
+        in: query
+        name: requester_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Follow request sent successfully
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "400":
+          description: Invalid user ID
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+      summary: Send a follow request to a private profile
+      tags:
+      - Relationships
+  /users/{id}/follow-request/status:
+    get:
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Requester user ID
+        in: query
+        name: requester_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Follow request status
+          schema:
+            $ref: '#/definitions/model.FollowRequestModel'
+        "404":
+          description: No follow request found
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+      summary: Get the status of a follow request
       tags:
       - Relationships
   /users/{id}/followers:

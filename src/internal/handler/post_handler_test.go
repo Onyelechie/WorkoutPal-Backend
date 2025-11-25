@@ -469,3 +469,72 @@ func TestPostHandler_DeletePost_Error(t *testing.T) {
 		t.Fatalf("status = %d, want 500", w.Code)
 	}
 }
+
+func TestPostHandler_ReadPostsByUserID_ServiceError(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	t.Cleanup(ctrl.Finish)
+	svc := mock_service.NewMockPostService(ctrl)
+	h := &PostHandler{svc: svc}
+
+	userID := int64(42)
+	targetUserID := int64(100)
+
+	svc.EXPECT().
+		ReadPostsByUserID(targetUserID, userID).
+		Return(nil, errors.New("read failed"))
+
+	w := httptest.NewRecorder()
+	r := httptest.NewRequest(http.MethodGet, "/posts/user/100", nil)
+
+	ctx := r.Context()
+	ctx = context.WithValue(ctx, constants.USER_ID_KEY, userID)
+	ctx = context.WithValue(ctx, constants.ID_KEY, targetUserID)
+	r = r.WithContext(ctx)
+
+	h.ReadPostsByUserID(w, r)
+
+	if w.Code != http.StatusInternalServerError {
+		t.Fatalf("status = %d, want 500", w.Code)
+	}
+}
+
+func TestPostHandler_ReadPostsByUserID_OK(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	t.Cleanup(ctrl.Finish)
+	svc := mock_service.NewMockPostService(ctrl)
+	h := &PostHandler{svc: svc}
+
+	userID := int64(42)
+	targetUserID := int64(100)
+	want := []*model.Post{
+		{ID: 1, Title: "UserPost1"},
+		{ID: 2, Title: "UserPost2"},
+	}
+
+	svc.EXPECT().
+		ReadPostsByUserID(targetUserID, userID).
+		Return(want, nil)
+
+	w := httptest.NewRecorder()
+	r := httptest.NewRequest(http.MethodGet, "/posts/user/100", nil)
+
+	ctx := r.Context()
+	ctx = context.WithValue(ctx, constants.USER_ID_KEY, userID)
+	ctx = context.WithValue(ctx, constants.ID_KEY, targetUserID)
+	r = r.WithContext(ctx)
+
+	h.ReadPostsByUserID(w, r)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("status = %d, want 200", w.Code)
+	}
+
+	var got []model.Post
+	_ = json.NewDecoder(w.Body).Decode(&got)
+	if len(got) != len(want) {
+		t.Fatalf("unexpected posts length: got %d, want %d", len(got), len(want))
+	}
+	if got[0].ID != want[0].ID || got[1].ID != want[1].ID {
+		t.Fatalf("unexpected posts: %+v", got)
+	}
+}

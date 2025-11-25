@@ -166,6 +166,21 @@ func (mr *MockPostRepositoryMockRecorder) ReadPosts(arg0 interface{}) *gomock.Ca
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReadPosts", reflect.TypeOf((*MockPostRepository)(nil).ReadPosts), arg0)
 }
 
+// ReadPostsByUserID mocks base method.
+func (m *MockPostRepository) ReadPostsByUserID(arg0, arg1 int64) ([]*model.Post, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ReadPostsByUserID", arg0, arg1)
+	ret0, _ := ret[0].([]*model.Post)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ReadPostsByUserID indicates an expected call of ReadPostsByUserID.
+func (mr *MockPostRepositoryMockRecorder) ReadPostsByUserID(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReadPostsByUserID", reflect.TypeOf((*MockPostRepository)(nil).ReadPostsByUserID), arg0, arg1)
+}
+
 // UnlikePost mocks base method.
 func (m *MockPostRepository) UnlikePost(arg0 model.UnikePostRequest) (*model.Post, error) {
 	m.ctrl.T.Helper()
