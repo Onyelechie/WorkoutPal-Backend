@@ -24,10 +24,13 @@ func (p *PostRepository) ReadPosts(userID int64) ([]*model.Post, error) {
         p.status,
         p.created_at,
         u.username,
-        pl.post_id IS NOT NULL AS is_liked
+        COUNT(DISTINCT pl_all.user_id) AS likes,
+        pl_user.post_id IS NOT NULL AS is_liked
     FROM posts p 
-    LEFT JOIN post_likes pl ON p.id = pl.post_id AND pl.user_id = $1
-    JOIN users u ON u.id = p.user_id`,
+    LEFT JOIN post_likes pl_all ON p.id = pl_all.post_id
+    LEFT JOIN post_likes pl_user ON p.id = pl_user.post_id AND pl_user.user_id = $1
+    JOIN users u ON u.id = p.user_id
+    GROUP BY p.id, u.username, pl_user.post_id`,
 		userID,
 	)
 	if err != nil {
@@ -46,6 +49,7 @@ func (p *PostRepository) ReadPosts(userID int64) ([]*model.Post, error) {
 			&post.Status,
 			&post.Date,
 			&post.PostedBy,
+			&post.Likes,
 			&post.IsLiked,
 		); err != nil {
 			return nil, err
@@ -70,13 +74,16 @@ func (p *PostRepository) ReadPost(id int64, userID int64) (*model.Post, error) {
         p.status,
         p.created_at,
         u.username,
-        pl.post_id IS NOT NULL AS is_liked
+        COUNT(DISTINCT pl_all.user_id) AS likes,
+        pl_user.post_id IS NOT NULL AS is_liked
     FROM posts p 
-    LEFT JOIN post_likes pl 
-        ON p.id = pl.post_id AND pl.user_id = $1
+    LEFT JOIN post_likes pl_all ON p.id = pl_all.post_id
+    LEFT JOIN post_likes pl_user 
+        ON p.id = pl_user.post_id AND pl_user.user_id = $1
     JOIN users u 
         ON u.id = p.user_id 
-    WHERE p.id = $2`,
+    WHERE p.id = $2
+    GROUP BY p.id, u.username, pl_user.post_id`,
 		userID, id,
 	)
 
@@ -89,6 +96,7 @@ func (p *PostRepository) ReadPost(id int64, userID int64) (*model.Post, error) {
 		&post.Status,
 		&post.Date,
 		&post.PostedBy,
+		&post.Likes,
 		&post.IsLiked,
 	)
 
