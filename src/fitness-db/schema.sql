@@ -1497,6 +1497,7 @@ ALTER TABLE achievements ADD COLUMN title VARCHAR(250);
 
 insert into achievements (id, name, description, created_at, badge_icon, title) 
 values 
-    (1,'First_Login','Log in for the first time',now(),'😄','Welcome, Pal!'),
+    (1,'First_Login','Log in for the first time.',now(),'😄','Welcome, Pal!'),
     (2,'First_Routine','Create a Routine for the first time.',now(),'🏁','Getting started');
+    (3,'5_Followers','Gain 5 Followers.',now(),'👏','Hi, Five!');
 
