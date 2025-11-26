@@ -89,6 +89,23 @@ definitions:
           type: string
         type: array
     type: object
+  model.CreateExerciseSettingRequest:
+    properties:
+      breakInterval:
+        type: integer
+      exerciseId:
+        type: integer
+      reps:
+        type: integer
+      sets:
+        type: integer
+      userId:
+        type: integer
+      weight:
+        type: number
+      workoutRoutineId:
+        type: integer
+    type: object
   model.CreateGoalRequest:
     properties:
       deadline:
@@ -218,6 +235,23 @@ definitions:
       userId:
         type: integer
     type: object
+  model.ExerciseSetting:
+    properties:
+      breakInterval:
+        type: integer
+      exerciseId:
+        type: integer
+      reps:
+        type: integer
+      sets:
+        type: integer
+      userId:
+        type: integer
+      weight:
+        type: number
+      workoutRoutineId:
+        type: integer
+    type: object
   model.FollowRequestModel:
     properties:
       createdAt:
@@ -345,6 +379,23 @@ definitions:
       postId:
         type: integer
       userId:
+        type: integer
+    type: object
+  model.UpdateExerciseSettingRequest:
+    properties:
+      breakInterval:
+        type: integer
+      exerciseId:
+        type: integer
+      reps:
+        type: integer
+      sets:
+        type: integer
+      userId:
+        type: integer
+      weight:
+        type: number
+      workoutRoutineId:
         type: integer
     type: object
   model.UpdateScheduleRequest:
@@ -647,6 +698,110 @@ paths:
       summary: Authenticate with Google OAuth
       tags:
       - Authentication
+  /exercise-settings:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Exercise ID
+        in: query
+        name: exercise_id
+        required: true
+        type: string
+      - description: Workout Routine ID
+        in: query
+        name: workout_routine_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Exercise Setting
+          schema:
+            $ref: '#/definitions/model.ExerciseSetting'
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+      security:
+      - BearerAuth: []
+      tags:
+      - Exercise Setting
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: New exercise setting payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreateExerciseSettingRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Exercise Setting created successfully
+          schema:
+            $ref: '#/definitions/model.ExerciseSetting'
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+      security:
+      - BearerAuth: []
+      tags:
+      - Exercise Setting
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Update exercise setting payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdateExerciseSettingRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Exercise Setting updated successfully
+          schema:
+            $ref: '#/definitions/model.ExerciseSetting'
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/model.BasicResponse'
+      security:
+      - BearerAuth: []
+      tags:
+      - Exercise Setting
   /exercises:
     get:
       consumes:

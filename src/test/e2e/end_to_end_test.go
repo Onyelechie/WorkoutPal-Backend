@@ -196,4 +196,8 @@ func TestEndToEnd(t *testing.T) {
 	t.Run("Achievements_CreateUnlock", testEndToEnd_Achievements_CreateUnlock)
 	t.Run("Achievements_ListCatalog", testEndToEnd_Achievements_ListCatalog)
 	t.Run("Achievements_ReadUnlockedByUserID", testEndToEnd_Achievements_ReadUnlockedByUserID)
+
+	// Exercise Setting Tests
+	t.Run("Exercise_Setting_CreateRead", testEndToEnd_ExerciseSettings_CreateAndRead)
+	t.Run("Exercise_Setting_Update", testEndToEnd_ExerciseSettings_Update)
 }
