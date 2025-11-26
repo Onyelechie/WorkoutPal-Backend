@@ -63,6 +63,7 @@ func Routes(r chi.Router, appDep dependency.AppDependencies, secret []byte) http
 	scheduleHandler := handler.NewScheduleHandler(appDep.ScheduleService)
 	postHandler := handler.NewPostHandler(appDep.PostService)
 	achievementHandler := handler.NewAchievementHandler(appDep.AchievementService)
+	exerciseSettingHandler := handler.NewExerciseSettingHandler(appDep.ExerciseSettingService)
 
 	// --- Init Middleware ---
 	var idMiddleware = middleware2.IdMiddleware()
@@ -155,6 +156,13 @@ func Routes(r chi.Router, appDep dependency.AppDependencies, secret []byte) http
 		r.Post("/", achievementHandler.CreateAchievement)
 		r.Get("/unlocked", achievementHandler.ReadUnlockedAchievements)
 		r.With(idMiddleware).Get("/unlocked/{id}", achievementHandler.ReadUnlockedAchievementsByUserID)
+	})
+
+	// Exercise Settings
+	r.With(authMiddleware).Route("/exercise-settings", func(r chi.Router) {
+		r.Get("/", exerciseSettingHandler.ReadExerciseSetting)
+		r.Post("/", exerciseSettingHandler.CreateExerciseSetting)
+		r.Put("/", exerciseSettingHandler.UpdateExerciseSetting)
 	})
 
 	return r
