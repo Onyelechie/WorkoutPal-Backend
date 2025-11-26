@@ -298,6 +298,172 @@ const docTemplate = `{
                 }
             }
         },
+        "/exercise-settings": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Exercise Setting"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Exercise ID",
+                        "name": "exercise_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Workout Routine ID",
+                        "name": "workout_routine_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Exercise Setting",
+                        "schema": {
+                            "$ref": "#/definitions/model.ExerciseSetting"
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Exercise Setting"
+                ],
+                "parameters": [
+                    {
+                        "description": "Update exercise setting payload",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.UpdateExerciseSettingRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Exercise Setting updated successfully",
+                        "schema": {
+                            "$ref": "#/definitions/model.ExerciseSetting"
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Exercise Setting"
+                ],
+                "parameters": [
+                    {
+                        "description": "New exercise setting payload",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.CreateExerciseSettingRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Exercise Setting created successfully",
+                        "schema": {
+                            "$ref": "#/definitions/model.ExerciseSetting"
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/exercises": {
             "get": {
                 "security": [
@@ -2253,6 +2419,32 @@ const docTemplate = `{
                 }
             }
         },
+        "model.CreateExerciseSettingRequest": {
+            "type": "object",
+            "properties": {
+                "breakInterval": {
+                    "type": "integer"
+                },
+                "exerciseId": {
+                    "type": "integer"
+                },
+                "reps": {
+                    "type": "integer"
+                },
+                "sets": {
+                    "type": "integer"
+                },
+                "userId": {
+                    "type": "integer"
+                },
+                "weight": {
+                    "type": "number"
+                },
+                "workoutRoutineId": {
+                    "type": "integer"
+                }
+            }
+        },
         "model.CreateGoalRequest": {
             "type": "object",
             "properties": {
@@ -2446,6 +2638,32 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "userId": {
+                    "type": "integer"
+                }
+            }
+        },
+        "model.ExerciseSetting": {
+            "type": "object",
+            "properties": {
+                "breakInterval": {
+                    "type": "integer"
+                },
+                "exerciseId": {
+                    "type": "integer"
+                },
+                "reps": {
+                    "type": "integer"
+                },
+                "sets": {
+                    "type": "integer"
+                },
+                "userId": {
+                    "type": "integer"
+                },
+                "weight": {
+                    "type": "number"
+                },
+                "workoutRoutineId": {
                     "type": "integer"
                 }
             }
@@ -2645,6 +2863,32 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "userId": {
+                    "type": "integer"
+                }
+            }
+        },
+        "model.UpdateExerciseSettingRequest": {
+            "type": "object",
+            "properties": {
+                "breakInterval": {
+                    "type": "integer"
+                },
+                "exerciseId": {
+                    "type": "integer"
+                },
+                "reps": {
+                    "type": "integer"
+                },
+                "sets": {
+                    "type": "integer"
+                },
+                "userId": {
+                    "type": "integer"
+                },
+                "weight": {
+                    "type": "number"
+                },
+                "workoutRoutineId": {
                     "type": "integer"
                 }
             }
