@@ -94,7 +94,7 @@ func msgAndStatus(err error) (constants.UserMessage, int) {
 
 	switch {
 	case errors.Is(err, sql.ErrNoRows):
-		return constants.NOT_FOUND, http.StatusInternalServerError
+		return constants.NOT_FOUND, http.StatusNotFound
 	case errors.Is(err, context.DeadlineExceeded):
 		return constants.TIMEOUT, http.StatusGatewayTimeout
 	default:
