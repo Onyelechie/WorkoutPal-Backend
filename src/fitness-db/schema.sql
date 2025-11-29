@@ -30,6 +30,19 @@ CREATE TABLE follows (
     FOREIGN KEY (followed_user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
+-- Table: follow_requests
+CREATE TABLE follow_requests (
+    id SERIAL PRIMARY KEY,
+    requester_id INTEGER NOT NULL,
+    requested_id INTEGER NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'pending', -- pending, accepted, rejected
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW(),
+    UNIQUE(requester_id, requested_id),
+    FOREIGN KEY (requester_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (requested_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
 -- Table: posts
 CREATE TABLE posts (
     id SERIAL PRIMARY KEY,
@@ -1491,6 +1504,11 @@ CREATE TABLE IF NOT EXISTS schedule_routine (
                                                 position INT NOT NULL,
                                                 PRIMARY KEY (schedule_id, routine_id)
 );
+
+-- Indexes for follow_requests table
+CREATE INDEX IF NOT EXISTS idx_follow_requests_requested_id ON follow_requests(requested_id);
+CREATE INDEX IF NOT EXISTS idx_follow_requests_requester_id ON follow_requests(requester_id);
+CREATE INDEX IF NOT EXISTS idx_follow_requests_status ON follow_requests(status);
 
 ALTER TABLE achievements ADD COLUMN badge_icon VARCHAR(250);
 ALTER TABLE achievements ADD COLUMN title VARCHAR(250);

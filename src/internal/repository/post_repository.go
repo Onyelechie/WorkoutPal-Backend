@@ -15,6 +15,31 @@ func NewPostRepository(db *sql.DB) repository.PostRepository {
 }
 
 func (p *PostRepository) ReadPostsByUserID(targetUserID int64, userID int64) ([]*model.Post, error) {
+	// First check if the target user's profile is private and if the requesting user is authorized
+	var isPrivate bool
+	err := p.db.QueryRow("SELECT is_private FROM users WHERE id = $1", targetUserID).Scan(&isPrivate)
+	if err != nil {
+		return nil, err
+	}
+
+	// If profile is private and not viewing own posts, check if user is a follower
+	if isPrivate && userID != targetUserID {
+		var isFollower bool
+		err = p.db.QueryRow(`
+			SELECT EXISTS(
+				SELECT 1 FROM follows 
+				WHERE following_user_id = $1 AND followed_user_id = $2
+			)
+		`, userID, targetUserID).Scan(&isFollower)
+		if err != nil {
+			return nil, err
+		}
+		// If not following, return empty array (no posts visible)
+		if !isFollower {
+			return []*model.Post{}, nil
+		}
+	}
+
 	rows, err := p.db.Query(`
     SELECT 
         p.id,
@@ -31,7 +56,8 @@ func (p *PostRepository) ReadPostsByUserID(targetUserID int64, userID int64) ([]
     LEFT JOIN post_likes pl_user ON p.id = pl_user.post_id AND pl_user.user_id = $1
     JOIN users u ON u.id = p.user_id
     WHERE p.user_id = $2
-    GROUP BY p.id, u.username, pl_user.post_id`,
+    GROUP BY p.id, u.username, pl_user.post_id
+    ORDER BY p.created_at DESC`,
 		userID, targetUserID,
 	)
 	if err != nil {
