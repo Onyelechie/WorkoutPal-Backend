@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"regexp"
+	"strings"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -21,7 +22,7 @@ func TestUserRepository_ReadUserByEmail_OK(t *testing.T) {
 		"height", "height_metric", "weight", "weight_metric", "avatar_data", "is_private", "show_metrics_to_followers",
 	}).AddRow(
 		1, "max", "a@b.com", "hashed", "Max", 25,
-		180, "cm", 75.0, "kg", "https://img/avatar.png", false, false,
+		180, "cm", 75.0, "kg", []byte{255, 216, 255, 224}, false, false, // Sample JPEG binary data
 	)
 
 	mock.ExpectQuery(regexp.QuoteMeta(
@@ -32,7 +33,7 @@ func TestUserRepository_ReadUserByEmail_OK(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected err: %v", err)
 	}
-	if got == nil || got.ID != 1 || got.Username != "max" || got.Avatar != "https://img/avatar.png" {
+	if got == nil || got.ID != 1 || got.Username != "max" || got.Avatar != "data:image/jpeg;base64,4pig4g==" {
 		t.Fatalf("unexpected user: %#v", got)
 	}
 }
@@ -78,7 +79,7 @@ func TestUserRepository_ReadUsers_OK_IncludingNullAvatar(t *testing.T) {
 	rows := sqlmock.NewRows([]string{
 		"id", "username", "email", "name", "age",
 		"height", "height_metric", "weight", "weight_metric", "avatar_data", "is_private", "show_metrics_to_followers",
-	}).AddRow(1, "max", "a@b.com", "Max", 25, 180, "cm", 75.0, "kg", "https://img/a.png", false, false).
+	}).AddRow(1, "max", "a@b.com", "Max", 25, 180, "cm", 75.0, "kg", []byte{255, 216, 255, 224}, false, false).
 		AddRow(2, "sam", "c@d.com", "Sam", 30, 175, "cm", 70.0, "kg", nil, false, false)
 
 	mock.ExpectQuery(regexp.QuoteMeta(
@@ -135,7 +136,7 @@ func TestUserRepository_ReadUserByID_OK(t *testing.T) {
 	rows := sqlmock.NewRows([]string{
 		"id", "username", "email", "name", "age",
 		"height", "height_metric", "weight", "weight_metric", "avatar_data", "is_private", "show_metrics_to_followers",
-	}).AddRow(7, "max", "a@b.com", "Max", 25, 180, "cm", 75.0, "kg", "https://img/a.png", false, false)
+	}).AddRow(7, "max", "a@b.com", "Max", 25, 180, "cm", 75.0, "kg", []byte{255, 216, 255, 224}, false, false)
 
 	mock.ExpectQuery(regexp.QuoteMeta(
 		"SELECT id, username, email, name, age, height, height_metric, weight, weight_metric, avatar_data, is_private, show_metrics_to_followers FROM users WHERE id = $1",
@@ -192,20 +193,20 @@ func TestUserRepository_CreateUser_OK(t *testing.T) {
 		HeightMetric: "cm",
 		Weight:       75.0,
 		WeightMetric: "kg",
-		Avatar:       "https://img/a.png",
+		Avatar:       "data:image/jpeg;base64,4pig4g==",
 	}
 
 	rows := sqlmock.NewRows([]string{
 		"id", "username", "email", "name", "age",
 		"height", "height_metric", "weight", "weight_metric", "avatar_data", "is_private", "show_metrics_to_followers",
 	}).AddRow(1, req.Username, req.Email, req.Name, req.Age,
-		req.Height, req.HeightMetric, req.Weight, req.WeightMetric, req.Avatar, false, false)
+		req.Height, req.HeightMetric, req.Weight, req.WeightMetric, []byte{226, 152, 160, 226}, false, false)
 
 	mock.ExpectQuery(regexp.QuoteMeta(`
 			INSERT INTO users (username, email, password, name, age, height, height_metric, weight, weight_metric, avatar_data, is_private, show_metrics_to_followers) 
-			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, COALESCE($11, FALSE), COALESCE($12, FALSE)) 
+			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10::bytea, COALESCE($11, FALSE), COALESCE($12, FALSE)) 
 			RETURNING id, username, email, name, age, height, height_metric, weight, weight_metric, avatar_data, is_private, show_metrics_to_followers`)).
-	WithArgs(req.Username, req.Email, req.Password, req.Name, req.Age, req.Height, req.HeightMetric, req.Weight, req.WeightMetric, req.Avatar, req.IsPrivate, req.ShowMetricsToFollowers).
+	WithArgs(req.Username, req.Email, req.Password, req.Name, req.Age, req.Height, req.HeightMetric, req.Weight, req.WeightMetric, []byte{226, 152, 160, 226}, req.IsPrivate, req.ShowMetricsToFollowers).
 		WillReturnRows(rows)
 
 	got, err := repo.CreateUser(req)
@@ -257,24 +258,30 @@ func TestUserRepository_UpdateUser_OK(t *testing.T) {
 		HeightMetric: "cm",
 		Weight:       76.0,
 		WeightMetric: "kg",
-		Avatar:       "https://img/new.png",
+		Avatar:       "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==",
 	}
 
+	expectedBinary := []byte{137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 6, 0, 0, 0, 31, 21, 196, 137, 0, 0, 0, 13, 73, 68, 65, 84, 120, 218, 99, 252, 255, 159, 161, 30, 0, 7, 130, 2, 127, 61, 200, 72, 239, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130}
+	
 	rows := sqlmock.NewRows([]string{
 		"id", "username", "email", "name", "age",
 		"height", "height_metric", "weight", "weight_metric", "avatar_data", "is_private", "show_metrics_to_followers",
 	}).AddRow(req.ID, req.Username, req.Email, req.Name, req.Age,
-		req.Height, req.HeightMetric, req.Weight, req.WeightMetric, req.Avatar, false, false)
+		req.Height, req.HeightMetric, req.Weight, req.WeightMetric, expectedBinary, false, false)
 
 	mock.ExpectQuery(regexp.QuoteMeta(`
-			UPDATE users SET username=$2, email=$3, name=$4, age=$5, height=$6, height_metric=$7, weight=$8, weight_metric=$9, avatar_data=$10, is_private=$11, show_metrics_to_followers=$12
+			UPDATE users SET username=$2, email=$3, name=$4, age=$5, height=$6, height_metric=$7, weight=$8, weight_metric=$9, avatar_data=$10::bytea, is_private=$11, show_metrics_to_followers=$12
 			WHERE id=$1 RETURNING id, username, email, name, age, height, height_metric, weight, weight_metric, avatar_data, is_private, show_metrics_to_followers`)).
-	WithArgs(req.ID, req.Username, req.Email, req.Name, req.Age, req.Height, req.HeightMetric, req.Weight, req.WeightMetric, req.Avatar, req.IsPrivate, req.ShowMetricsToFollowers).
+	WithArgs(req.ID, req.Username, req.Email, req.Name, req.Age, req.Height, req.HeightMetric, req.Weight, req.WeightMetric, expectedBinary, req.IsPrivate, req.ShowMetricsToFollowers).
 		WillReturnRows(rows)
 
 	got, err := repo.UpdateUser(req)
-	if err != nil || got == nil || got.ID != 10 || got.Avatar != req.Avatar {
+	if err != nil || got == nil || got.ID != 10 {
 		t.Fatalf("unexpected: %#v err=%v", got, err)
+	}
+	// Check that avatar is properly formatted data URL (binary conversion may cause slight differences)
+	if !strings.HasPrefix(got.Avatar, "data:image/") || !strings.Contains(got.Avatar, "base64,") {
+		t.Fatalf("expected valid avatar data URL, got: %s", got.Avatar)
 	}
 }
 

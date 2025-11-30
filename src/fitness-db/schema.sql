@@ -14,7 +14,7 @@ CREATE TABLE users (
     is_private BOOLEAN NOT NULL DEFAULT FALSE,
     show_metrics_to_followers BOOLEAN NOT NULL DEFAULT FALSE,
     bio TEXT,
-    avatar_data TEXT,
+    avatar_data BYTEA,
     birthday DATE,
     role VARCHAR,
     created_at TIMESTAMP DEFAULT NOW()
