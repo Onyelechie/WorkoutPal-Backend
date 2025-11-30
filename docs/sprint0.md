@@ -108,7 +108,7 @@ As someone who is goal oriented, I want to keep track of set goals for weight, b
 ---
 
 ## 5. Initial Architecture
-![Architecture Diagram](./support_files/architecture-diagram.png)
+![Architecture Diagram](/support_files/architecture-diagram.png)
 
 ### Technology Stack & Rationale
 
