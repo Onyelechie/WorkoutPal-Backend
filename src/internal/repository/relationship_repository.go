@@ -158,7 +158,7 @@ func (r *relationshipRepository) GetFollowRequestByID(requestID int64) (*model.F
 func (r *relationshipRepository) GetPendingFollowRequests(userID int64) ([]*model.FollowRequestWithUser, error) {
 	rows, err := r.db.Query(`
 		SELECT fr.id, fr.requester_id, fr.requested_id, fr.status, fr.created_at,
-		       u.id, u.username, u.name, u.email, u.avatar_url
+		       u.id, u.username, u.name, u.email, u.avatar_data
 		FROM follow_requests fr
 		JOIN users u ON fr.requester_id = u.id
 		WHERE fr.requested_id = $1 AND fr.status = 'pending'

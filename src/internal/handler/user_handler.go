@@ -2,7 +2,9 @@ package handler
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
+	"strings"
 	"workoutpal/src/internal/domain/handler"
 	"workoutpal/src/internal/domain/service"
 	"workoutpal/src/internal/model"
@@ -220,4 +222,100 @@ func (u *userHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	render.JSON(w, r, model.BasicResponse{Message: "User deleted successfully"})
+}
+
+// UploadAvatar godoc
+// @Summary Upload user avatar as base64
+// @Tags Users
+// @Accept json
+// @Produce json
+// @Param id path int true "User ID"
+// @Param avatar body map[string]string true "Avatar base64 data"
+// @Success 200 {object} map[string]string "Avatar uploaded successfully"
+// @Failure 400 {object} model.BasicResponse "Invalid data or user ID"
+// @Failure 404 {object} model.BasicResponse "User not found"
+// @Failure 500 {object} model.BasicResponse "Internal server error"
+// @Security BearerAuth
+// @Router /users/{id}/avatar [post]
+func (u *userHandler) UploadAvatar(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value(constants.ID_KEY).(int64)
+	viewerID, ok := r.Context().Value(constants.USER_ID_KEY).(int64)
+	
+	// Debug: Check if viewerID was properly extracted
+	if !ok {
+		responseErr := util.Error(errors.New("Authentication failed: no user ID in context"), r.URL.Path)
+		util.ErrorResponse(w, r, responseErr)
+		return
+	}
+
+	// Only allow users to upload their own avatar
+	if viewerID != userID {
+		responseErr := util.Error(errors.New("You can only upload your own avatar"), r.URL.Path)
+		util.ErrorResponse(w, r, responseErr)
+		return
+	}
+
+	// Parse JSON request
+	var req map[string]string
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		util.ErrorResponse(w, r, util.Error(err, r.URL.Path))
+		return
+	}
+
+	avatarData, ok := req["avatar"]
+	if !ok || avatarData == "" {
+		responseErr := util.Error(errors.New("Avatar data is required"), r.URL.Path)
+		util.ErrorResponse(w, r, responseErr)
+		return
+	}
+
+	// Validate base64 format (should start with data:image/)
+	if !strings.HasPrefix(avatarData, "data:image/") {
+		responseErr := util.Error(errors.New("Invalid image format. Must be base64 encoded image"), r.URL.Path)
+		util.ErrorResponse(w, r, responseErr)
+		return
+	}
+
+	// Validate size (approximate - base64 is ~33% larger than original)
+	if len(avatarData) > 7000000 { // ~5MB original file
+		responseErr := util.Error(errors.New("Image size too large. Must be less than 5MB"), r.URL.Path)
+		util.ErrorResponse(w, r, responseErr)
+		return
+	}
+
+	// Get current user data to preserve other fields
+	currentUser, err := u.userService.ReadUserByID(userID)
+	if err != nil {
+		util.ErrorResponse(w, r, util.Error(err, r.URL.Path))
+		return
+	}
+
+	// Update user's avatar data in database
+	updateReq := model.UpdateUserRequest{
+		ID:     userID,
+		Avatar: avatarData,
+	}
+
+	// Preserve current user data
+	updateReq.Username = currentUser.Username
+	updateReq.Name = currentUser.Name
+	updateReq.Email = currentUser.Email
+	updateReq.Age = currentUser.Age
+	updateReq.Height = currentUser.Height
+	updateReq.HeightMetric = currentUser.HeightMetric
+	updateReq.Weight = currentUser.Weight
+	updateReq.WeightMetric = currentUser.WeightMetric
+	updateReq.IsPrivate = currentUser.IsPrivate
+	updateReq.ShowMetricsToFollowers = currentUser.ShowMetricsToFollowers
+
+	updatedUser, err := u.userService.UpdateUser(updateReq)
+	if err != nil {
+		util.ErrorResponse(w, r, util.Error(err, r.URL.Path))
+		return
+	}
+
+	render.JSON(w, r, map[string]string{
+		"message": "Avatar uploaded successfully",
+		"avatar":  updatedUser.Avatar,
+	})
 }

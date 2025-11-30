@@ -209,6 +209,11 @@ func (h *relationshipHandler) GetPendingFollowRequests(w http.ResponseWriter, r 
 		return
 	}
 
+	// Return empty array if no requests instead of null
+	if requests == nil {
+		requests = []*model.FollowRequestWithUser{}
+	}
+
 	render.JSON(w, r, requests)
 }
 

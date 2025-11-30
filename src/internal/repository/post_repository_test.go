@@ -18,13 +18,19 @@ func TestPostRepository_ReadPostsByUserID_OK(t *testing.T) {
 	targetUserID := int64(100)
 	userID := int64(42)
 
+	// First expect the privacy check query
+	privacyRow := sqlmock.NewRows([]string{"is_private"}).AddRow(false)
+	mock.ExpectQuery("SELECT is_private FROM users WHERE id = \\$1").
+		WithArgs(targetUserID).
+		WillReturnRows(privacyRow)
+
 	rows := sqlmock.NewRows([]string{
 		"id", "title", "body", "caption", "status", "created_at", "username", "likes", "is_liked",
 	}).
 		AddRow(1, "A", "B", "C", "active", "now", "user1", 5, true).
 		AddRow(2, "X", "Y", "Z", "inactive", "now", "user2", 0, false)
 
-	// In the repo, Query is called with (userID, targetUserID) in that order.
+	// Then expect the main posts query
 	mock.ExpectQuery("SELECT p.id").
 		WithArgs(userID, targetUserID).
 		WillReturnRows(rows)
@@ -52,13 +58,82 @@ func TestPostRepository_ReadPostsByUserID_Error(t *testing.T) {
 	targetUserID := int64(100)
 	userID := int64(42)
 
-	mock.ExpectQuery("SELECT p.id").
-		WithArgs(userID, targetUserID).
+	// Privacy check should fail first
+	mock.ExpectQuery("SELECT is_private FROM users WHERE id = \\$1").
+		WithArgs(targetUserID).
 		WillReturnError(errors.New("fail"))
 
 	_, err := repo.ReadPostsByUserID(targetUserID, userID)
 	if err == nil || err.Error() != "fail" {
 		t.Fatalf("expected fail, got %v", err)
+	}
+}
+
+func TestPostRepository_ReadPostsByUserID_PrivateProfile_NotFollowing(t *testing.T) {
+	db, mock, _ := sqlmock.New()
+	defer db.Close()
+	repo := NewPostRepository(db)
+
+	targetUserID := int64(100)
+	userID := int64(42)
+
+	// Expect privacy check - profile is private
+	privacyRow := sqlmock.NewRows([]string{"is_private"}).AddRow(true)
+	mock.ExpectQuery("SELECT is_private FROM users WHERE id = \\$1").
+		WithArgs(targetUserID).
+		WillReturnRows(privacyRow)
+
+	// Expect follower check - user is not following
+	followerRow := sqlmock.NewRows([]string{"exists"}).AddRow(false)
+	mock.ExpectQuery("SELECT EXISTS").
+		WithArgs(userID, targetUserID).
+		WillReturnRows(followerRow)
+
+	got, err := repo.ReadPostsByUserID(targetUserID, userID)
+	if err != nil {
+		t.Fatalf("unexpected err: %v", err)
+	}
+	if len(got) != 0 {
+		t.Fatalf("expected 0 posts for private profile when not following, got %d", len(got))
+	}
+}
+
+func TestPostRepository_ReadPostsByUserID_PrivateProfile_Following(t *testing.T) {
+	db, mock, _ := sqlmock.New()
+	defer db.Close()
+	repo := NewPostRepository(db)
+
+	targetUserID := int64(100)
+	userID := int64(42)
+
+	// Expect privacy check - profile is private
+	privacyRow := sqlmock.NewRows([]string{"is_private"}).AddRow(true)
+	mock.ExpectQuery("SELECT is_private FROM users WHERE id = \\$1").
+		WithArgs(targetUserID).
+		WillReturnRows(privacyRow)
+
+	// Expect follower check - user is following
+	followerRow := sqlmock.NewRows([]string{"exists"}).AddRow(true)
+	mock.ExpectQuery("SELECT EXISTS").
+		WithArgs(userID, targetUserID).
+		WillReturnRows(followerRow)
+
+	// Expect posts query since user is following
+	rows := sqlmock.NewRows([]string{
+		"id", "title", "body", "caption", "status", "created_at", "username", "likes", "is_liked",
+	}).
+		AddRow(1, "A", "B", "C", "active", "now", "user1", 5, true)
+
+	mock.ExpectQuery("SELECT p.id").
+		WithArgs(userID, targetUserID).
+		WillReturnRows(rows)
+
+	got, err := repo.ReadPostsByUserID(targetUserID, userID)
+	if err != nil {
+		t.Fatalf("unexpected err: %v", err)
+	}
+	if len(got) != 1 {
+		t.Fatalf("expected 1 post for private profile when following, got %d", len(got))
 	}
 }
 

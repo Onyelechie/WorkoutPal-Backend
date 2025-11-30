@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
@@ -36,26 +37,42 @@ func AuthMiddleware(secret []byte) func(http.Handler) http.Handler {
 
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			cookie, err := r.Cookie("access_token")
-			if err != nil || cookie.Value == "" {
-				http.Error(w, "missing auth cookie", http.StatusUnauthorized)
-				return
+			var tokenString string
+			
+			// First try to get token from Authorization header
+			authHeader := r.Header.Get("Authorization")
+			if authHeader != "" && len(authHeader) > 7 && authHeader[:7] == "Bearer " {
+				tokenString = authHeader[7:]
+			} else {
+				// Fall back to cookie
+				cookie, err := r.Cookie("access_token")
+				if err != nil || cookie.Value == "" {
+					w.Header().Set("Content-Type", "application/json")
+					w.WriteHeader(http.StatusUnauthorized)
+					json.NewEncoder(w).Encode(map[string]string{"error": "missing auth token"})
+					return
+				}
+				tokenString = cookie.Value
 			}
 
-			token, err := jwt.Parse(cookie.Value, func(t *jwt.Token) (interface{}, error) {
+			token, err := jwt.Parse(tokenString, func(t *jwt.Token) (interface{}, error) {
 				if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
 					return nil, fmt.Errorf("unexpected signing method")
 				}
 				return secret, nil
 			})
 			if err != nil || !token.Valid {
-				http.Error(w, "invalid or expired token", http.StatusUnauthorized)
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusUnauthorized)
+				json.NewEncoder(w).Encode(map[string]string{"error": "invalid or expired token"})
 				return
 			}
 
 			claims, ok := token.Claims.(jwt.MapClaims)
 			if !ok {
-				http.Error(w, "invalid token claims", http.StatusUnauthorized)
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusUnauthorized)
+				json.NewEncoder(w).Encode(map[string]string{"error": "invalid token claims"})
 				return
 			}
 
