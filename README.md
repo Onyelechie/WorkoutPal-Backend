@@ -8,6 +8,11 @@ Backend API for the WorkoutPal gym workout tracking application built with Go.
 
 WorkoutPal is a comprehensive fitness tracking platform that helps users plan, log, and visualize their workout progress. This repository contains the backend API that powers the application.
 
+## Frontend Repository
+
+- [Frontend Repository](https://github.com/Onyelechie/WorkoutPal-Frontend) - React.js frontend application
+
+
 ## Features
 
 - **User Management**: Create, read, update, delete user profiles with age, height, weight tracking
@@ -281,10 +286,6 @@ curl -v http://localhost:8080/users
 ### Prerequisites for Testing
 - `jq` for JSON formatting: `brew install jq` (macOS) or `apt install jq` (Linux)
 - Server running on port 8080
-
-## Related Repositories
-
-- [Frontend Repository](https://github.com/Onyelechie/WorkoutPal-Frontend) - React.js frontend application
 
 ---
 
