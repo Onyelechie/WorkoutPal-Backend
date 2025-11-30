@@ -21,7 +21,7 @@ func NewUserRepository(db *sql.DB) repository.UserRepository {
 func (u *userRepository) ReadUserByEmail(email string) (*model.User, error) {
 	var user model.User
 	var avatarURL sql.NullString
-	err := u.db.QueryRow("SELECT id, username, email, password, name, age, height, height_metric, weight, weight_metric, avatar_url, is_private, show_metrics_to_followers FROM users WHERE email = $1", email).Scan(
+	err := u.db.QueryRow("SELECT id, username, email, password, name, age, height, height_metric, weight, weight_metric, avatar_data, is_private, show_metrics_to_followers FROM users WHERE email = $1", email).Scan(
 		&user.ID, &user.Username, &user.Email, &user.Password, &user.Name, &user.Age, &user.Height, &user.HeightMetric, &user.Weight, &user.WeightMetric, &avatarURL, &user.IsPrivate, &user.ShowMetricsToFollowers)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -36,7 +36,7 @@ func (u *userRepository) ReadUserByEmail(email string) (*model.User, error) {
 }
 
 func (u *userRepository) ReadUsers() ([]*model.User, error) {
-	rows, err := u.db.Query("SELECT id, username, email, name, age, height, height_metric, weight, weight_metric, avatar_url, is_private, show_metrics_to_followers FROM users")
+	rows, err := u.db.Query("SELECT id, username, email, name, age, height, height_metric, weight, weight_metric, avatar_data, is_private, show_metrics_to_followers FROM users")
 	if err != nil {
 		return nil, err
 	}
@@ -61,7 +61,7 @@ func (u *userRepository) ReadUsers() ([]*model.User, error) {
 func (u *userRepository) ReadUserByID(id int64) (*model.User, error) {
 	var user model.User
 	var avatarURL sql.NullString
-	err := u.db.QueryRow("SELECT id, username, email, name, age, height, height_metric, weight, weight_metric, avatar_url, is_private, show_metrics_to_followers FROM users WHERE id = $1", id).Scan(
+	err := u.db.QueryRow("SELECT id, username, email, name, age, height, height_metric, weight, weight_metric, avatar_data, is_private, show_metrics_to_followers FROM users WHERE id = $1", id).Scan(
 		&user.ID, &user.Username, &user.Email, &user.Name, &user.Age, &user.Height, &user.HeightMetric, &user.Weight, &user.WeightMetric, &avatarURL, &user.IsPrivate, &user.ShowMetricsToFollowers)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -78,9 +78,9 @@ func (u *userRepository) ReadUserByID(id int64) (*model.User, error) {
 func (u *userRepository) CreateUser(request model.CreateUserRequest) (*model.User, error) {
 	var user model.User
 		err := u.db.QueryRow(`
-		INSERT INTO users (username, email, password, name, age, height, height_metric, weight, weight_metric, avatar_url, is_private, show_metrics_to_followers) 
+		INSERT INTO users (username, email, password, name, age, height, height_metric, weight, weight_metric, avatar_data, is_private, show_metrics_to_followers) 
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, COALESCE($11, FALSE), COALESCE($12, FALSE)) 
-		RETURNING id, username, email, name, age, height, height_metric, weight, weight_metric, avatar_url, is_private, show_metrics_to_followers`,
+		RETURNING id, username, email, name, age, height, height_metric, weight, weight_metric, avatar_data, is_private, show_metrics_to_followers`,
 				request.Username, request.Email, request.Password, request.Name, request.Age,
 				request.Height, request.HeightMetric, request.Weight, request.WeightMetric, request.Avatar, request.IsPrivate, request.ShowMetricsToFollowers).Scan(
 				&user.ID, &user.Username, &user.Email, &user.Name, &user.Age,
@@ -102,8 +102,8 @@ func (u *userRepository) UpdateUser(request model.UpdateUserRequest) (*model.Use
 	var user model.User
 	var avatarURL sql.NullString
 		err := u.db.QueryRow(`
-		UPDATE users SET username=$2, email=$3, name=$4, age=$5, height=$6, height_metric=$7, weight=$8, weight_metric=$9, avatar_url=$10, is_private=$11, show_metrics_to_followers=$12
-		WHERE id=$1 RETURNING id, username, email, name, age, height, height_metric, weight, weight_metric, avatar_url, is_private, show_metrics_to_followers`,
+		UPDATE users SET username=$2, email=$3, name=$4, age=$5, height=$6, height_metric=$7, weight=$8, weight_metric=$9, avatar_data=$10, is_private=$11, show_metrics_to_followers=$12
+		WHERE id=$1 RETURNING id, username, email, name, age, height, height_metric, weight, weight_metric, avatar_data, is_private, show_metrics_to_followers`,
 				request.ID, request.Username, request.Email, request.Name, request.Age,
 				request.Height, request.HeightMetric, request.Weight, request.WeightMetric, request.Avatar, request.IsPrivate, request.ShowMetricsToFollowers).Scan(
 				&user.ID, &user.Username, &user.Email, &user.Name, &user.Age,

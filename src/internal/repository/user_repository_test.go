@@ -18,14 +18,14 @@ func TestUserRepository_ReadUserByEmail_OK(t *testing.T) {
 
 	rows := sqlmock.NewRows([]string{
 		"id", "username", "email", "password", "name", "age",
-		"height", "height_metric", "weight", "weight_metric", "avatar_url", "is_private", "show_metrics_to_followers",
+		"height", "height_metric", "weight", "weight_metric", "avatar_data", "is_private", "show_metrics_to_followers",
 	}).AddRow(
 		1, "max", "a@b.com", "hashed", "Max", 25,
 		180, "cm", 75.0, "kg", "https://img/avatar.png", false, false,
 	)
 
 	mock.ExpectQuery(regexp.QuoteMeta(
-		"SELECT id, username, email, password, name, age, height, height_metric, weight, weight_metric, avatar_url, is_private, show_metrics_to_followers FROM users WHERE email = $1",
+		"SELECT id, username, email, password, name, age, height, height_metric, weight, weight_metric, avatar_data, is_private, show_metrics_to_followers FROM users WHERE email = $1",
 	)).WithArgs("a@b.com").WillReturnRows(rows)
 
 	got, err := repo.ReadUserByEmail("a@b.com")
@@ -43,7 +43,7 @@ func TestUserRepository_ReadUserByEmail_NotFound(t *testing.T) {
 	repo := NewUserRepository(db)
 
 	mock.ExpectQuery(regexp.QuoteMeta(
-		"SELECT id, username, email, password, name, age, height, height_metric, weight, weight_metric, avatar_url, is_private, show_metrics_to_followers FROM users WHERE email = $1",
+		"SELECT id, username, email, password, name, age, height, height_metric, weight, weight_metric, avatar_data, is_private, show_metrics_to_followers FROM users WHERE email = $1",
 	)).WithArgs("x@y.com").WillReturnError(sql.ErrNoRows)
 
 	got, err := repo.ReadUserByEmail("x@y.com")
@@ -77,12 +77,12 @@ func TestUserRepository_ReadUsers_OK_IncludingNullAvatar(t *testing.T) {
 
 	rows := sqlmock.NewRows([]string{
 		"id", "username", "email", "name", "age",
-		"height", "height_metric", "weight", "weight_metric", "avatar_url", "is_private", "show_metrics_to_followers",
+		"height", "height_metric", "weight", "weight_metric", "avatar_data", "is_private", "show_metrics_to_followers",
 	}).AddRow(1, "max", "a@b.com", "Max", 25, 180, "cm", 75.0, "kg", "https://img/a.png", false, false).
 		AddRow(2, "sam", "c@d.com", "Sam", 30, 175, "cm", 70.0, "kg", nil, false, false)
 
 	mock.ExpectQuery(regexp.QuoteMeta(
-		"SELECT id, username, email, name, age, height, height_metric, weight, weight_metric, avatar_url, is_private, show_metrics_to_followers FROM users",
+		"SELECT id, username, email, name, age, height, height_metric, weight, weight_metric, avatar_data, is_private, show_metrics_to_followers FROM users",
 	)).WillReturnRows(rows)
 
 	got, err := repo.ReadUsers()
@@ -115,7 +115,7 @@ func TestUserRepository_ReadUsers_ScanError(t *testing.T) {
 
 	rows := sqlmock.NewRows([]string{
 		"id", "username", "email", "name", "age",
-		"height", "height_metric", "weight", "weight_metric", "avatar_url",
+		"height", "height_metric", "weight", "weight_metric", "avatar_data",
 	}).AddRow("bad", "u", "e", "n", 25, 170, "cm", 60.0, "kg", nil)
 
 	mock.ExpectQuery("SELECT id, username, email, name").
@@ -134,11 +134,11 @@ func TestUserRepository_ReadUserByID_OK(t *testing.T) {
 
 	rows := sqlmock.NewRows([]string{
 		"id", "username", "email", "name", "age",
-		"height", "height_metric", "weight", "weight_metric", "avatar_url", "is_private", "show_metrics_to_followers",
+		"height", "height_metric", "weight", "weight_metric", "avatar_data", "is_private", "show_metrics_to_followers",
 	}).AddRow(7, "max", "a@b.com", "Max", 25, 180, "cm", 75.0, "kg", "https://img/a.png", false, false)
 
 	mock.ExpectQuery(regexp.QuoteMeta(
-		"SELECT id, username, email, name, age, height, height_metric, weight, weight_metric, avatar_url, is_private, show_metrics_to_followers FROM users WHERE id = $1",
+		"SELECT id, username, email, name, age, height, height_metric, weight, weight_metric, avatar_data, is_private, show_metrics_to_followers FROM users WHERE id = $1",
 	)).WithArgs(int64(7)).WillReturnRows(rows)
 
 	got, err := repo.ReadUserByID(7)
@@ -197,14 +197,14 @@ func TestUserRepository_CreateUser_OK(t *testing.T) {
 
 	rows := sqlmock.NewRows([]string{
 		"id", "username", "email", "name", "age",
-		"height", "height_metric", "weight", "weight_metric", "avatar_url", "is_private", "show_metrics_to_followers",
+		"height", "height_metric", "weight", "weight_metric", "avatar_data", "is_private", "show_metrics_to_followers",
 	}).AddRow(1, req.Username, req.Email, req.Name, req.Age,
 		req.Height, req.HeightMetric, req.Weight, req.WeightMetric, req.Avatar, false, false)
 
 	mock.ExpectQuery(regexp.QuoteMeta(`
-			INSERT INTO users (username, email, password, name, age, height, height_metric, weight, weight_metric, avatar_url, is_private, show_metrics_to_followers) 
+			INSERT INTO users (username, email, password, name, age, height, height_metric, weight, weight_metric, avatar_data, is_private, show_metrics_to_followers) 
 			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, COALESCE($11, FALSE), COALESCE($12, FALSE)) 
-			RETURNING id, username, email, name, age, height, height_metric, weight, weight_metric, avatar_url, is_private, show_metrics_to_followers`)).
+			RETURNING id, username, email, name, age, height, height_metric, weight, weight_metric, avatar_data, is_private, show_metrics_to_followers`)).
 	WithArgs(req.Username, req.Email, req.Password, req.Name, req.Age, req.Height, req.HeightMetric, req.Weight, req.WeightMetric, req.Avatar, req.IsPrivate, req.ShowMetricsToFollowers).
 		WillReturnRows(rows)
 
@@ -262,13 +262,13 @@ func TestUserRepository_UpdateUser_OK(t *testing.T) {
 
 	rows := sqlmock.NewRows([]string{
 		"id", "username", "email", "name", "age",
-		"height", "height_metric", "weight", "weight_metric", "avatar_url", "is_private", "show_metrics_to_followers",
+		"height", "height_metric", "weight", "weight_metric", "avatar_data", "is_private", "show_metrics_to_followers",
 	}).AddRow(req.ID, req.Username, req.Email, req.Name, req.Age,
 		req.Height, req.HeightMetric, req.Weight, req.WeightMetric, req.Avatar, false, false)
 
 	mock.ExpectQuery(regexp.QuoteMeta(`
-			UPDATE users SET username=$2, email=$3, name=$4, age=$5, height=$6, height_metric=$7, weight=$8, weight_metric=$9, avatar_url=$10, is_private=$11, show_metrics_to_followers=$12
-			WHERE id=$1 RETURNING id, username, email, name, age, height, height_metric, weight, weight_metric, avatar_url, is_private, show_metrics_to_followers`)).
+			UPDATE users SET username=$2, email=$3, name=$4, age=$5, height=$6, height_metric=$7, weight=$8, weight_metric=$9, avatar_data=$10, is_private=$11, show_metrics_to_followers=$12
+			WHERE id=$1 RETURNING id, username, email, name, age, height, height_metric, weight, weight_metric, avatar_data, is_private, show_metrics_to_followers`)).
 	WithArgs(req.ID, req.Username, req.Email, req.Name, req.Age, req.Height, req.HeightMetric, req.Weight, req.WeightMetric, req.Avatar, req.IsPrivate, req.ShowMetricsToFollowers).
 		WillReturnRows(rows)
 
