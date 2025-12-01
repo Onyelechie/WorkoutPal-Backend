@@ -173,6 +173,8 @@ Database connection: `host=localhost port=5432 user=user password=password dbnam
 
 📋 **[Sprint 2 Documentation](./docs/sprint2.md)** - Regression testing, profiling, test plan and Group 4's best work
 
+📋 **[Sprint 3 Documentation](./docs/sprint3.md)** - Load testing, Security Analysis, CI/CD, Reflections
+
 📋 **[API Documentation](./support_files/Endpoint%20Documentation.md)** - Detailed endpoint documentation
 
 ## Swagger Documentation
