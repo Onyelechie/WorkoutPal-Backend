@@ -14,7 +14,7 @@ CREATE TABLE users (
     is_private BOOLEAN NOT NULL DEFAULT FALSE,
     show_metrics_to_followers BOOLEAN NOT NULL DEFAULT FALSE,
     bio TEXT,
-    avatar_url VARCHAR,
+    avatar_data BYTEA,
     birthday DATE,
     role VARCHAR,
     created_at TIMESTAMP DEFAULT NOW()
@@ -28,6 +28,19 @@ CREATE TABLE follows (
     PRIMARY KEY (following_user_id, followed_user_id),
     FOREIGN KEY (following_user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (followed_user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- Table: follow_requests
+CREATE TABLE follow_requests (
+    id SERIAL PRIMARY KEY,
+    requester_id INTEGER NOT NULL,
+    requested_id INTEGER NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'pending', -- pending, accepted, rejected
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW(),
+    UNIQUE(requester_id, requested_id),
+    FOREIGN KEY (requester_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (requested_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 -- Table: posts
@@ -142,13 +155,13 @@ CREATE TABLE user_exercise_settings (
 );
 
 -- Insert mock users
-INSERT INTO users (username, email, password, name, age, height, height_metric, weight, weight_metric, bio, avatar_url, birthday, role)
+INSERT INTO users (username, email, password, name, age, height, height_metric, weight, weight_metric, bio, avatar_data, birthday, role)
 VALUES
-('john_doe', 'john@example.com', '$2a$10$D215vTZhHzyp4MUj70x2L.f.MjEd4wR.NpCt1sRlJ1SbqDekfv6w.', 'John Doe', 34, 180, 'cm', 75, 'kg', 'Fitness enthusiast', 'https://example.com/avatar1.png', '1990-05-15', 'user'),
-('jane_smith', 'jane@example.com', '$2a$10$D215vTZhHzyp4MUj70x2L.f.MjEd4wR.NpCt1sRlJ1SbqDekfv6w.', 'Jane Smith', 32, 165, 'cm', 60, 'kg', 'Loves running and yoga', 'https://example.com/avatar2.png', '1992-08-22', 'user'),
-('admin_user', 'admin@example.com', '$2a$10$D215vTZhHzyp4MUj70x2L.f.MjEd4wR.NpCt1sRlJ1SbqDekfv6w.', 'Admin User', 39, 175, 'cm', 70, 'kg', 'Site administrator', 'https://example.com/avatar3.png', '1985-01-10', 'admin'),
-('alice_wong', 'alice@example.com', '$2a$10$D215vTZhHzyp4MUj70x2L.f.MjEd4wR.NpCt1sRlJ1SbqDekfv6w.', 'Alice Wong', 29, 170, 'cm', 65, 'kg', 'Strength training lover', 'https://example.com/avatar4.png', '1995-03-05', 'user'),
-('bob_jackson', 'bob@example.com', '$2a$10$D215vTZhHzyp4MUj70x2L.f.MjEd4wR.NpCt1sRlJ1SbqDekfv6w.', 'Bob Jackson', 36, 182, 'cm', 80, 'kg', 'Gym rat', 'https://example.com/avatar5.png', '1988-11-30', 'user');
+('john_doe', 'john@example.com', '$2a$10$D215vTZhHzyp4MUj70x2L.f.MjEd4wR.NpCt1sRlJ1SbqDekfv6w.', 'John Doe', 34, 180, 'cm', 75, 'kg', 'Fitness enthusiast', NULL, '1990-05-15', 'user'),
+('jane_smith', 'jane@example.com', '$2a$10$D215vTZhHzyp4MUj70x2L.f.MjEd4wR.NpCt1sRlJ1SbqDekfv6w.', 'Jane Smith', 32, 165, 'cm', 60, 'kg', 'Loves running and yoga', NULL, '1992-08-22', 'user'),
+('admin_user', 'admin@example.com', '$2a$10$D215vTZhHzyp4MUj70x2L.f.MjEd4wR.NpCt1sRlJ1SbqDekfv6w.', 'Admin User', 39, 175, 'cm', 70, 'kg', 'Site administrator', NULL, '1985-01-10', 'admin'),
+('alice_wong', 'alice@example.com', '$2a$10$D215vTZhHzyp4MUj70x2L.f.MjEd4wR.NpCt1sRlJ1SbqDekfv6w.', 'Alice Wong', 29, 170, 'cm', 65, 'kg', 'Strength training lover', NULL, '1995-03-05', 'user'),
+('bob_jackson', 'bob@example.com', '$2a$10$D215vTZhHzyp4MUj70x2L.f.MjEd4wR.NpCt1sRlJ1SbqDekfv6w.', 'Bob Jackson', 36, 182, 'cm', 80, 'kg', 'Gym rat', NULL, '1988-11-30', 'user');
 
 INSERT INTO "exercises" ("name", "description", "targets") VALUES
     ('3/4 sit-up', 'Lie flat on your back with your knees bent and feet flat on the ground. Place your hands behind your head with your elbows pointing outwards. Engaging your abs, slowly lift your upper body off the ground, curling forward until your torso is at a 45-degree angle. Pause for a moment at the top, then slowly lower your upper body back down to the starting position. Repeat for the desired number of repetitions.', '{abs,hip flexors,lower back}'),
@@ -1491,6 +1504,11 @@ CREATE TABLE IF NOT EXISTS schedule_routine (
                                                 position INT NOT NULL,
                                                 PRIMARY KEY (schedule_id, routine_id)
 );
+
+-- Indexes for follow_requests table
+CREATE INDEX IF NOT EXISTS idx_follow_requests_requested_id ON follow_requests(requested_id);
+CREATE INDEX IF NOT EXISTS idx_follow_requests_requester_id ON follow_requests(requester_id);
+CREATE INDEX IF NOT EXISTS idx_follow_requests_status ON follow_requests(status);
 
 ALTER TABLE achievements ADD COLUMN badge_icon VARCHAR(250);
 ALTER TABLE achievements ADD COLUMN title VARCHAR(250);

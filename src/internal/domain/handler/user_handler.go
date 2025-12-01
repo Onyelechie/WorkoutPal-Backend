@@ -8,4 +8,5 @@ type UserHandler interface {
 	ReadUserByID(w http.ResponseWriter, r *http.Request)
 	UpdateUser(w http.ResponseWriter, r *http.Request)
 	DeleteUser(w http.ResponseWriter, r *http.Request)
+	UploadAvatar(w http.ResponseWriter, r *http.Request)
 }

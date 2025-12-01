@@ -86,6 +86,8 @@ func Routes(r chi.Router, appDep dependency.AppDependencies, secret []byte) http
 			r.With(idMiddleware).Get("/{id}", userHandler.ReadUserByID)
 			r.With(idMiddleware).Patch("/{id}", userHandler.UpdateUser)
 			r.With(idMiddleware).Delete("/{id}", userHandler.DeleteUser)
+			// Avatar upload
+			r.With(idMiddleware).Post("/{id}/avatar", userHandler.UploadAvatar)
 			// User Goals
 			r.With(idMiddleware).Post("/{id}/goals", goalHandler.CreateUserGoal)
 			r.With(idMiddleware).Get("/{id}/goals", goalHandler.GetUserGoals)
