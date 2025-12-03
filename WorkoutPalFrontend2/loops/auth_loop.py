@@ -5,7 +5,7 @@ from loops.app_loop import app_loop
 
 def auth_loop():
     print("Welcome to WorkoutPal CLI")
-    print("Type 'login', 'logout', 'me', 'google', 'help', 'quit', or 'exit'")
+    print("Type 'login', 'create user', 'quit', or 'exit'")
 
     while True:
         cmd = input("\nAUTH> ").strip().lower()
@@ -13,12 +13,6 @@ def auth_loop():
         if cmd == "login":
             if login_user():
                 app_loop()
-
-        elif cmd == "logout":
-            logout_user()
-
-        elif cmd == "me":
-            read_me()
 
         elif cmd == "create user":
             create_user()
@@ -28,7 +22,7 @@ def auth_loop():
             break
 
         elif cmd == "help":
-            print("Type 'login', 'logout', 'me', 'google', 'help', 'quit', or 'exit'")
+            print("Type 'login', 'create user', 'quit', or 'exit'")
 
         elif cmd == "":
             continue
