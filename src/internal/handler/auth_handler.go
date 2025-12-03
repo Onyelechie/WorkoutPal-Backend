@@ -15,6 +15,7 @@ import (
 
 	"github.com/go-chi/render"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/joho/godotenv"
 )
 
 type authHandler struct {
@@ -72,6 +73,7 @@ func (h *authHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	_ = godotenv.Overload()
 	isSecure := true
 	if v := os.Getenv("COOKIE_SECURE"); strings.ToLower(v) == "false" {
 		isSecure = false
