@@ -114,6 +114,13 @@ WorkoutPal-Backend uses GitHub Actions to automatically build, push, and deploy 
 ## Individual AI / External Resource  Reflections
 
 ### Ebere
+During Sprint 3, I leveraged AI extensively to optimize the avatar storage system by implementing PostgreSQL BYTEA binary storage. When I discovered that our base64 TEXT storage was inefficient (33% size overhead), I used ChatGPT to understand PostgreSQL BYTEA implementation patterns and the proper Go interfaces needed. AI helped me design the custom `ByteaData` type that implements `driver.Valuer` and `sql.Scanner` interfaces for seamless PostgreSQL integration. 
+
+The most challenging part was ensuring the conversion between base64 (frontend API compatibility) and binary storage (database optimization) worked correctly. AI assisted me in writing comprehensive test cases to validate binary data conversion accuracy and helped troubleshoot SQL query patterns with proper `::bytea` casting. When repository tests failed due to the BYTEA implementation changes, AI guided me through updating test expectations for binary data handling while maintaining test coverage.
+
+The result was a 33% storage reduction for avatar data with zero frontend changes required, demonstrating how AI can accelerate complex database optimizations while maintaining system compatibility.
+
+[Code Implementation](https://github.com/Onyelechie/WorkoutPal-Backend/blob/Ebere/src/internal/repository/user_repository.go)
 
 ### Taren
 when setting up the CI/CD pipelines I relied heavily on AI to give me the overall structure of the GitHub actions YML as well as have it give me options for what commands I can use especially for the frontend CD since I had never used GitHub actions to push to azure before, it eventually gave me Azure/static-web-apps-deploy@v1 which worked great but it also failed to tell me I needed to attach my environment variables at build time and that injecting them in azure would not be good enough, so after solving that bug I had to add the environment variables myself. When designing the DB I also used ChatGPT to validate my idea for the database. I cam up with what I thought was good tables and relations and data types using DBML, I then fed that DBML to ChatGPT and it pointed out a few things, such as storing exercise settings in their own table linked to routines and exercises instead of having it only for each user, since users may want to have different settings for different routines. 
@@ -125,6 +132,8 @@ During sprint 2, I was creating an add schedule modal where I wanted a `<select>
 
 ### Christian
 In sprint1, my goal was to create a modal dialog that will be used for displaying error messages and actions that require confirmation such as deleting an item. Since this dialog will be used everywhere in the app, I needed to make this code easily accessible and reusable. ChatGPT suggested to use React's Context / Provider pattern. The code it generated was all in one single file. I read the documentation about using the Context API to gain more understanding of its function. Then, I refactored the code by rearranging it and regrouping related code. This custom Dialog API was constantly being maintained and refactored throughout the whole project.
+
+[Dialog Implementation](https://github.com/Onyelechie/WorkoutPal-Frontend/tree/main/src/components/Common/Dialogs)
 
 ### Ivory
 In terms of code, I mostly used AI for simple boilerplate react components and css styling such as the login and create account cards. I did however use AI extensively to better understand typescript and react, in particular when writing the activity feed component as I struggled to set up the comment and achievement card mapping using typescript's type guard system. I turned to AI when running load testing and security analysis as a means to summarize their results and explain potential causes. This was particularily helpful in the case of security analysis with gosec, as I wasn't familiar with go myself. For testing code withing our frontend, Microsoft Copilot was the convenient choice as it was already well integratied into VScode. For individual files as in gosec and JMeter's results, I used ChatGPT.
