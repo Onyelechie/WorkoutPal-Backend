@@ -11,6 +11,13 @@
 ## Individual AI / External Resource  Reflections
 
 ### Ebere
+During Sprint 3, I leveraged AI extensively to optimize the avatar storage system by implementing PostgreSQL BYTEA binary storage. When I discovered that our base64 TEXT storage was inefficient (33% size overhead), I used ChatGPT to understand PostgreSQL BYTEA implementation patterns and the proper Go interfaces needed. AI helped me design the custom `ByteaData` type that implements `driver.Valuer` and `sql.Scanner` interfaces for seamless PostgreSQL integration. 
+
+The most challenging part was ensuring the conversion between base64 (frontend API compatibility) and binary storage (database optimization) worked correctly. AI assisted me in writing comprehensive test cases to validate binary data conversion accuracy and helped troubleshoot SQL query patterns with proper `::bytea` casting. When repository tests failed due to the BYTEA implementation changes, AI guided me through updating test expectations for binary data handling while maintaining test coverage.
+
+The result was a 33% storage reduction for avatar data with zero frontend changes required, demonstrating how AI can accelerate complex database optimizations while maintaining system compatibility.
+
+[Code Implementation](https://github.com/Onyelechie/WorkoutPal-Backend/blob/Ebere/src/internal/repository/user_repository.go)
 
 ### Taren
 when setting up the CI/CD pipelines I relied heavily on AI to give me the overall structure of the GitHub actions YML as well as have it give me options for what commands I can use especially for the frontend CD since I had never used GitHub actions to push to azure before, it eventually gave me Azure/static-web-apps-deploy@v1 which worked great but it also failed to tell me I needed to attach my environment variables at build time and that injecting them in azure would not be good enough, so after solving that bug I had to add the environment variables myself. When designing the DB I also used ChatGPT to validate my idea for the database. I cam up with what I thought was good tables and relations and data types using DBML, I then fed that DBML to ChatGPT and it pointed out a few things, such as storing exercise settings in their own table linked to routines and exercises instead of having it only for each user, since users may want to have different settings for different routines. 
