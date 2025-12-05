@@ -1,0 +1,79 @@
+Results:
+
+
+[C:\Users\spore\Documents\Uni\COMP 4350\WorkoutPal-Backend\src\cmd\api\main.go:21] - G114 (CWE-676): Use of net/http serve function that has no support for setting timeouts (Confidence: HIGH, Severity: MEDIUM)     
+    20:         log.Printf("Server starting on port %s", cfg.Port)
+  > 21:         log.Fatal(http.ListenAndServe(":"+cfg.Port, r))
+    22: }
+
+Autofix:
+
+[C:\Users\spore\Documents\Uni\COMP 4350\WorkoutPal-Backend\src\internal\repository\routine_repository.go:157] - G104 (CWE-703): Errors unhandled (Confidence: HIGH, Severity: LOW)
+    156:        }
+  > 157:        exRows.Close()
+    158:
+
+Autofix:
+
+[C:\Users\spore\Documents\Uni\COMP 4350\WorkoutPal-Backend\src\internal\repository\routine_repository.go:154] - G104 (CWE-703): Errors unhandled (Confidence: HIGH, Severity: LOW)
+    153:        if err := exRows.Err(); err != nil {
+  > 154:                exRows.Close()
+    155:                return nil, err
+
+Autofix:
+
+[C:\Users\spore\Documents\Uni\COMP 4350\WorkoutPal-Backend\src\internal\repository\routine_repository.go:148] - G104 (CWE-703): Errors unhandled (Confidence: HIGH, Severity: LOW)
+    147:                if err := exRows.Scan(&eid); err != nil {
+  > 148:                        exRows.Close()
+    149:                        return nil, err
+
+Autofix:
+
+[C:\Users\spore\Documents\Uni\COMP 4350\WorkoutPal-Backend\src\internal\repository\routine_repository.go:97] - G104 (CWE-703): Errors unhandled (Confidence: HIGH, Severity: LOW)
+    96:                 }
+  > 97:                 exRows.Close()
+    98:
+
+Autofix:
+
+[C:\Users\spore\Documents\Uni\COMP 4350\WorkoutPal-Backend\src\internal\repository\routine_repository.go:94] - G104 (CWE-703): Errors unhandled (Confidence: HIGH, Severity: LOW)
+    93:                 if err := exRows.Err(); err != nil {
+  > 94:                         exRows.Close()
+    95:                         return nil, err
+
+Autofix:
+
+[C:\Users\spore\Documents\Uni\COMP 4350\WorkoutPal-Backend\src\internal\repository\routine_repository.go:88] - G104 (CWE-703): Errors unhandled (Confidence: HIGH, Severity: LOW)
+    87:                         if err := exRows.Scan(&eid); err != nil {
+  > 88:                                 exRows.Close()
+    89:                                 return nil, err
+
+Autofix:
+
+[C:\Users\spore\Documents\Uni\COMP 4350\WorkoutPal-Backend\src\internal\handler\health_handler.go:39] - G104 (CWE-703): Errors unhandled (Confidence: HIGH, Severity: LOW)
+    38:         w.Header().Set("Content-Type", "application/json")
+  > 39:         json.NewEncoder(w).Encode(response)
+    40: }
+
+Autofix:
+
+[C:\Users\spore\Documents\Uni\COMP 4350\WorkoutPal-Backend\src\internal\handler\health_handler.go:35] - G104 (CWE-703): Errors unhandled (Confidence: HIGH, Severity: LOW)
+    34:                 response.Message = "Connected to PostgreSQL"
+  > 35:                 db.Close()
+    36:         }
+
+Autofix:
+
+[C:\Users\spore\Documents\Uni\COMP 4350\WorkoutPal-Backend\src\internal\handler\health_handler.go:31] - G104 (CWE-703): Errors unhandled (Confidence: HIGH, Severity: LOW)
+    30:                 response.Message = "PostgreSQL not reachable, using fallback"
+  > 31:                 db.Close()
+    32:         } else {
+
+Autofix:
+
+Summary:
+  Gosec  : dev
+  Files  : 102
+  Lines  : 10912
+  Nosec  : 0
+  Issues : 10
