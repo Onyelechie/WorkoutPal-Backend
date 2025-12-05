@@ -109,9 +109,19 @@ WorkoutPal-Backend uses GitHub Actions to automatically build, push, and deploy 
 
 - Deploy: Azure App Service is configured to pull the latest image automatically, updating the running backend without downtime. deployed backend can be found [here](workoutpal-api-daghb9augub5g9ez.canadacentral-01.azurewebsites.net)
 
-## Group Reflection
+## Reflections
 
-## Individual AI / External Resource  Reflections
+### Design Changes
+
+#### In one paragraph (as a group): What would you change about the **design** of your project now that you’ve been through development?
+
+Better planning of core feature requirements and UI design is what we would like to change. In retrospect, more frequent meetings and planning early in the development cycle could have provided some much needed improvements to our app, whether it be through sketching potential UI designs or brainstorming of ideas to better flesh out our core features.
+
+#### In one paragraph (as a group): What would you change about the **course/project setup**?
+
+The current requirements for the course project felt comfortable. More frequent check-ins might be helpful to keep teams on track for sprint release dates, as well as clearer requirements for testing plans such as load testing and security analysis could benifit teams.
+
+### Individual AI / External Resource  Reflection
 
 ### Ebere
 During Sprint 3, I leveraged AI extensively to optimize the avatar storage system by implementing PostgreSQL BYTEA binary storage. When I discovered that our base64 TEXT storage was inefficient (33% size overhead), I used ChatGPT to understand PostgreSQL BYTEA implementation patterns and the proper Go interfaces needed. AI helped me design the custom `ByteaData` type that implements `driver.Valuer` and `sql.Scanner` interfaces for seamless PostgreSQL integration. 
