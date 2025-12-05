@@ -42,7 +42,7 @@ Test cases include:
 
 ### Provide the **test report**.
 
-[Test Report](\load_testing\report\index.html)
+[Test Report](https://html-preview.github.io/?url=https://github.com/Onyelechie/WorkoutPal-Backend/blob/df09112602e5061d45c1cdfb5363f6707a32a52d/docs/load_testing/report/index.html)
 
 ### Discuss **one bottleneck** found.
 Testing with JMeter was largely successful with low sample sizes, but with high sample sizes JMeter reported a high rate of error. Errors were mostly split between HTTP 500 and 503 errors, which at first were difficult to find the cause. Upon further digging, a bottleneck was found in which the postgresql database was refusing connections as it's maximum amount of clients had been reached while under the heavy server load. Connection pooling through tools such as Pgpool and PGBouncer can be introduced to mitigate this bottleneck.
@@ -52,13 +52,13 @@ Our initial non-functional requirements were that "The system must handle at lea
 Unfortunately due to the aformentioned bottleneck, we were unable to meet these requirements. These requirements could be achieved through the introduction of connection pooling, as well as more powerful server hardware.
 
 ### JMeter files
-[.jmx file](\load_testing\loadtesting.jmx)
+[.jmx file](https://github.com/Onyelechie/WorkoutPal-Backend/blob/df09112602e5061d45c1cdfb5363f6707a32a52d/docs/load_testing/loadtesting.jmx)
 
-![Load Testing Summary](load_testing\summary.png)
+![Load Testing Summary](https://github.com/Onyelechie/WorkoutPal-Backend/blob/df09112602e5061d45c1cdfb5363f6707a32a52d/docs/load_testing/summary.png)
 
-![Load Testing Statistics](load_testing\statistics.png)
+![Load Testing Statistics](https://github.com/Onyelechie/WorkoutPal-Backend/blob/df09112602e5061d45c1cdfb5363f6707a32a52d/docs/load_testing/statistics.png)
 
-![Load Testing Errors](load_testing\errors.png)
+![Load Testing Errors](https://github.com/Onyelechie/WorkoutPal-Backend/blob/df09112602e5061d45c1cdfb5363f6707a32a52d/docs/load_testing/errors.png)
 
 
 ## Security Analysis
@@ -74,7 +74,7 @@ gosec ./...
 ```
 
 ### Attach **static analysis report** as an appendix.
-[Static Analysis Report](security_analysis\gosec_results.txt)
+[Static Analysis Report](https://github.com/Onyelechie/WorkoutPal-Backend/blob/df09112602e5061d45c1cdfb5363f6707a32a52d/docs/security_analysis/gosec_results.txt)
 
 ### Randomly select **5 detected problems** and discuss what you see.
 The results of gosec's scan detected 10 lines of code with problems within our backend, which can be boiled down to 3 main problems:
