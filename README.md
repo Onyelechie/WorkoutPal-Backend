@@ -1,5 +1,3 @@
-**Disclaimer: Lots of ChatGPT code was used in the creation of this project. Particularly for writing tests and repository functions**
-
 # WorkoutPal-Backend
 
 Backend API for the WorkoutPal gym workout tracking application built with Go.
